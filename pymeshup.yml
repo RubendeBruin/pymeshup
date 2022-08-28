@@ -1,0 +1,17 @@
+# mamba env create --file pymeshup.yml
+name: pymeshup
+dependencies:
+  - numpy
+  - matplotlib-base
+  - vtk
+  - vedo
+  - pip
+  - pip:
+    - PySide6-Essentials
+    - pymeshlab
+#    -PySide6-Addons 
+channels:
+  - defaults
+  - conda-forge
+
+
