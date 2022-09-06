@@ -213,6 +213,12 @@ ms.add_mesh(m2)
 ms.add_mesh(m1)
 
 ms.mesh_boolean_difference()
+
+# Rotation
+ms.compute_matrix_from_rotation(rotaxis=0, rotcenter=0, angle=45)
+
+# Alternative: compute_matrix_from_translation_rotation_scale
+
 # ms.mesh_boolean_union()
 
 ms.set_current_mesh(2)
