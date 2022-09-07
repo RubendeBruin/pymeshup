@@ -15,4 +15,4 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-from .volumes import Volume, Box
+from .volumes import Volume, Box, Cylinder, Plot

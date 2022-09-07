@@ -30,3 +30,34 @@ def test_rotated_cube():
 def test_copy():
     c = Box()
     c2 = Volume(c)
+
+def test_cylinder():
+    c = Cylinder()
+    Plot(c)
+
+def test_cylinder_volume7():
+    """Verifies that the volume of the meshed cylinder matches the volume of a perfect cylinder"""
+    c = Cylinder(radius=1, height=1, resolution=7)
+    pi = 3.141592654
+    expected = pi
+    assert_allclose(c.volume, expected)
+
+def test_cylinder_volume3():
+    """Verifies that the volume of the meshed cylinder matches the volume of a perfect cylinder"""
+    c = Cylinder(radius=1, height=1, resolution=3)
+    pi = 3.141592654
+    expected = pi
+    assert_allclose(c.volume, expected)
+
+def test_cylinder_volume300():
+    """Verifies that the volume of the meshed cylinder matches the volume of a perfect cylinder"""
+    c = Cylinder(radius=2, height=10, resolution=300)
+    pi = 3.141592654
+    expected = 4*pi*10
+    assert_allclose(c.volume, expected)
+
+def test_plot_multiple():
+    c = Cylinder()
+    b = Box()
+    Plot()
+
