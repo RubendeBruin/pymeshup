@@ -15,4 +15,8 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
+__all__ = ['Volume','Box','Cylinder','Plot', 'Frame','Hull']
+
+from .frames import Frame
 from .volumes import Volume, Box, Cylinder, Plot
+from .hull import Hull

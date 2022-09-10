@@ -59,5 +59,11 @@ def test_cylinder_volume300():
 def test_plot_multiple():
     c = Cylinder()
     b = Box()
-    Plot()
+    Plot([c,b])
 
+def test_volume_from_verts_and_faces():
+    v = Volume()
+    p = [(1,0,0),(0,1,0),(1,1,0),(0,0,1)]
+    fid = [(0,1,2),(0,1,3),(1,2,3),(2,0,3)]
+    v.set_vertices_and_faces(p,fid)
+    Plot(v)

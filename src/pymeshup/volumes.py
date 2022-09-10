@@ -9,6 +9,12 @@ class Volume():
         if volume:
             self.ms.add_mesh(mesh = volume.ms.current_mesh())
 
+    def set_vertices_and_faces(self, vertices, faces):
+        """Sets the current mesh from vertices and faces"""
+
+        mesh = pymeshlab.Mesh(vertices, faces)
+        self.ms.add_mesh(mesh)
+
     def move(self,x=0, y=0, z=0):
         """Returns a translated copy of the volume"""
 
@@ -49,7 +55,9 @@ class Volume():
         """Returns the intersection (common part) with other volume"""
         v = Volume(self)
         v.ms.add_mesh(other.ms.current_mesh())
-        v.ms.mesh_boolean_intersection()
+
+        v.ms.generate_boolean_intersection()
+        # v.ms.mesh_boolean_intersection()
 
         return v
 
@@ -111,6 +119,6 @@ def Plot(v : Volume or list[Volume]):
         vertices = m.ms.current_mesh().vertex_matrix()
         faces = m.ms.current_mesh().face_matrix()
         m2 = vedo.Mesh([vertices, faces])
-        p.add(m2)
+        p.add(m2, render=False)
 
     p.show(axes=1, viewup='z')

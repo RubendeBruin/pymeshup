@@ -1,15 +1,8 @@
-
-
 # h = Hull()
 #
 #
 # frame1 = [(0,0),(10,0),(0,5)]
 #
-# boolean geometry
-#
-# # PyMesh <-- difficult to install and depends on CGAL / C++
-#
-# vtkBooleanOperationPolyDataFilter # <-- should work
 
 from vedo import *
 
