@@ -27,13 +27,32 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(912, 672)
+        MainWindow.resize(937, 754)
         self.actionHelp_visible = QAction(MainWindow)
         self.actionHelp_visible.setObjectName(u"actionHelp_visible")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.horizontalLayout = QHBoxLayout(self.centralwidget)
+        self.verticalLayout_3 = QVBoxLayout(self.centralwidget)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.top_widget = QWidget(self.centralwidget)
+        self.top_widget.setObjectName(u"top_widget")
+        self.top_widget.setMaximumSize(QSize(16777215, 20))
+        self.horizontalLayout = QHBoxLayout(self.top_widget)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
+        self.horizontalLayout.setContentsMargins(9, 0, -1, 0)
+        self.label_3 = QLabel(self.top_widget)
+        self.label_3.setObjectName(u"label_3")
+
+        self.horizontalLayout.addWidget(self.label_3)
+
+        self.pushButton_2 = QPushButton(self.top_widget)
+        self.pushButton_2.setObjectName(u"pushButton_2")
+
+        self.horizontalLayout.addWidget(self.pushButton_2)
+
+
+        self.verticalLayout_3.addWidget(self.top_widget)
+
         self.splitter = QSplitter(self.centralwidget)
         self.splitter.setObjectName(u"splitter")
         self.splitter.setOrientation(Qt.Horizontal)
@@ -143,12 +162,12 @@ class Ui_MainWindow(object):
 
         self.splitter.addWidget(self.widget_2)
 
-        self.horizontalLayout.addWidget(self.splitter)
+        self.verticalLayout_3.addWidget(self.splitter)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 912, 21))
+        self.menubar.setGeometry(QRect(0, 0, 937, 21))
         self.menuHelp = QMenu(self.menubar)
         self.menuHelp.setObjectName(u"menuHelp")
         self.menuFile = QMenu(self.menubar)
@@ -169,11 +188,12 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 338, 572))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 209, 671))
         self.horizontalLayout_6 = QHBoxLayout(self.scrollAreaWidgetContents)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.label = QLabel(self.scrollAreaWidgetContents)
         self.label.setObjectName(u"label")
+        self.label.setWordWrap(True)
 
         self.horizontalLayout_6.addWidget(self.label)
 
@@ -196,6 +216,8 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.actionHelp_visible.setText(QCoreApplication.translate("MainWindow", u"Help visible", None))
+        self.label_3.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"clean output folder", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"SCRIPT", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Run [F5]", None))
 #if QT_CONFIG(shortcut)

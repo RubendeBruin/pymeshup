@@ -145,6 +145,11 @@ def Cylinder(height=1, radius=1, resolution = 36):
 
     return c.rotate(x=90).move(z=height/2)
 
+def Load(filename):
+    v = Volume()
+    v.ms.load_new_mesh(filename)
+    return v
+
 def Plot(v : Volume or list[Volume]):
     import vedo
     p = vedo.Plotter()

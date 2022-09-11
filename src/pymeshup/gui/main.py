@@ -19,6 +19,9 @@ Primitive volumes can be created using:
 - Box(xmin, xmax, ymin, ymax, zmin, zmax)
 - Cylinder(radius, height, resolution)
 
+Or load them from a file
+- Load('filename') 
+
 Meshes can be combined and modified using:
 - add(other)
 - remove(other)
@@ -70,7 +73,7 @@ frame1 = (0, -0.1,
 
 f1 = Frame(*frame1).autocomplete()
 f2 = Frame(*frame2).autocomplete()
-fb = Frame(0, 1)  # bow
+fb = Frame(0, 1  # bow
 
 h = Hull(0, f1,
          5, f2,

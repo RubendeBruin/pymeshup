@@ -9,15 +9,50 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>912</width>
-    <height>672</height>
+    <width>937</width>
+    <height>754</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
+    <item>
+     <widget class="QWidget" name="top_widget" native="true">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>20</height>
+       </size>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="leftMargin">
+        <number>9</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="text">
+          <string>clean output folder</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
     <item>
      <widget class="QSplitter" name="splitter">
       <property name="orientation">
@@ -191,7 +226,7 @@ color:white</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>912</width>
+     <width>937</width>
      <height>21</height>
     </rect>
    </property>
@@ -229,8 +264,8 @@ color:white</string>
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>338</width>
-          <height>572</height>
+          <width>209</width>
+          <height>671</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -238,6 +273,9 @@ color:white</string>
           <widget class="QLabel" name="label">
            <property name="text">
             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;HELP&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;PyMeshUp is a simple script-based application to generate meshes.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Primitive volumes can be created using:&lt;/p&gt;&lt;p&gt;- Box&lt;/p&gt;&lt;p&gt;- Cylinder&lt;/p&gt;&lt;p&gt;- Hull&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Meshes can be combined and modified using:&lt;/p&gt;&lt;p&gt;- add&lt;/p&gt;&lt;p&gt;- remove&lt;/p&gt;&lt;p&gt;- rotate&lt;/p&gt;&lt;p&gt;- move&lt;/p&gt;&lt;p&gt;- scale&lt;/p&gt;&lt;p&gt;- crop&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
