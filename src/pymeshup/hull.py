@@ -157,6 +157,10 @@ def Hull(*args):
 
     v = Volume()
     v.set_vertices_and_faces(vertices, faces)
+    v.ms.meshing_remove_duplicate_vertices()
+
+    if v.volume < 0:
+        v = v.invert_vertices()
 
     return v
 

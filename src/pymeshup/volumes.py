@@ -47,7 +47,7 @@ class Volume():
         """Returns a copy with other subtracted from the volume"""
         v = Volume(other)
         v.ms.add_mesh(self.ms.current_mesh())
-        v.ms.mesh_boolean_difference()
+        v.ms.generate_boolean_difference()
 
         return v
 
@@ -59,6 +59,11 @@ class Volume():
         v.ms.generate_boolean_intersection()
         # v.ms.mesh_boolean_intersection()
 
+        return v
+
+    def invert_vertices(self):
+        v = Volume(self)
+        v.ms.meshing_invert_face_orientation()
         return v
 
 
