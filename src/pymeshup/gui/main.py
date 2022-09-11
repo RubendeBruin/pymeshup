@@ -16,17 +16,34 @@ HELP = """
 <html><body><b>PyMeshUp</b>
 PyMeshUp is a simple script-based application to generate meshes.<br><br>
 Primitive volumes can be created using:
-- Box
-- Cylinder
-- Hull
+- Box(xmin, xmax, ymin, ymax, zmin, zmax)
+- Cylinder(radius, height, resolution)
 
 Meshes can be combined and modified using:
-- add
-- remove
-- rotate
-- move
-- scale
-- crop
+- add(other)
+- remove(other)
+- rotate(x,y,z)
+- move(x,y,z)
+- scale(x,y,z)
+- crop(xmin, xmax, ymin, ymax, zmin, zmax)
+
+Hulls can be constructed using Frames
+- First construct a Frame using
+  f1 =  Frame(x1,y1,x2,y2,...)
+  f2 =  Frame(x1,y1,x2,y2,...)
+- then construct a hull from frames and their positions using
+  h = Hull(0,f1, 20, f2, 30, f2, ...)
+
+Creating a panel distribution:
+- regrid(iterations=10, pct=5)
+
+Deleting
+- del(what) removes what
+
+Other
+- The script is vanilla Python with pymeshup imported.
+- print('hello world') will work
+
 </body></html>
 
 """
@@ -61,6 +78,8 @@ h = Hull(0, f1,
          20, fb)
 
 h = h.remove(c)  # cut cylinder from hull
+
+hg = h.regrid()
 """
 
 COLORMAP = cm.tab20

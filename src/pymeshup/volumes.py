@@ -1,5 +1,6 @@
 import pymeshlab
 from math import sqrt, cos, sin, pi
+from numpy import min, max
 
 class Volume():
 
@@ -79,6 +80,37 @@ class Volume():
     def center(self):
         return self.ms.get_geometric_measures()['center_of_mass']
 
+    def crop(self,xmin = None, xmax = None, ymin = None, ymax = None, zmin = None, zmax = None):
+        """Returns a cropped copy"""
+
+        x = self.vertices[:,0]
+        y = self.vertices[:, 1]
+        z = self.vertices[:, 2]
+
+        if xmin is None:
+            xmin = min(x)-1
+        if xmax is None:
+            xmax = max(x)+1
+
+        if ymin is None:
+            ymin = min(y)-1
+        if ymax is None:
+            ymax = max(y)+1
+
+        if zmin is None:
+            zmin = min(z)-1
+        if zmax is None:
+            zmax = max(z) +1
+
+        b = Box(xmin, xmax, ymin, ymax, zmin, zmax)
+
+        return self.inside_of(b)
+
+    def regrid(self, iterations=20, pct=1):
+        v = Volume(self)
+        v.ms.meshing_isotropic_explicit_remeshing(iterations = iterations, targetlen = pymeshlab.Percentage(pct))
+
+        return v
 
 
 def Box(xmin = -0.5, xmax = 0.5, ymin = -0.5, ymax = 0.5, zmin = -0.5, zmax = 0.5):
