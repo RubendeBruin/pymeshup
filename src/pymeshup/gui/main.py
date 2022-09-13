@@ -1,4 +1,4 @@
-from PySide6.QtGui import QBrush, QColor
+from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListWidgetItem
 from PySide6.QtCore import Qt
 
@@ -11,6 +11,8 @@ from matplotlib.backends.backend_qtagg import (FigureCanvas,
      NavigationToolbar2QT as NavigationToolbar)
 from matplotlib.figure import Figure
 from matplotlib import cm
+
+from pymeshup.gui.helpers.highlighter import PythonHighlighter
 
 HELP = """
 <html><body><b>PyMeshUp</b>
@@ -134,6 +136,16 @@ class Gui():
 
         self.ui.splitter.setStretchFactor(1,60)
 
+        # ---- Code formatting
+
+        font = QFont()
+        font.setPointSize(12)
+        font.setFamily('Segou UI')
+        self.ui.teCode.setFont(font)
+        self.ui.teCode.setTabStopDistance(QFontMetricsF(self.ui.teCode.font()).horizontalAdvance(' ') * 4)
+
+        highlight = PythonHighlighter(self.ui.teCode.document())
+
         # ---- Finalize
 
         self.MainWindow.show()
@@ -147,7 +159,13 @@ class Gui():
         try:
             exec(code)
             self.ui.teFeedback.setPlainText("Done!")
+
         except Exception as E:
+
+            print(f'Error {E.msg} in {E.text}')
+            print(f'Error on line {E.lineno} to {E.end_lineno}')
+            print(f'Error from {E.offset} to {E.end_offset}')
+
             self.ui.teFeedback.setPlainText(str(E))
 
 
