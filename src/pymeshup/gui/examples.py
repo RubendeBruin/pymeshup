@@ -54,3 +54,41 @@ panel_size = 3 # as percentage
 
 cheetah_panels = ch.crop(zmax=draft).move(z=-draft).regrid(pct=panel_size)
 """
+
+examples['Pontoon_from_Frames'] = """# Example of a pontoon shaped barge
+# created from Frames
+
+Frame1 = Frame(0,1.5,
+	13.5,1.5,
+	13.5, 4.5).autocomplete()
+
+Frame2 = Frame(0,0,
+	13.5,0,
+	13.5, 4.5).autocomplete()
+
+Barge = Hull(0,Frame1,
+	6.5, Frame2,
+	62.2, Frame2,
+	67, Frame1)
+
+B = Box(0,1,0,1,0,6)
+C = Cylinder(radius=1, height=6)
+BC = B.remove(C).move(-1,-1)
+
+R1 = BC.rotate(z=-90).move(y=13.5)
+R2 = BC.rotate(z=180).move(y=-13.5)
+R3 = BC.rotate(z=0).move(y=13.5, x = 67)
+R4 = BC.rotate(z=90).move(y=-13.5, x=67)
+
+Barge = Barge.remove(R1).remove(R2).remove(R3).remove(R4)
+
+Submerged = Barge.move(z=-2.8).crop(zmax=0)
+
+print(Submerged.volume*1.025)
+
+Panels = Submerged.regrid(pct=2.8, iterations=10)
+
+Panels.save('HL9_panelmodel.obj')
+Barge.save('HL9_buoyancy.stl')
+
+"""

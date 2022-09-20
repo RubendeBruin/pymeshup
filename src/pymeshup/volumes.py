@@ -112,6 +112,9 @@ class Volume():
 
         return v
 
+    def save(self, filename):
+        self.ms.save_current_mesh(file_name=filename)
+
 
 def Box(xmin = -0.5, xmax = 0.5, ymin = -0.5, ymax = 0.5, zmin = -0.5, zmax = 0.5):
     """Returns a Box-shaped volume between the given outer dimensions"""

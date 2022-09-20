@@ -13,6 +13,7 @@ from matplotlib.figure import Figure
 from matplotlib import cm
 
 from pymeshup.gui.helpers.highlighter import PythonHighlighter
+from pymeshup.gui.examples import examples
 
 HELP = """
 <html><body><b>PyMeshUp</b>
@@ -148,6 +149,8 @@ class Gui():
 
         # ---- Finalize
 
+        self.ui.teCode.setPlainText(examples['Pontoon_from_Frames'])
+
         self.MainWindow.show()
 
     def run(self):
@@ -160,9 +163,18 @@ class Gui():
             exec(code)
             self.ui.teFeedback.setPlainText("Done!")
 
-        except Exception as E:
+        except SyntaxError as E:
 
             print(f'Error {E.msg} in {E.text}')
+            print(f'Error on line {E.lineno} to {E.end_lineno}')
+            print(f'Error from {E.offset} to {E.end_offset}')
+
+            self.ui.teFeedback.setPlainText(str(E))
+
+
+        except (NameError, AttributeError) as E:
+
+            print(f'Error NameError in {E.text}')
             print(f'Error on line {E.lineno} to {E.end_lineno}')
             print(f'Error from {E.offset} to {E.end_offset}')
 
