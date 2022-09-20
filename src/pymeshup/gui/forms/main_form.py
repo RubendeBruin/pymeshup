@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.3.1
+## Created by: Qt User Interface Compiler version 6.3.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -16,20 +16,26 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QApplication, QDockWidget, QFrame, QHBoxLayout,
-    QLabel, QListWidget, QListWidgetItem, QMainWindow,
-    QMenu, QMenuBar, QPushButton, QScrollArea,
-    QSizePolicy, QSplitter, QStatusBar, QTextEdit,
-    QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QComboBox, QDockWidget, QFrame,
+    QGridLayout, QHBoxLayout, QLabel, QListWidget,
+    QListWidgetItem, QMainWindow, QMenu, QMenuBar,
+    QPushButton, QScrollArea, QSizePolicy, QSplitter,
+    QStatusBar, QTextEdit, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(937, 754)
+        MainWindow.resize(1576, 754)
         self.actionHelp_visible = QAction(MainWindow)
         self.actionHelp_visible.setObjectName(u"actionHelp_visible")
+        self.actionOpen = QAction(MainWindow)
+        self.actionOpen.setObjectName(u"actionOpen")
+        self.actionSave = QAction(MainWindow)
+        self.actionSave.setObjectName(u"actionSave")
+        self.actionSave_as = QAction(MainWindow)
+        self.actionSave_as.setObjectName(u"actionSave_as")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.verticalLayout_3 = QVBoxLayout(self.centralwidget)
@@ -83,8 +89,7 @@ class Ui_MainWindow(object):
         self.label_2.setObjectName(u"label_2")
         sizePolicy.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
         self.label_2.setSizePolicy(sizePolicy)
-        self.label_2.setStyleSheet(u"background:darkblue;\n"
-"color:white")
+        self.label_2.setStyleSheet(u"background: rgb(255, 204, 0);")
 
         self.verticalLayout.addWidget(self.label_2)
 
@@ -102,6 +107,11 @@ class Ui_MainWindow(object):
         self.pushButton.setObjectName(u"pushButton")
 
         self.verticalLayout.addWidget(self.pushButton)
+
+        self.label_8 = QLabel(self.widget_3)
+        self.label_8.setObjectName(u"label_8")
+
+        self.verticalLayout.addWidget(self.label_8)
 
         self.splitter_3.addWidget(self.widget_3)
         self.teFeedback = QTextEdit(self.splitter_3)
@@ -125,36 +135,85 @@ class Ui_MainWindow(object):
         self.splitter_2.setOrientation(Qt.Vertical)
         self.widget_4 = QWidget(self.splitter_2)
         self.widget_4.setObjectName(u"widget_4")
-        self.horizontalLayout_4 = QHBoxLayout(self.widget_4)
-        self.horizontalLayout_4.setObjectName(u"horizontalLayout_4")
+        self.gridLayout_2 = QGridLayout(self.widget_4)
+        self.gridLayout_2.setObjectName(u"gridLayout_2")
+        self.widgetPlot = QWidget(self.widget_4)
+        self.widgetPlot.setObjectName(u"widgetPlot")
+
+        self.gridLayout_2.addWidget(self.widgetPlot, 1, 1, 1, 1)
+
         self.listFrames = QListWidget(self.widget_4)
         self.listFrames.setObjectName(u"listFrames")
         sizePolicy1.setHeightForWidth(self.listFrames.sizePolicy().hasHeightForWidth())
         self.listFrames.setSizePolicy(sizePolicy1)
 
-        self.horizontalLayout_4.addWidget(self.listFrames)
+        self.gridLayout_2.addWidget(self.listFrames, 1, 0, 1, 1)
 
-        self.widgetPlot = QWidget(self.widget_4)
-        self.widgetPlot.setObjectName(u"widgetPlot")
+        self.label_7 = QLabel(self.widget_4)
+        self.label_7.setObjectName(u"label_7")
 
-        self.horizontalLayout_4.addWidget(self.widgetPlot)
+        self.gridLayout_2.addWidget(self.label_7, 0, 0, 1, 1)
 
         self.splitter_2.addWidget(self.widget_4)
         self.wiget99 = QWidget(self.splitter_2)
         self.wiget99.setObjectName(u"wiget99")
-        self.horizontalLayout_5 = QHBoxLayout(self.wiget99)
-        self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
-        self.listVolumes = QListWidget(self.wiget99)
+        self.gridLayout = QGridLayout(self.wiget99)
+        self.gridLayout.setObjectName(u"gridLayout")
+        self.widget_6 = QWidget(self.wiget99)
+        self.widget_6.setObjectName(u"widget_6")
+        self.verticalLayout_4 = QVBoxLayout(self.widget_6)
+        self.verticalLayout_4.setSpacing(0)
+        self.verticalLayout_4.setObjectName(u"verticalLayout_4")
+        self.verticalLayout_4.setContentsMargins(0, 0, 0, 0)
+        self.listVolumes = QListWidget(self.widget_6)
         self.listVolumes.setObjectName(u"listVolumes")
         sizePolicy1.setHeightForWidth(self.listVolumes.sizePolicy().hasHeightForWidth())
         self.listVolumes.setSizePolicy(sizePolicy1)
 
-        self.horizontalLayout_5.addWidget(self.listVolumes)
+        self.verticalLayout_4.addWidget(self.listVolumes)
+
+        self.widget_7 = QWidget(self.widget_6)
+        self.widget_7.setObjectName(u"widget_7")
+        self.horizontalLayout_7 = QHBoxLayout(self.widget_7)
+        self.horizontalLayout_7.setObjectName(u"horizontalLayout_7")
+        self.pushButton_3 = QPushButton(self.widget_7)
+        self.pushButton_3.setObjectName(u"pushButton_3")
+
+        self.horizontalLayout_7.addWidget(self.pushButton_3)
+
+        self.label_4 = QLabel(self.widget_7)
+        self.label_4.setObjectName(u"label_4")
+
+        self.horizontalLayout_7.addWidget(self.label_4)
+
+        self.comboBox = QComboBox(self.widget_7)
+        self.comboBox.addItem("")
+        self.comboBox.addItem("")
+        self.comboBox.setObjectName(u"comboBox")
+
+        self.horizontalLayout_7.addWidget(self.comboBox)
+
+
+        self.verticalLayout_4.addWidget(self.widget_7)
+
+
+        self.gridLayout.addWidget(self.widget_6, 1, 0, 1, 1)
 
         self.widgetGraphics = QWidget(self.wiget99)
         self.widgetGraphics.setObjectName(u"widgetGraphics")
+        self.widgetGraphics.setToolTipDuration(-1)
 
-        self.horizontalLayout_5.addWidget(self.widgetGraphics)
+        self.gridLayout.addWidget(self.widgetGraphics, 1, 1, 1, 1)
+
+        self.label_5 = QLabel(self.wiget99)
+        self.label_5.setObjectName(u"label_5")
+
+        self.gridLayout.addWidget(self.label_5, 0, 1, 1, 1)
+
+        self.label_6 = QLabel(self.wiget99)
+        self.label_6.setObjectName(u"label_6")
+
+        self.gridLayout.addWidget(self.label_6, 0, 0, 1, 1)
 
         self.splitter_2.addWidget(self.wiget99)
 
@@ -167,7 +226,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 937, 21))
+        self.menubar.setGeometry(QRect(0, 0, 1576, 22))
         self.menuHelp = QMenu(self.menubar)
         self.menuHelp.setObjectName(u"menuHelp")
         self.menuFile = QMenu(self.menubar)
@@ -188,7 +247,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 209, 671))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 374, 667))
         self.horizontalLayout_6 = QHBoxLayout(self.scrollAreaWidgetContents)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.label = QLabel(self.scrollAreaWidgetContents)
@@ -207,6 +266,9 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
         self.menuHelp.addAction(self.actionHelp_visible)
+        self.menuFile.addAction(self.actionOpen)
+        self.menuFile.addAction(self.actionSave)
+        self.menuFile.addAction(self.actionSave_as)
 
         self.retranslateUi(MainWindow)
 
@@ -216,13 +278,28 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.actionHelp_visible.setText(QCoreApplication.translate("MainWindow", u"Help visible", None))
+        self.actionOpen.setText(QCoreApplication.translate("MainWindow", u"Open", None))
+        self.actionSave.setText(QCoreApplication.translate("MainWindow", u"Save", None))
+        self.actionSave_as.setText(QCoreApplication.translate("MainWindow", u"Save as", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.pushButton_2.setText(QCoreApplication.translate("MainWindow", u"clean output folder", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"SCRIPT", None))
-        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Run [F5]", None))
+        self.pushButton.setText(QCoreApplication.translate("MainWindow", u">> Run [F5]", None))
 #if QT_CONFIG(shortcut)
         self.pushButton.setShortcut(QCoreApplication.translate("MainWindow", u"F5", None))
 #endif // QT_CONFIG(shortcut)
+        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Feedback:", None))
+        self.label_7.setText(QCoreApplication.translate("MainWindow", u"Frames", None))
+        self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"Save selected ", None))
+        self.label_4.setText(QCoreApplication.translate("MainWindow", u"as", None))
+        self.comboBox.setItemText(0, QCoreApplication.translate("MainWindow", u".stl", None))
+        self.comboBox.setItemText(1, QCoreApplication.translate("MainWindow", u".obj", None))
+
+#if QT_CONFIG(tooltip)
+        self.widgetGraphics.setToolTip(QCoreApplication.translate("MainWindow", u"Tooltop!", None))
+#endif // QT_CONFIG(tooltip)
+        self.label_5.setText(QCoreApplication.translate("MainWindow", u"middle-mouse or space to navigate, w: wireframe, s for solid", None))
+        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Volumes:", None))
         self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.label.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-weight:600;\">HELP</span></p><p><br/></p><p>PyMeshUp is a simple script-based application to generate meshes.</p><p><br/></p><p>Primitive volumes can be created using:</p><p>- Box</p><p>- Cylinder</p><p>- Hull</p><p><br/></p><p>Meshes can be combined and modified using:</p><p>- add</p><p>- remove</p><p>- rotate</p><p>- move</p><p>- scale</p><p>- crop</p></body></html>", None))

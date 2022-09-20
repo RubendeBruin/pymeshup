@@ -1,10 +1,26 @@
+import pathlib
+
 from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF
-from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListWidgetItem
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListWidgetItem, QMessageBox, QFileDialog
+from PySide6.QtCore import Qt, QSettings
+
+import numpy as np
 
 from pymeshup import *
 from pymeshup.gui.forms.main_form import Ui_MainWindow
-from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+
+
+from vtkmodules.vtkCommonCore import vtkPoints
+from vtkmodules.vtkCommonDataModel import vtkPolyData, vtkCellArray
+from vtkmodules.util.numpy_support import numpy_to_vtk, numpy_to_vtkIdTypeArray
+
+from vtkmodules.vtkRenderingCore import (
+    vtkActor,
+    vtkPolyDataMapper,
+    vtkRenderer
+)
+
+from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
 
 from matplotlib.backends.backend_qtagg import (FigureCanvas,
@@ -14,6 +30,7 @@ from matplotlib import cm
 
 from pymeshup.gui.helpers.highlighter import PythonHighlighter
 from pymeshup.gui.examples import examples
+from pymeshup.gui.helpers.vtkBlenderLikeInteractionStyle import BlenderStyle
 
 HELP = """
 <html><body><b>PyMeshUp</b>
@@ -55,8 +72,6 @@ Other
 """
 
 
-import vedo
-
 example_code = """
 c = Cylinder()
 b = Box(xmin=0, zmax=3, ymin=-3, ymax=3)
@@ -76,7 +91,7 @@ frame1 = (0, -0.1,
 
 f1 = Frame(*frame1).autocomplete()
 f2 = Frame(*frame2).autocomplete()
-fb = Frame(0, 1  # bow
+fb = Frame(0, 1)  # bow
 
 h = Hull(0, f1,
          5, f2,
@@ -89,6 +104,40 @@ hg = h.regrid()
 """
 
 COLORMAP = cm.tab20
+
+def CreateVTKActor(vertices, faces):
+
+    # create data
+    poly = vtkPolyData()
+    points = vtkPoints()
+
+    arr = np.ascontiguousarray(vertices)
+    varr = numpy_to_vtk(arr.astype(float), deep=True)
+
+    points.SetData(varr)
+    poly.SetPoints(points)
+
+    sourcePolygons = vtkCellArray()
+
+    ast = np.int64
+
+    nf, nc = faces.shape
+    hs = np.hstack((np.zeros(nf)[:, None] + nc, faces)).astype(ast).ravel()
+    arr = numpy_to_vtkIdTypeArray(hs, deep=True)
+    sourcePolygons.SetCells(nf, arr)
+
+    poly.SetPolys(sourcePolygons)
+
+    # mapper
+    mapper = vtkPolyDataMapper()
+    mapper.SetInputData(poly)
+
+    # actor
+    actor = vtkActor()
+    actor.SetMapper(mapper)
+
+    return actor
+
 
 class Gui():
 
@@ -104,12 +153,16 @@ class Gui():
 
         self._actors = []
 
-        self.panel3d = QVTKRenderWindowInteractor()
+        self.vtkWidget  = QVTKRenderWindowInteractor()
         layout = QVBoxLayout()
-        layout.addWidget(self.panel3d)
+        layout.addWidget(self.vtkWidget)
         self.ui.widgetGraphics.setLayout(layout)
 
-        self.plotter = vedo.Plotter(qtWidget=self.panel3d)
+        self.renderer = vtkRenderer()
+        self.vtkWidget.GetRenderWindow().AddRenderer(self.renderer)
+        self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
+
+        self.renderer.SetBackground((254,254,254))
 
         self.ui.teCode.setPlainText(example_code)
 
@@ -147,11 +200,37 @@ class Gui():
 
         highlight = PythonHighlighter(self.ui.teCode.document())
 
+        # --- Save , open
+
+        self.ui.actionOpen.triggered.connect(self.fileOpen)
+        self.ui.actionSave.triggered.connect(self.fileSave)
+        self.ui.actionSave_as.triggered.connect(self.fileSaveAs)
+
+        self.settings = QSettings('pymeshup','gui')
+
+        self.filename = self.settings.value('lastfile')
+        if self.filename:
+            try:
+                self.open(self.filename)
+            except:
+                self.filename = None
+
+        if self.filename is None:
+            self.curdir = str(pathlib.Path(__file__).parent)
+            self.ui.label_3.setText(self.curdir)
+
+
+
         # ---- Finalize
 
         self.ui.teCode.setPlainText(examples['Pontoon_from_Frames'])
 
         self.MainWindow.show()
+        self.iren.Initialize()
+
+        style = BlenderStyle()
+        self.iren.SetInteractorStyle(style)
+
 
     def run(self):
         code = self.ui.teCode.toPlainText()
@@ -288,13 +367,14 @@ class Gui():
             self.volumes[key].actor.SetVisibility(visible)
 
 
-        self.plotter.render()
-        self.panel3d.update()
+        self.renderer.Render()
+        self.vtkWidget.update()
 
     def update_3dplotter(self):
 
         # add volumes to plotter
-        self.plotter.clear(self._actors)
+        # self.renderer.Clear()
+        self.renderer.RemoveAllViewProps()
         self._actors.clear()
 
 
@@ -303,24 +383,107 @@ class Gui():
         for key, m in self.volumes.items():
             vertices = m.ms.current_mesh().vertex_matrix()
             faces = m.ms.current_mesh().face_matrix()
-            actor = vedo.Mesh([vertices, faces])
+            actor = CreateVTKActor(vertices, faces)
             self._actors.append(actor)
-            self.plotter.add(actor, render=False)
+            self.renderer.AddActor(actor)
             actor.SetVisibility(False)
-            actor.c(COLORMAP(icol)[:3])
+            actor.GetProperty().SetColor(COLORMAP(icol)[:3])
             m.actor = actor
             icol +=1
 
-        self.plotter.show(axes=1, viewup='z')
+        self.renderer.Render()
+        self.renderer.ResetCamera()
 
+# === file operations
+
+    def isModified(self):
+        return self.ui.teCode.document().isModified()
+
+        ### ask to save
+    def maybeSave(self):
+        if not self.isModified():
+            return True
+
+
+        ret = QMessageBox.question(self.MainWindow, "Message",
+                "<h4><p>The script was modified.</p>\n" 
+                "<p>Do you want to save changes?</p></h4>",
+                QMessageBox.Yes | QMessageBox.Discard | QMessageBox.Cancel)
+
+        if ret == QMessageBox.Yes:
+            if self.filename == "":
+                self.fileSaveAs()
+                return False
+            else:
+                self.fileSave()
+                return True
+
+        if ret == QMessageBox.Cancel:
+            return False
+
+        return True
+
+    def fileSave(self):
+        if self.filename is not None:
+
+            with open(self.filename, 'w') as file:
+                file.write(self.ui.teCode.toPlainText())
+
+            self.ui.teCode.document().setModified(False)
+            self.MainWindow.setWindowTitle(self.filename + "[*]")
+
+            self.settings.setValue('lastfile',self.filename)
+
+        else:
+            self.fileSaveAs()
+
+            ### save File
+
+    def fileSaveAs(self):
+        fn, _ = QFileDialog.getSaveFileName(self.MainWindow, "Save as...", self.filename, "PyMeshUp files (*.pym)")
+
+        if not fn:
+            print("Error saving")
+            return False
+
+        lfn = fn.lower()
+        if not lfn.endswith('.pym'):
+            fn += '.pym'
+
+        self.filename = fn
+
+        self.curdir = str(pathlib.Path(fn).parent)
+        self.ui.label_3.setText(f'Workfolder = {self.curdir}')
+
+        return self.fileSave()
+
+    def fileOpen(self):
+        if self.maybeSave():
+            path, _ = QFileDialog.getOpenFileName(self.MainWindow, "Open File", self.curdir, "Python Files (*.pym);; all Files (*)")
+            self.open(path)
+
+    def open(self, path):
+        with open(path, 'r') as f:
+            self.ui.teCode.setPlainText(f.read())
+
+        self.curdir = str(pathlib.Path(path).parent)
+        self.ui.label_3.setText(f'Workfolder = {self.curdir}')
+        self.settings.setValue('lastfile',path)
+
+    # -------- save volumes
+
+    def save_volumes(self):
+        for irow in range(self.ui.listVolumes.count()):
+            item = self.ui.listVolumes.item(irow)
+            key = item.text()
+            visible = item.checkState() == Qt.CheckState.Checked
+
+            if visible:
+                self.volumes[key].save(self.curdir + '/' + key + self.ui.comboBox.currentText() )
 
 
 if __name__ == '__main__':
 
     app = QApplication()
     gui = Gui()
-
-
-
-
     app.exec()
