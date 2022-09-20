@@ -1,10 +1,15 @@
+import os
 import pathlib
 
-from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF
+from io import StringIO
+from contextlib import redirect_stdout
+
+from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF, QTextCursor
 from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListWidgetItem, QMessageBox, QFileDialog
 from PySide6.QtCore import Qt, QSettings
 
 import numpy as np
+from vtkmodules.vtkFiltersSources import vtkLineSource
 
 from pymeshup import *
 from pymeshup.gui.forms.main_form import Ui_MainWindow
@@ -29,7 +34,6 @@ from matplotlib.figure import Figure
 from matplotlib import cm
 
 from pymeshup.gui.helpers.highlighter import PythonHighlighter
-from pymeshup.gui.examples import examples
 from pymeshup.gui.helpers.vtkBlenderLikeInteractionStyle import BlenderStyle
 
 HELP = """
@@ -49,6 +53,9 @@ Meshes can be combined and modified using:
 - move(x,y,z)
 - scale(x,y,z)
 - crop(xmin, xmax, ymin, ymax, zmin, zmax)
+! These modifiers return a modified copy. They do not modify the volume itself:
+- b.rotate(90) # does not do anything
+- b = b.rotate(90) # works
 
 Hulls can be constructed using Frames
 - First construct a Frame using
@@ -138,6 +145,25 @@ def CreateVTKActor(vertices, faces):
 
     return actor
 
+def CreateVTKLineActor(start, end, color=(0,0,0)):
+    # create data
+    lineSource = vtkLineSource()
+    lineSource.SetPoint1(start)
+    lineSource.SetPoint2(end)
+
+    # mapper
+    mapper = vtkPolyDataMapper()
+    mapper.SetInputConnection(lineSource.GetOutputPort())
+
+    # actor
+    actor = vtkActor()
+    actor.SetMapper(mapper)
+
+    actor.GetProperty().SetColor(color)
+
+    return actor
+
+
 
 class Gui():
 
@@ -163,6 +189,7 @@ class Gui():
         self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
 
         self.renderer.SetBackground((254,254,254))
+        self.create3Dorigin()
 
         self.ui.teCode.setPlainText(example_code)
 
@@ -219,28 +246,40 @@ class Gui():
             self.curdir = str(pathlib.Path(__file__).parent)
             self.ui.label_3.setText(self.curdir)
 
+        self.ui.pushButton_3.clicked.connect(self.save_volumes)
 
-
+        self.ui.actionOpen_2.triggered.connect(lambda : self.fileOpen(path = str(pathlib.Path(__file__).parent / 'examples')))
+        self.ui.actionHelp_visible.triggered.connect(lambda: self.ui.dockWidget.setVisible(not self.ui.dockWidget.isVisible()))
         # ---- Finalize
 
-        self.ui.teCode.setPlainText(examples['Pontoon_from_Frames'])
+        # self.ui.teCode.setPlainText(examples['Pontoon_from_Frames'])
 
         self.MainWindow.show()
         self.iren.Initialize()
 
-        style = BlenderStyle()
-        self.iren.SetInteractorStyle(style)
+        self.style = BlenderStyle()
+        self.iren.SetInteractorStyle(self.style)
+        self.style.callbackSelect = self.select_3d_actor
+
+
 
 
     def run(self):
         code = self.ui.teCode.toPlainText()
         self.ui.teFeedback.clear()
+        self.ui.teFeedback.append("Running...")
+        self.ui.teFeedback.update()
 
         key_before = [v for v in locals().keys()]
 
         try:
-            exec(code)
-            self.ui.teFeedback.setPlainText("Done!")
+            f = StringIO()
+            with redirect_stdout(f):
+                exec(code)
+
+            s = f.getvalue()
+            self.ui.teFeedback.setPlainText(s)
+            self.ui.teFeedback.append('..Done!')
 
         except SyntaxError as E:
 
@@ -248,16 +287,30 @@ class Gui():
             print(f'Error on line {E.lineno} to {E.end_lineno}')
             print(f'Error from {E.offset} to {E.end_offset}')
 
-            self.ui.teFeedback.setPlainText(str(E))
+            for i, line in enumerate(self.ui.teCode.toPlainText()):
+                self.ui.teFeedback.append(f'{i} : {line}')
+
+            self.ui.teFeedback.setPlainText('\n\n' + str(E))
+
+
+            self.setErrorPos(E.lineno, E.offset)
 
 
         except (NameError, AttributeError) as E:
 
-            print(f'Error NameError in {E.text}')
-            print(f'Error on line {E.lineno} to {E.end_lineno}')
-            print(f'Error from {E.offset} to {E.end_offset}')
+            # print(f'Error NameError in {E.msg}')
+            # print(f'Error on line {E.lineno} to {E.end_lineno}')
+            # print(f'Error from {E.offset} to {E.end_offset}')
 
             self.ui.teFeedback.setPlainText(str(E))
+            # self.setErrorPos(E.lineno, E.offset)
+
+
+        except Exception as E:
+
+            self.ui.teFeedback.setPlainText(str(E))
+
+
 
 
         key_after = [v for v in locals().keys()]
@@ -269,8 +322,6 @@ class Gui():
 
         for key, value in items_after:
             if key not in key_before:
-                print(f'New variable found: {key}')
-
                 if isinstance(value, Volume):
                     volumes[key] = value
                 elif isinstance(value, Frame):
@@ -285,6 +336,9 @@ class Gui():
 
         self.update_frames_listbox()
         self.plot_frames()
+
+    def setErrorPos(self, line, offset):
+        pass
 
     # --- Frame plot
 
@@ -320,7 +374,7 @@ class Gui():
 
             for i, point in enumerate(frame.xy):
                 self.static_ax.plot(point[0], point[1], 'k.' )
-                self.static_ax.text(point[0], point[1], str(i))
+                self.static_ax.text(point[0], point[1], f'{point[0]:.3f} , {point[1]:.3f}')
 
         self.static_canvas.figure.canvas.draw()
 
@@ -370,12 +424,18 @@ class Gui():
         self.renderer.Render()
         self.vtkWidget.update()
 
+    def create3Dorigin(self):
+        self.renderer.AddActor(CreateVTKLineActor((0,0,0),(10,0,0),(254,0,0)))
+        self.renderer.AddActor(CreateVTKLineActor((0,0,0),(0,10,0),(0,254,0)))
+        self.renderer.AddActor(CreateVTKLineActor((0,0,0),(0,0,10),(0,0,254)))
+
+
     def update_3dplotter(self):
 
         # add volumes to plotter
-        # self.renderer.Clear()
         self.renderer.RemoveAllViewProps()
         self._actors.clear()
+        self.create3Dorigin()
 
 
         icol = 0
@@ -384,6 +444,7 @@ class Gui():
             vertices = m.ms.current_mesh().vertex_matrix()
             faces = m.ms.current_mesh().face_matrix()
             actor = CreateVTKActor(vertices, faces)
+            actor.name = key
             self._actors.append(actor)
             self.renderer.AddActor(actor)
             actor.SetVisibility(False)
@@ -392,7 +453,15 @@ class Gui():
             icol +=1
 
         self.renderer.Render()
-        self.renderer.ResetCamera()
+        try:
+            self.style.ZoomFit()
+        except:
+            pass
+
+    def select_3d_actor(self, actors):
+        name = getattr(actors[0],'name')
+        self.ui.teFeedback.append(f"Clicked on {name}")
+
 
 # === file operations
 
@@ -453,20 +522,27 @@ class Gui():
         self.filename = fn
 
         self.curdir = str(pathlib.Path(fn).parent)
+        os.chdir(self.curdir)
         self.ui.label_3.setText(f'Workfolder = {self.curdir}')
 
         return self.fileSave()
 
-    def fileOpen(self):
+    def fileOpen(self, path=None):
+        if path is None:
+            path = self.curdir
+
         if self.maybeSave():
-            path, _ = QFileDialog.getOpenFileName(self.MainWindow, "Open File", self.curdir, "Python Files (*.pym);; all Files (*)")
-            self.open(path)
+            path, _ = QFileDialog.getOpenFileName(self.MainWindow, "Open File", path, "Python Files (*.pym);; all Files (*)")
+            if path:
+                self.open(path)
 
     def open(self, path):
         with open(path, 'r') as f:
             self.ui.teCode.setPlainText(f.read())
 
         self.curdir = str(pathlib.Path(path).parent)
+
+        os.chdir(self.curdir)
         self.ui.label_3.setText(f'Workfolder = {self.curdir}')
         self.settings.setValue('lastfile',path)
 
@@ -479,7 +555,9 @@ class Gui():
             visible = item.checkState() == Qt.CheckState.Checked
 
             if visible:
-                self.volumes[key].save(self.curdir + '/' + key + self.ui.comboBox.currentText() )
+                fname = self.curdir + '/' + key + self.ui.comboBox.currentText()
+                self.volumes[key].save(fname)
+                self.ui.teFeedback.append(f'Saved: {fname}')
 
 
 if __name__ == '__main__':

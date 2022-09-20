@@ -54,7 +54,7 @@ def charFormat(color, style='', background=None):
     if 'italic' in style:
         _format.setFontItalic(True)
     if background is not None:
-        _format.setBackground(pg.mkColor(background))
+        _format.setBackground(QColor(0.1,0.1,0.1))
 
     return _format
 
@@ -209,8 +209,6 @@ class PythonHighlighter(QSyntaxHighlighter):
         """
         # Do other syntax formatting
 
-        print(f'hlblock: {text}')
-
         rules = self.rules.copy()
         for expression, nth, format in rules:
             format = self.styles[format]
@@ -302,7 +300,12 @@ if __name__ == '__main__':
     from PySide6 import QtWidgets
 
     app = QtWidgets.QApplication([])
+
+    widget = QtWidgets.QWidget()
+    layout = QtWidgets.QVBoxLayout()
+
     editor = QtWidgets.QPlainTextEdit()
+    layout.addWidget(editor)
 
     # for dark:
     # editor.setStyleSheet("background: rgb(0, 0, 0);color: rgb(230, 230, 230)")
@@ -318,25 +321,23 @@ def test():
 
     font = QFont()
     font.setPointSize(12)
+    font.setFixedPitch(True)
     font.setFamily('Segou UI')
     editor.setFont(font)
     editor.setTabStopDistance(QFontMetricsF(editor.font()).horizontalAdvance(' ') * 4)
 
     highlight = PythonHighlighter(editor.document())
 
-    def red(void):
+    button = QtWidgets.QPushButton('Click me')
+    layout.addWidget(button)
 
-        # fmt = QtGui.QTextCharFormat()
-        # fmt.setForeground(QColor.fromRgb(254,0,0))
-        # fmt.setBackground(QColor.fromRgb(254,0,0))
-        # highlight.setFormat(5,7, fmt)
-        print('painted red')
-        highlight.applySearchHighlight("test")
-        editor.update()
-
-    editor.mousePressEvent = red
 
     # Load syntax.py into the editor for demo purposes
+    widget.setLayout(layout)
+    widget.show()
 
-    editor.show()
-    app.exec_()
+
+
+
+
+    app.exec()

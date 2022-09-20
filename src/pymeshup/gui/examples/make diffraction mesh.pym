@@ -1,0 +1,8 @@
+# Example of generating a panel mesh from a predefined hullshape
+
+ch = Load('cheetah.stl')
+
+draft = 8
+panel_size = 3 # as percentage
+
+cheetah_panels = ch.crop(zmax=draft).move(z=-draft).regrid(pct=panel_size)

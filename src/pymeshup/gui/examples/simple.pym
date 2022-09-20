@@ -1,0 +1,8 @@
+# Simple example
+
+b = Box()
+b2 = b.move(x=-5)
+b3 = b2.move(z=5)
+
+b4 = b2.rotate(z=45)
+b5 = b.scale(z=2).move(x=3)

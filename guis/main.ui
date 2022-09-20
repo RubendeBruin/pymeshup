@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1576</width>
-    <height>754</height>
+    <width>1528</width>
+    <height>874</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,10 +31,10 @@
         <number>9</number>
        </property>
        <property name="topMargin">
-        <number>0</number>
+        <number>1</number>
        </property>
        <property name="bottomMargin">
-        <number>0</number>
+        <number>1</number>
        </property>
        <item>
         <widget class="QLabel" name="label_3">
@@ -82,19 +82,19 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
             <property name="spacing">
-             <number>0</number>
+             <number>1</number>
             </property>
             <property name="leftMargin">
-             <number>0</number>
+             <number>1</number>
             </property>
             <property name="topMargin">
-             <number>0</number>
+             <number>1</number>
             </property>
             <property name="rightMargin">
-             <number>0</number>
+             <number>1</number>
             </property>
             <property name="bottomMargin">
-             <number>0</number>
+             <number>1</number>
             </property>
             <item>
              <widget class="QLabel" name="label_2">
@@ -156,19 +156,19 @@
       <widget class="QWidget" name="widget_2" native="true">
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <property name="spacing">
-         <number>0</number>
+         <number>2</number>
         </property>
         <property name="leftMargin">
-         <number>0</number>
+         <number>2</number>
         </property>
         <property name="topMargin">
-         <number>0</number>
+         <number>2</number>
         </property>
         <property name="rightMargin">
-         <number>0</number>
+         <number>2</number>
         </property>
         <property name="bottomMargin">
-         <number>0</number>
+         <number>2</number>
         </property>
         <item>
          <widget class="QSplitter" name="splitter_2">
@@ -191,6 +191,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="frameShape">
+               <enum>QFrame::Box</enum>
+              </property>
              </widget>
             </item>
             <item row="0" column="0">
@@ -208,19 +211,19 @@
              <widget class="QWidget" name="widget_6" native="true">
               <layout class="QVBoxLayout" name="verticalLayout_4">
                <property name="spacing">
-                <number>0</number>
+                <number>1</number>
                </property>
                <property name="leftMargin">
-                <number>0</number>
+                <number>1</number>
                </property>
                <property name="topMargin">
-                <number>0</number>
+                <number>1</number>
                </property>
                <property name="rightMargin">
-                <number>0</number>
+                <number>1</number>
                </property>
                <property name="bottomMargin">
-                <number>0</number>
+                <number>1</number>
                </property>
                <item>
                 <widget class="QListWidget" name="listVolumes">
@@ -229,6 +232,9 @@
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
+                 </property>
+                 <property name="frameShape">
+                  <enum>QFrame::Box</enum>
                  </property>
                 </widget>
                </item>
@@ -272,7 +278,13 @@
             <item row="1" column="1">
              <widget class="QWidget" name="widgetGraphics" native="true">
               <property name="toolTip">
-               <string>Tooltop!</string>
+               <string>On touchpath: use &quot;m&quot; or space to navigate instead of middle-mouse button
+
+Hold middle mouse to rotate
+Shift + middle to pan
+Ctrl + middle to zoom
+B for box
+2/3 for 2d/3d</string>
               </property>
               <property name="toolTipDuration">
                <number>-1</number>
@@ -308,7 +320,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1576</width>
+     <width>1528</width>
      <height>22</height>
     </rect>
    </property>
@@ -326,8 +338,15 @@
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
    </widget>
+   <widget class="QMenu" name="menuExamples">
+    <property name="title">
+     <string>Examples</string>
+    </property>
+    <addaction name="actionOpen_2"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuHelp"/>
+   <addaction name="menuExamples"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockWidget">
@@ -341,6 +360,9 @@
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="frameShape">
+        <enum>QFrame::NoFrame</enum>
+       </property>
        <property name="widgetResizable">
         <bool>true</bool>
        </property>
@@ -350,7 +372,7 @@
           <x>0</x>
           <y>0</y>
           <width>374</width>
-          <height>667</height>
+          <height>789</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -389,6 +411,11 @@
   <action name="actionSave_as">
    <property name="text">
     <string>Save as</string>
+   </property>
+  </action>
+  <action name="actionOpen_2">
+   <property name="text">
+    <string>Open</string>
    </property>
   </action>
  </widget>

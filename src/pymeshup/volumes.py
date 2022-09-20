@@ -1,6 +1,7 @@
 import pymeshlab
 from math import sqrt, cos, sin, pi
 from numpy import min, max
+from pathlib import Path
 
 class Volume():
 
@@ -150,6 +151,7 @@ def Cylinder(height=1, radius=1, resolution = 36):
 
 def Load(filename):
     v = Volume()
+
     v.ms.load_new_mesh(filename)
     return v
 

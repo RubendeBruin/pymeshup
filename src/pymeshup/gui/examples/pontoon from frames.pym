@@ -1,0 +1,35 @@
+# Example of a pontoon shaped barge
+# created from Frames
+
+width = 20
+half_width = width / 2
+
+Frame1 = Frame(0,1.5,
+   half_width,1.5,
+   half_width, 4.5).autocomplete()
+
+Frame2 = Frame(0,0,
+   half_width,0,
+   half_width, 4.5).autocomplete()
+
+Barge = Hull(0,Frame1,
+   6.5, Frame2,
+   62.2, Frame2,
+   67, Frame1)
+
+B = Box(0,1,0,1,0,6)
+C = Cylinder(radius=1, height=6)
+BC = B.remove(C).move(-1,-1)
+
+R1 = BC.rotate(z=-90).move(y=half_width)
+R2 = BC.rotate(z=180).move(y=-half_width)
+R3 = BC.rotate(z=0).move(y=half_width, x = 67)
+R4 = BC.rotate(z=90).move(y=-half_width, x=67)
+
+Barge = Barge.remove(R1).remove(R2).remove(R3).remove(R4)
+
+Submerged = Barge.move(z=-2.8).crop(zmax=0)
+
+print(Submerged.volume*1.025)
+
+Panels = Submerged.regrid(pct=2.8, iterations=10)

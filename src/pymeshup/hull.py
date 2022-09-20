@@ -42,9 +42,6 @@ def build_triangles(f1,f2):
 
     while True:
 
-        if i1==3:
-            print('wait')
-
         p1 = f1[i1]
         p2 = f2[i2]
 
