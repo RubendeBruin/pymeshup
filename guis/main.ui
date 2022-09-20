@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>937</width>
+    <width>1576</width>
     <height>754</height>
    </rect>
   </property>
@@ -40,13 +40,6 @@
         <widget class="QLabel" name="label_3">
          <property name="text">
           <string>TextLabel</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_2">
-         <property name="text">
-          <string>clean output folder</string>
          </property>
         </widget>
        </item>
@@ -112,8 +105,7 @@
                </sizepolicy>
               </property>
               <property name="styleSheet">
-               <string notr="true">background:darkblue;
-color:white</string>
+               <string notr="true">background: rgb(255, 204, 0);</string>
               </property>
               <property name="text">
                <string>SCRIPT</string>
@@ -133,10 +125,17 @@ color:white</string>
             <item>
              <widget class="QPushButton" name="pushButton">
               <property name="text">
-               <string>Run [F5]</string>
+               <string>&gt;&gt; Run [F5]</string>
               </property>
               <property name="shortcut">
                <string>F5</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Feedback:</string>
               </property>
              </widget>
             </item>
@@ -180,8 +179,11 @@ color:white</string>
            <enum>Qt::Vertical</enum>
           </property>
           <widget class="QWidget" name="widget_4" native="true">
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="1" column="1">
+             <widget class="QWidget" name="widgetPlot" native="true"/>
+            </item>
+            <item row="1" column="0">
              <widget class="QListWidget" name="listFrames">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
@@ -191,25 +193,105 @@ color:white</string>
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QWidget" name="widgetPlot" native="true"/>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_7">
+              <property name="text">
+               <string>Frames</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
           <widget class="QWidget" name="wiget99" native="true">
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
-            <item>
-             <widget class="QListWidget" name="listVolumes">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+           <layout class="QGridLayout" name="gridLayout">
+            <item row="1" column="0">
+             <widget class="QWidget" name="widget_6" native="true">
+              <layout class="QVBoxLayout" name="verticalLayout_4">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="QListWidget" name="listVolumes">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QWidget" name="widget_7" native="true">
+                 <layout class="QHBoxLayout" name="horizontalLayout_7">
+                  <item>
+                   <widget class="QPushButton" name="pushButton_3">
+                    <property name="text">
+                     <string>Save selected </string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_4">
+                    <property name="text">
+                     <string>as</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QComboBox" name="comboBox">
+                    <item>
+                     <property name="text">
+                      <string>.stl</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>.obj</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QWidget" name="widgetGraphics" native="true">
+              <property name="toolTip">
+               <string>Tooltop!</string>
+              </property>
+              <property name="toolTipDuration">
+               <number>-1</number>
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QWidget" name="widgetGraphics" native="true"/>
+            <item row="0" column="1">
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>middle-mouse or space to navigate, w: wireframe, s for solid</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_6">
+              <property name="text">
+               <string>Volumes:</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -226,8 +308,8 @@ color:white</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>937</width>
-     <height>21</height>
+     <width>1576</width>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -240,6 +322,9 @@ color:white</string>
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="actionSave_as"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuHelp"/>
@@ -264,8 +349,8 @@ color:white</string>
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>209</width>
-          <height>671</height>
+          <width>374</width>
+          <height>667</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -289,6 +374,21 @@ color:white</string>
   <action name="actionHelp_visible">
    <property name="text">
     <string>Help visible</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionSave_as">
+   <property name="text">
+    <string>Save as</string>
    </property>
   </action>
  </widget>
