@@ -17,6 +17,10 @@ Barge = Hull(0,Frame1,
    62.2, Frame2,
    67, Frame1)
 
+# Create the rounded edges (bevels) by
+# creating a negative bevel shape (BC)
+# and subtracting that from the barge
+
 B = Box(0,1,0,1,0,6)
 C = Cylinder(radius=1, height=6)
 BC = B.remove(C).move(-1,-1)
