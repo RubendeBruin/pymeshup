@@ -252,15 +252,13 @@ class Gui():
         self.ui.actionHelp_visible.triggered.connect(lambda: self.ui.dockWidget.setVisible(not self.ui.dockWidget.isVisible()))
         # ---- Finalize
 
-        # self.ui.teCode.setPlainText(examples['Pontoon_from_Frames'])
-
         self.MainWindow.show()
+        self.MainWindow.setWindowTitle("PyMeshUp")
         self.iren.Initialize()
 
         self.style = BlenderStyle()
         self.iren.SetInteractorStyle(self.style)
         self.style.callbackSelect = self.select_3d_actor
-
 
 
 

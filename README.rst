@@ -23,27 +23,22 @@
         :alt: Twitter
         :target: https://twitter.com/pymeshup
 
-.. image:: https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold
-    :alt: Project generated with PyScaffold
-    :target: https://pyscaffold.org/
+   .. image:: https://img.shields.io/badge/-PyScaffold-005CA0?logo=pyscaffold
+       :alt: Project generated with PyScaffold
+       :target: https://pyscaffold.org/
 
 |
 
 ========
-pymeshup
+PyMeshUp
 ========
 
+PyMeshUp aims to provide an easy way to make simple volume meshes using a script.
 
-    Add a short description here!
+This is done by wrapping some of the features of pymeshlab and adding an gui.
+
+To run the gui:
+
+`python -m pymeshup.GUI`
 
 
-A longer description of your project goes here...
-
-
-.. _pyscaffold-notes:
-
-Note
-====
-
-This project has been set up using PyScaffold 4.1.5. For details and usage
-information on PyScaffold see https://pyscaffold.org/.
