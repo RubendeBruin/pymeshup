@@ -229,9 +229,10 @@ class Gui():
 
         # --- Save , open
 
-        self.ui.actionOpen.triggered.connect(self.fileOpen)
+        self.ui.actionOpen.triggered.connect(self.fileOpenMenu)
         self.ui.actionSave.triggered.connect(self.fileSave)
         self.ui.actionSave_as.triggered.connect(self.fileSaveAs)
+        self.ui.actionSet_work_folder.triggered.connect(self.openFolder)
 
         self.settings = QSettings('pymeshup','gui')
 
@@ -525,20 +526,33 @@ class Gui():
 
         return self.fileSave()
 
+    def fileOpenMenu(self):
+        self.fileOpen()
+
     def fileOpen(self, path=None):
         if path is None:
-            path = self.curdir
+            path = str(self.curdir)
 
         if self.maybeSave():
             path, _ = QFileDialog.getOpenFileName(self.MainWindow, "Open File", path, "Python Files (*.pym);; all Files (*)")
             if path:
                 self.open(path)
 
+    def openFolder(self):
+        path = QFileDialog.getExistingDirectory()
+        if path:
+            self.setWorkPath(path)
+
+
     def open(self, path):
         with open(path, 'r') as f:
             self.ui.teCode.setPlainText(f.read())
+            self.setWorkPath(pathlib.Path(path).parent)
 
-        self.curdir = str(pathlib.Path(path).parent)
+
+    def setWorkPath(self, path):
+
+        self.curdir = path
 
         os.chdir(self.curdir)
         self.ui.label_3.setText(f'Workfolder = {self.curdir}')
