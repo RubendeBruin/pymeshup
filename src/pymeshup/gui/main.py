@@ -257,6 +257,8 @@ class Gui():
         self.MainWindow.setWindowTitle("PyMeshUp")
         self.iren.Initialize()
 
+        self.MainWindow.closeEvent = self.closeEvent
+
         self.style = BlenderStyle()
         self.iren.SetInteractorStyle(self.style)
         self.style.callbackSelect = self.select_3d_actor
@@ -464,6 +466,12 @@ class Gui():
 
 # === file operations
 
+    def closeEvent(self, event):
+        if self.maybeSave():
+            event.accept()
+        else:
+            event.ignore()
+
     def isModified(self):
         return self.ui.teCode.document().isModified()
 
@@ -471,7 +479,6 @@ class Gui():
     def maybeSave(self):
         if not self.isModified():
             return True
-
 
         ret = QMessageBox.question(self.MainWindow, "Message",
                 "<h4><p>The script was modified.</p>\n" 

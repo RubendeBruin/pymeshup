@@ -1,7 +1,7 @@
 # Example of a pontoon shaped barge
 # created from Frames
 
-width = 20
+width = 27
 half_width = width / 2
 
 Frame1 = Frame(0,1.5,
@@ -37,3 +37,4 @@ Submerged = Barge.move(z=-2.8).crop(zmax=0)
 print(Submerged.volume*1.025)
 
 Panels = Submerged.regrid(pct=2.8, iterations=10)
+
