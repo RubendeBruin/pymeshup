@@ -113,6 +113,15 @@ class Volume():
 
         return v
 
+    def merge_close_vertices(self, pct=1):
+        v = Volume(self)
+        v.ms.meshing_merge_close_vertices(threshold  =  pymeshlab.Percentage(pct))
+        v.ms.meshing_remove_null_faces()
+        v.ms.meshing_repair_non_manifold_edges()
+        v.ms.meshing_re_orient_faces_coherentely()
+
+        return v
+
     def save(self, filename):
         self.ms.save_current_mesh(file_name=filename)
 

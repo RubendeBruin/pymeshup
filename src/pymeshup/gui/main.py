@@ -285,8 +285,12 @@ class Gui():
         except SyntaxError as E:
 
             print(f'Error {E.msg} in {E.text}')
-            print(f'Error on line {E.lineno} to {E.end_lineno}')
-            print(f'Error from {E.offset} to {E.end_offset}')
+
+            try:
+                print(f'Error on line {E.lineno} to {E.end_lineno}')
+                print(f'Error from {E.offset} to {E.end_offset}')
+            except:
+                pass
 
             for i, line in enumerate(self.ui.teCode.toPlainText()):
                 self.ui.teFeedback.append(f'{i} : {line}')
@@ -406,7 +410,7 @@ class Gui():
             else:
                 item.setCheckState(Qt.CheckState.Checked)
 
-            rgb = COLORMAP(icol)
+            rgb = COLORMAP(icol % 20)
             brush = QBrush(QColor.fromRgb(254*rgb[0], 254*rgb[1], 254*rgb[2]))
             item.setBackground(brush)
             self.ui.listVolumes.addItem(item)
@@ -449,7 +453,7 @@ class Gui():
             self._actors.append(actor)
             self.renderer.AddActor(actor)
             actor.SetVisibility(False)
-            actor.GetProperty().SetColor(COLORMAP(icol)[:3])
+            actor.GetProperty().SetColor(COLORMAP(icol %20)[:3])
             m.actor = actor
             icol +=1
 
@@ -574,7 +578,7 @@ class Gui():
             visible = item.checkState() == Qt.CheckState.Checked
 
             if visible:
-                fname = self.curdir + '/' + key + self.ui.comboBox.currentText()
+                fname = str(self.curdir) + '/' + key + self.ui.comboBox.currentText()
                 self.volumes[key].save(fname)
                 self.ui.teFeedback.append(f'Saved: {fname}')
 

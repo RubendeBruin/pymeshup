@@ -1,4 +1,5 @@
 import numpy as np
+import csv
 
 from .frames import Frame
 from .volumes import Volume
@@ -91,7 +92,14 @@ def build_triangles(f1,f2):
 
 def Hull(*args):
     """Arguments: pos, Frame, pos, Frame, etc
-    example: h = Hull(0,stern, 10, midship, 20, midship, 30, bow)"""
+    example: h = Hull(0,stern, 10, midship, 20, midship, 30, bow)
+
+    OR a filename
+    """
+
+    if len(args) == 1:
+        filename = args[0]
+        return hull_from_file(filename)
 
     if len(args) % 2 != 0:
         raise ValueError("Number of arguments should be even")
@@ -161,4 +169,61 @@ def Hull(*args):
 
     return v
 
+def hull_from_file(filename) -> Volume:
+    """Reads a hull from a file:
+
+    framex   frame_data_y
+    <empty>  frame_data_z
+    """
+
+
+    with open(filename, 'r') as f:
+        first_line = f.readline()
+        if '\t' in first_line:
+            delimiter = '\t'
+        else:
+            delimiter = ','
+        f.seek(0)
+
+        reader = csv.reader(f, delimiter=delimiter)
+        data = [row for row in reader]
+
+    print(data)
+
+    # remove empties
+    new_data = []
+    for row in data:
+        new_row = [item for item in row if item != '']
+        new_data.append(new_row)
+
+    print(new_data)
+
+    # Construct frames
+
+    frames = []
+    positions = []
+
+    while new_data:
+        row1 = new_data.pop(0)
+        row2 = new_data.pop(0)
+
+        assert len(row1) == len(row2) + 1, f"Row {row1} has {len(row1)} elements, row {row2} has {len(row2)} elements"
+
+        x = float(row1[0])
+        y = [float(item) for item in row1[1:]]
+        z = [float(item) for item in row2]
+
+        positions.append(x)
+
+        frame_data = []
+        for yy, zz in zip(y, z):
+            frame_data.extend([yy, zz])
+
+        frames.append(Frame(*frame_data).autocomplete())
+
+    hull_data = []
+    for frame, position in zip(frames, positions):
+        hull_data.extend([position, frame])
+
+    return Hull(*hull_data)
 
