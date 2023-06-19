@@ -63,7 +63,7 @@ class Volume():
 
         return v
 
-    def invert_vertices(self):
+    def invert_normals(self):
         v = Volume(self)
         v.ms.meshing_invert_face_orientation()
         return v

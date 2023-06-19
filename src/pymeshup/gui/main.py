@@ -55,6 +55,8 @@ Meshes can be combined and modified using:
 - crop(xmin, xmax, ymin, ymax, zmin, zmax)
 - cut_at_waterline()
 - cut_at_xz()
+- merge_close_vertices(pct)
+- invert_normals()
 
 ! These modifiers return a modified copy. They do not modify the volume itself:
 - b.rotate(90) # does not do anything
