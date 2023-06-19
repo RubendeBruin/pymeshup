@@ -107,10 +107,24 @@ class Volume():
 
         return self.inside_of(b)
 
+    def cut_at_waterline(self):
+        """Cut and keep submerged parts only"""
+        return self.cut_plane(planeaxis='Z Axis')
+
+    def cut_at_xz(self):
+        """Cuts at the xz plane, keeps negative y only"""
+        return self.cut_plane(planeaxis='Y Axis')
+
+    def cut_plane(self, planeaxis ='Z Axis'):
+        v = Volume(self)
+        v.ms.compute_planar_section(planeaxis = planeaxis, splitsurfacewithsection = True) #plane_origin = (x,y,z), plane_normal = (nx,ny,nz))
+        v.ms.set_current_mesh(3)
+        v.ms.delete_all_non_visible_mesh_layers()
+        return v
+
     def regrid(self, iterations=20, pct=1):
         v = Volume(self)
         v.ms.meshing_isotropic_explicit_remeshing(iterations = iterations, targetlen = pymeshlab.Percentage(pct))
-
         return v
 
     def merge_close_vertices(self, pct=1):

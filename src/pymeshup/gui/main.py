@@ -53,6 +53,9 @@ Meshes can be combined and modified using:
 - move(x,y,z)
 - scale(x,y,z)
 - crop(xmin, xmax, ymin, ymax, zmin, zmax)
+- cut_at_waterline()
+- cut_at_xz()
+
 ! These modifiers return a modified copy. They do not modify the volume itself:
 - b.rotate(90) # does not do anything
 - b = b.rotate(90) # works
