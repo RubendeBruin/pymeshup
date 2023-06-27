@@ -174,6 +174,7 @@ class Gui():
 
     def __init__(self):
         # Main Window
+
         self.MainWindow = QMainWindow()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.MainWindow)
@@ -249,13 +250,26 @@ class Gui():
                 self.filename = None
 
         if self.filename is None:
-            self.curdir = str(pathlib.Path(__file__).parent)
+            curdir = self.settings.value('last_workdir')
+            if curdir:
+                self.curdir = curdir
+            else:
+                self.curdir = str(pathlib.Path(__file__).parent)
+
             self.ui.label_3.setText(self.curdir)
 
         self.ui.pushButton_3.clicked.connect(self.save_volumes)
 
         self.ui.actionOpen_2.triggered.connect(lambda : self.fileOpen(path = str(pathlib.Path(__file__).parent / 'examples')))
         self.ui.actionHelp_visible.triggered.connect(lambda: self.ui.dockWidget.setVisible(not self.ui.dockWidget.isVisible()))
+
+        # ---- capytaine part
+
+        self.ui.tePeriods.textChanged.connect(self.update_period)
+        self.ui.teHeading.textChanged.connect(self.update_heading)
+        self.ui.pbShowMesh.pressed.connect(lambda : self.run_captyaine(dryrun=True))
+        self.ui.pbRunCapytaine.pressed.connect(lambda : self.run_captyaine(dryrun=False))
+
         # ---- Finalize
 
         self.MainWindow.show()
@@ -267,6 +281,51 @@ class Gui():
         self.style = BlenderStyle()
         self.iren.SetInteractorStyle(self.style)
         self.style.callbackSelect = self.select_3d_actor
+
+
+    def update_period(self):
+        try:
+            T = eval(self.ui.tePeriods.text())
+        except Exception as E:
+            self.ui.lblPeriods.setText(str(E))
+            return
+
+        self.ui.lblPeriods.setText(str(T))
+
+        return T
+
+    def update_heading(self):
+        try:
+            T = eval(self.ui.teHeading.text())
+        except Exception as E:
+            self.ui.lblHeading.setText(str(E))
+            return
+
+        self.ui.lblHeading.setText(str(T))
+
+        return T
+
+    def run_captyaine(self, dryrun=False):
+        try:
+            from pymeshup.gui.capytaine_runner import run_capytaine
+        except Exception as E:
+            print(self.ui.teFeedback.append(str(E)))
+            return
+
+        periods = self.update_period()
+        heading = self.update_heading()
+        name = self.ui.teName.text()
+        file_grid = str(pathlib.Path(self.curdir) / self.ui.teMeshFile.text())
+        symmetry = self.ui.cbSymmetry.isChecked()
+        waterdepth = float(self.ui.teWaterdepth.text())
+
+        run_capytaine(name=name,
+                      file_grid=file_grid,
+                      periods=periods,
+                      directions_deg=heading,
+                      waterdepth=waterdepth,
+                      symmetry=symmetry,
+                      show_only=dryrun)
 
 
 
@@ -563,7 +622,11 @@ class Gui():
     def open(self, path):
         with open(path, 'r') as f:
             self.ui.teCode.setPlainText(f.read())
-            self.setWorkPath(pathlib.Path(path).parent)
+            self.settings.setValue('lastfile',path)
+
+            path = pathlib.Path(path).parent
+            self.setWorkPath(str(path))
+
 
 
     def setWorkPath(self, path):
@@ -572,7 +635,7 @@ class Gui():
 
         os.chdir(self.curdir)
         self.ui.label_3.setText(f'Workfolder = {self.curdir}')
-        self.settings.setValue('lastfile',path)
+        self.settings.setValue('last_workdir',path)
 
     # -------- save volumes
 
