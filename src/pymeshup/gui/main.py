@@ -271,9 +271,10 @@ class Gui():
         self.ui.pbRunCapytaine.pressed.connect(lambda : self.run_captyaine(dryrun=False))
 
         # ---- Finalize
+        self.ui.tabWidget.setCurrentIndex(0)
 
         self.MainWindow.show()
-        self.MainWindow.setWindowTitle("PyMeshUp")
+        self.MainWindow.setWindowTitle("PyMeshUp + Capytaine")
         self.iren.Initialize()
 
         self.MainWindow.closeEvent = self.closeEvent
@@ -318,6 +319,9 @@ class Gui():
         file_grid = str(pathlib.Path(self.curdir) / self.ui.teMeshFile.text())
         symmetry = self.ui.cbSymmetry.isChecked()
         waterdepth = float(self.ui.teWaterdepth.text())
+
+        if waterdepth < 0:
+            waterdepth = np.infty
 
         run_capytaine(name=name,
                       file_grid=file_grid,

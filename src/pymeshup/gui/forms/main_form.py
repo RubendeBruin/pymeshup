@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.5.0
+## Created by: Qt User Interface Compiler version 6.5.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -28,7 +28,7 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(1077, 744)
+        MainWindow.resize(1179, 1017)
         self.actionHelp_visible = QAction(MainWindow)
         self.actionHelp_visible.setObjectName(u"actionHelp_visible")
         self.actionOpen = QAction(MainWindow)
@@ -55,15 +55,6 @@ class Ui_MainWindow(object):
 
         self.gridLayout_3.addWidget(self.label_10, 0, 0, 1, 1)
 
-        self.top_widget = QWidget(self.centralwidget)
-        self.top_widget.setObjectName(u"top_widget")
-        self.top_widget.setMaximumSize(QSize(16777215, 20))
-        self.horizontalLayout = QHBoxLayout(self.top_widget)
-        self.horizontalLayout.setObjectName(u"horizontalLayout")
-        self.horizontalLayout.setContentsMargins(9, 1, -1, 1)
-
-        self.gridLayout_3.addWidget(self.top_widget, 3, 0, 1, 1)
-
         self.label_3 = QLabel(self.centralwidget)
         self.label_3.setObjectName(u"label_3")
         sizePolicy1 = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
@@ -74,7 +65,14 @@ class Ui_MainWindow(object):
 
         self.gridLayout_3.addWidget(self.label_3, 0, 1, 1, 1)
 
-        self.tabWidget = QTabWidget(self.centralwidget)
+        self.widget_3 = QWidget(self.centralwidget)
+        self.widget_3.setObjectName(u"widget_3")
+        self.verticalLayout = QVBoxLayout(self.widget_3)
+        self.verticalLayout.setObjectName(u"verticalLayout")
+        self.splitter_4 = QSplitter(self.widget_3)
+        self.splitter_4.setObjectName(u"splitter_4")
+        self.splitter_4.setOrientation(Qt.Vertical)
+        self.tabWidget = QTabWidget(self.splitter_4)
         self.tabWidget.setObjectName(u"tabWidget")
         self.Mesh = QWidget()
         self.Mesh.setObjectName(u"Mesh")
@@ -92,31 +90,17 @@ class Ui_MainWindow(object):
         self.widget.setObjectName(u"widget")
         sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
         self.widget.setSizePolicy(sizePolicy)
-        self.horizontalLayout_2 = QHBoxLayout(self.widget)
-        self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
-        self.splitter_3 = QSplitter(self.widget)
-        self.splitter_3.setObjectName(u"splitter_3")
-        sizePolicy.setHeightForWidth(self.splitter_3.sizePolicy().hasHeightForWidth())
-        self.splitter_3.setSizePolicy(sizePolicy)
-        self.splitter_3.setFrameShape(QFrame.NoFrame)
-        self.splitter_3.setOrientation(Qt.Vertical)
-        self.widget_3 = QWidget(self.splitter_3)
-        self.widget_3.setObjectName(u"widget_3")
-        sizePolicy.setHeightForWidth(self.widget_3.sizePolicy().hasHeightForWidth())
-        self.widget_3.setSizePolicy(sizePolicy)
-        self.verticalLayout = QVBoxLayout(self.widget_3)
-        self.verticalLayout.setSpacing(1)
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.verticalLayout.setContentsMargins(1, 1, 1, 1)
-        self.label_2 = QLabel(self.widget_3)
+        self.verticalLayout_3 = QVBoxLayout(self.widget)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.label_2 = QLabel(self.widget)
         self.label_2.setObjectName(u"label_2")
         sizePolicy.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
         self.label_2.setSizePolicy(sizePolicy)
         self.label_2.setStyleSheet(u"background: rgb(255, 204, 0);")
 
-        self.verticalLayout.addWidget(self.label_2)
+        self.verticalLayout_3.addWidget(self.label_2)
 
-        self.teCode = QTextEdit(self.widget_3)
+        self.teCode = QTextEdit(self.widget)
         self.teCode.setObjectName(u"teCode")
         sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
         sizePolicy3.setHorizontalStretch(0)
@@ -124,26 +108,12 @@ class Ui_MainWindow(object):
         sizePolicy3.setHeightForWidth(self.teCode.sizePolicy().hasHeightForWidth())
         self.teCode.setSizePolicy(sizePolicy3)
 
-        self.verticalLayout.addWidget(self.teCode)
+        self.verticalLayout_3.addWidget(self.teCode)
 
-        self.pushButton = QPushButton(self.widget_3)
+        self.pushButton = QPushButton(self.widget)
         self.pushButton.setObjectName(u"pushButton")
 
-        self.verticalLayout.addWidget(self.pushButton)
-
-        self.label_8 = QLabel(self.widget_3)
-        self.label_8.setObjectName(u"label_8")
-
-        self.verticalLayout.addWidget(self.label_8)
-
-        self.splitter_3.addWidget(self.widget_3)
-        self.teFeedback = QTextEdit(self.splitter_3)
-        self.teFeedback.setObjectName(u"teFeedback")
-        sizePolicy3.setHeightForWidth(self.teFeedback.sizePolicy().hasHeightForWidth())
-        self.teFeedback.setSizePolicy(sizePolicy3)
-        self.splitter_3.addWidget(self.teFeedback)
-
-        self.horizontalLayout_2.addWidget(self.splitter_3)
+        self.verticalLayout_3.addWidget(self.pushButton)
 
         self.splitter.addWidget(self.widget)
         self.widget_2 = QWidget(self.splitter)
@@ -160,10 +130,10 @@ class Ui_MainWindow(object):
         self.widget_4.setObjectName(u"widget_4")
         self.gridLayout_2 = QGridLayout(self.widget_4)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.widgetPlot = QWidget(self.widget_4)
-        self.widgetPlot.setObjectName(u"widgetPlot")
+        self.label_7 = QLabel(self.widget_4)
+        self.label_7.setObjectName(u"label_7")
 
-        self.gridLayout_2.addWidget(self.widgetPlot, 1, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.label_7, 0, 0, 1, 1)
 
         self.listFrames = QListWidget(self.widget_4)
         self.listFrames.setObjectName(u"listFrames")
@@ -173,16 +143,26 @@ class Ui_MainWindow(object):
 
         self.gridLayout_2.addWidget(self.listFrames, 1, 0, 1, 1)
 
-        self.label_7 = QLabel(self.widget_4)
-        self.label_7.setObjectName(u"label_7")
+        self.widgetPlot = QWidget(self.widget_4)
+        self.widgetPlot.setObjectName(u"widgetPlot")
 
-        self.gridLayout_2.addWidget(self.label_7, 0, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.widgetPlot, 1, 1, 1, 1)
 
         self.splitter_2.addWidget(self.widget_4)
         self.wiget99 = QWidget(self.splitter_2)
         self.wiget99.setObjectName(u"wiget99")
         self.gridLayout = QGridLayout(self.wiget99)
         self.gridLayout.setObjectName(u"gridLayout")
+        self.label_5 = QLabel(self.wiget99)
+        self.label_5.setObjectName(u"label_5")
+
+        self.gridLayout.addWidget(self.label_5, 0, 1, 1, 1)
+
+        self.label_6 = QLabel(self.wiget99)
+        self.label_6.setObjectName(u"label_6")
+
+        self.gridLayout.addWidget(self.label_6, 0, 0, 1, 1)
+
         self.widget_6 = QWidget(self.wiget99)
         self.widget_6.setObjectName(u"widget_6")
         self.verticalLayout_4 = QVBoxLayout(self.widget_6)
@@ -230,16 +210,6 @@ class Ui_MainWindow(object):
 
         self.gridLayout.addWidget(self.widgetGraphics, 1, 1, 1, 1)
 
-        self.label_5 = QLabel(self.wiget99)
-        self.label_5.setObjectName(u"label_5")
-
-        self.gridLayout.addWidget(self.label_5, 0, 1, 1, 1)
-
-        self.label_6 = QLabel(self.wiget99)
-        self.label_6.setObjectName(u"label_6")
-
-        self.gridLayout.addWidget(self.label_6, 0, 0, 1, 1)
-
         self.splitter_2.addWidget(self.wiget99)
 
         self.horizontalLayout_3.addWidget(self.splitter_2)
@@ -255,6 +225,7 @@ class Ui_MainWindow(object):
         self.gridLayout_4.setObjectName(u"gridLayout_4")
         self.lblPeriods = QLabel(self.Capytaine)
         self.lblPeriods.setObjectName(u"lblPeriods")
+        self.lblPeriods.setWordWrap(True)
 
         self.gridLayout_4.addWidget(self.lblPeriods, 4, 2, 1, 1)
 
@@ -345,6 +316,7 @@ class Ui_MainWindow(object):
 
         self.lblHeading = QLabel(self.Capytaine)
         self.lblHeading.setObjectName(u"lblHeading")
+        self.lblHeading.setWordWrap(True)
 
         self.gridLayout_4.addWidget(self.lblHeading, 7, 2, 1, 1)
 
@@ -384,13 +356,20 @@ class Ui_MainWindow(object):
         self.gridLayout_4.addWidget(self.teName, 1, 2, 1, 1)
 
         self.tabWidget.addTab(self.Capytaine, "")
+        self.splitter_4.addWidget(self.tabWidget)
+        self.teFeedback = QTextEdit(self.splitter_4)
+        self.teFeedback.setObjectName(u"teFeedback")
+        self.splitter_4.addWidget(self.teFeedback)
 
-        self.gridLayout_3.addWidget(self.tabWidget, 2, 0, 1, 2)
+        self.verticalLayout.addWidget(self.splitter_4)
+
+
+        self.gridLayout_3.addWidget(self.widget_3, 1, 0, 1, 3)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1077, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1179, 22))
         self.menuHelp = QMenu(self.menubar)
         self.menuHelp.setObjectName(u"menuHelp")
         self.menuFile = QMenu(self.menubar)
@@ -414,7 +393,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 150, 661))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 190, 932))
         self.horizontalLayout_6 = QHBoxLayout(self.scrollAreaWidgetContents)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.label = QLabel(self.scrollAreaWidgetContents)
@@ -443,7 +422,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -464,8 +443,9 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(shortcut)
         self.pushButton.setShortcut(QCoreApplication.translate("MainWindow", u"F5", None))
 #endif // QT_CONFIG(shortcut)
-        self.label_8.setText(QCoreApplication.translate("MainWindow", u"Feedback:", None))
         self.label_7.setText(QCoreApplication.translate("MainWindow", u"Frames", None))
+        self.label_5.setText(QCoreApplication.translate("MainWindow", u"middle-mouse or space to navigate, w: wireframe, s for solid", None))
+        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Volumes:", None))
         self.pushButton_3.setText(QCoreApplication.translate("MainWindow", u"Save selected ", None))
         self.label_4.setText(QCoreApplication.translate("MainWindow", u"as", None))
         self.comboBox.setItemText(0, QCoreApplication.translate("MainWindow", u".stl", None))
@@ -480,8 +460,6 @@ class Ui_MainWindow(object):
 "B for box\n"
 "2/3 for 2d/3d", None))
 #endif // QT_CONFIG(tooltip)
-        self.label_5.setText(QCoreApplication.translate("MainWindow", u"middle-mouse or space to navigate, w: wireframe, s for solid", None))
-        self.label_6.setText(QCoreApplication.translate("MainWindow", u"Volumes:", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Mesh), QCoreApplication.translate("MainWindow", u"Mesh", None))
         self.lblPeriods.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.pbShowMesh.setText(QCoreApplication.translate("MainWindow", u"Show mesh", None))
