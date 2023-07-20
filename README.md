@@ -22,3 +22,7 @@ Pre-build executable
 
 https://www.open-ocean.org/pymeshup/
 
+
+Building the executable using pyinstaller
+-----------------------------------------
+
