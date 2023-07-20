@@ -12,8 +12,8 @@ To run the gui:
 
 `python -m pymeshup.GUI`
 
-Installation
--------------
+Installation as package
+------------------------
 
 `pip install pymeshup`
 
@@ -25,4 +25,4 @@ https://www.open-ocean.org/pymeshup/
 
 Building the executable using pyinstaller
 -----------------------------------------
-
+pyinstaller PyMeshupGUI.spec
