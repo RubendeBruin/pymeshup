@@ -189,6 +189,6 @@ def Plot(v : Volume or list[Volume]):
         vertices = m.ms.current_mesh().vertex_matrix()
         faces = m.ms.current_mesh().face_matrix()
         m2 = vedo.Mesh([vertices, faces])
-        p.add(m2, render=False)
+        p.add(m2)
 
     p.show(axes=1, viewup='z')
