@@ -1,7 +1,3 @@
-
-
-
-
 """
 
 # https://converthullform.aerohydro.nl/Externals/GHS_format-APPEND-A.htm
@@ -78,130 +74,6 @@ The Units Preference is a single letter: M for meters or F for feet. This does n
 The origin plane descriptions are limited to a maximum of 25 characters of text each.
 
 
-Shapes
-
-The shape data structure represents the solid model of some element of the vessel such as, for example, the hull, a skeg or a tank. The solid is represented as a discrete series of slices or planes all parallel to one another. It is assumed that the spacing between these slices (which may vary) is greater than 0.01 and small enough that all important aspects of the solid are adequately represented by the slices. The orientation of these planes is always normal to the longitudinal axis of the overall model.
-
-At each slice or "section" of the solid shape is a closed curve representing the complete outline of the intersection of the solid with the cross-sectioning plane. Each curve is represented as an ordered series of points where either a straight line or circular arc connects points. The first and last points are always connected by a straight line.
-
-The vertical axis is recognized as a possible line of symmetry, and the shape data structure takes advantage of this kind of symmetry by allowing the portion of a symmetrical curve that would be on the negative side (to the left of the vertical axis) to be omitted but still implied.
-
-When a sectional curve is viewed with the positive transverse axis to the right and the positive vertical axis upwards, the progression of points is always such that the area enclosed in going from the first to the last point is positive.
-
-The format of each shape record in the ASCII Geometry File is:
-            *
-            Shape name
-            n
-            Section 1
-            ...
-            Section n
-            Shell thicknesses
-            Property table
-
-1st shape line: One asterisk. This must be the only character on the line.
-
-2nd shape line: The shape name (e.g. HULL). The shape name must be the only thing on this line and there must be no leading or trailing blanks. Only letters and digits may be used, and letters should be upper case (except for the shape names automatically assigned that are of no concern to the user, which may include lower-case letters). Its length must not exceed 8 characters. No two shapes may have the same name within the same Geometry File.
-
-3rd shape line: An integer n where 1 < n < 256 giving the number of sections comprising the shape.
-
-4th shape line: The first line of the first section.
-
-The section format is:
-            Location, m
-            Point 1
-            ...
-            Point m
-
-1st section line: The section's longitudinal location and number of points on the section. Longitudinal locations may be relative to any convenient origin (different shapes may use different origins). The sections must be arranged in ascending order of their longitudinal locations. A section must have at least one point and less than 256 points.
-
-2nd section line: The first point of the section. Points must be arranged in sequence so that going from point 1 to point 2 ... to point m results in a counterclockwise traversal of the section curve in a plane where the positive transverse axis is to the right and the positive vertical axis us upward.
-
-The point format is:
-
-     Trans, Vert [, Surface code, Radius, Line code]
-
-Trans is the transverse coordinate of the point relative to the shape's origin.
-
-Vert is the vertical coordinate of the point relative to the shape's origin.
-
-The remaining three items on the point line are optional. If the values of all three are zero or blank, they may be omitted along with the preceding comma.
-
-Surface code is a single digit from 0 to 3. It indicates the wettable/covered and shell/no-shell status of the line segment between the point it is attached to and the next point:
-          Surface code        Segment Covered?      Shell Gap Present?
-               0                    No                      No
-               1                    Yes                     No
-               2                    No                      Yes
-               3                    Yes                     Yes
-
-Surface code 2 is a special case used to indicate portions of a section curve which are not on the surface of the actual shape. Surface codes may be ignored in some programs.
-
-Radius, if present and not zero, is the radius of the arc connecting this point and neighboring points having exactly the same radius value. The distance between these points should be sufficiently small compared to the radius that straight lines connecting the same points would be an acceptable approximation to the curve. If the center of curvature of the arc is to the right when looking from the point to the next point (with the same radius), the radius number should be negative. The presence of the radius allows programs that recognize it to store the curve in a more compact form while programs that do not recognize the radius can treat the connections between points as linear with acceptable accuracy.
-
-Line code is a short alphabetical string identifying a longitudinal line such a chine or knuckle. The only line code fully supported is "DK" which marks the point at the deck edge.
-
-Shell thicknesses indicate the cumulative history of incremental expansions (positive) or contractions (negative) of the sectional outlines in a direction normal to the outline curve in the sectional plane and applying to the bottom, sides and top of every sectional curve on the shape. If omitted, all three thicknesses are assumed to be zero. If present, all three numbers must be present in the following sequence:
-
-     Bottom, Sides, Top
-
-Zero shell thickness implies that the outlines are to the inside of any shell. A nonzero shell thickness means that the shell is included within the shape and that the interior space of the body it represents can be deduced by contracting the sectional outlines by the amounts of the shell thicknesses.
-
-In the absence of Line codes defining the transition from bottom to side and side to top, the bottom of each sectional curve extends to the point where the slope passes through 1.0; the top begins where the magnitude of the slope becomes less than 0.25.
-
-Property table is an optional data structure that contains formal properties of the portions of the shape below a series of horizontal planes. Its purpose is to provide alternate "Calibrated" properties that cannot be derived from the foregoing geometry. The format of this table is:
-            PROP, n
-            Height 1, Props 1
-            ...
-            Height n, Props n
-
-1st property table line: The keyword "PROP" followed by n, the number of rows in the property table.
-
-Other property table lines: Height, the vertical offset a "waterplane" normal to the vertical axis; Props, the properties of the portion of the solid below the waterplane. The format of the properties is:
-
-     Volume, LCV, TCV, VCV, Area, LCA, TCA, CML, CMT
-
-Volume is the volume of the solid below the waterplane in cubic feet.
-
-LCV, TCV, VCV are the longitudinal, transverse and vertical coordinates of the centroid of the volume below the waterplane, in feet.
-
-Area is the area of the waterplane's intersection with the shape, in square feet.
-
-LCA, TCA are the center of the waterplane area, in feet.
-
-CML, CMT are the longitudinal and transverse moments of inertia of the waterplane area about its own center divided by the volume, in feet.
-
-The rows in the table must be arranged such that the height increases monotonically. The height should range such that the volume goes from zero to the full volume of the shape.
-
-A shape definition must appear before any of the component definitions that refer to it.
-
-
-Components
-
-The component data structure gives further definition to a shape by locating it relative to the ship's overall origin and assigning it an effectiveness factor. It also provides symmetry information for proper interpretation of the section curves. Note that more than one component may use the same shape.
-
-Component format:
-            **
-            Component name
-            Side
-            Effectiveness
-            Shape origin shift
-            Shape name
-            Margins (optional)
-
-1st component line: two asterisks. These must be the only characters on the line.
-
-2nd component line: the component name (e.g. HULL). The component name must be the only thing on this line and there must be no leading or trailing blanks. Only upper case letters and digits, periods and hyphens should be used. (Lower case letters may be used for component names that are of no concern to the user.) Its length must not exceed 14 characters including any suffix denoting side. The suffix, if present, may be in one of two forms: 1) of the form ".P", ".C", or ".S" which correspond, respectively, with -1, 0 and 1 values of the "side factor" on the next line; or 2) "-n" where n must be "0" if the side factor is zero, even if the side factor is negative, and odd if the side factor is positive.
-
-3rd component line: the side factor is an integer which must be -1, 0 or 1. If the component is fully described by the referenced shape data, the side factor is 1. If the component is as described by the shape data except that the shape's transverse coordinates are to be negated (moved to the opposite side) the side factor is -1. If only half of the component is described by the shape data (the other half being described by reflecting the transverse coordinates about the shape's origin), the side factor is 0.
-
-4th component line: effectiveness is a factor which multiplies the volume and waterplane area of the component. It should be a real number in the range negative 1.0 to positive 1.0. If the component represents a tank or compartment where a permeability factor is to be used, the effectiveness is the permeability. Components which represent buoyant or windage structures normally have an effectiveness of 1.0, but in cases where the detail of structure is represented by a simpler enveloping surface, the effective volume would be less than the volume of the envelope, thereby requiring a lesser effectiveness factor. A negative effectiveness factor may be used to deduct the volume of a component when it is representing a void within a part.
-
-5th component line: the shape's origin shift is a vector (longitudinal, transverse, vertical coordinates) representing the shift of the origin to which the shape data is referred, relative to the overall vessel origin. For example, if the shape data for a skeg is referred to a local origin at the skeg's centerline -- which is 9 feet from the ship's centerline -- and to the forward end of the skeg -- which is 40 feet aft of the ship's longitudinal origin -- the component origin shift would be 40,9,0.
-
-6th component line: the name of the shape representing this component. The shape data structure must precede the component data which refers to it.
-
-7th (optional) component line: three numbers representing freeboard margins relative to the deck edge. The first number applies to the forwardmost (least) section location and the last number applies to the aftmost (greatest) section location. The middle number applies to a location midway between the other two. (The margin distance at other locations is derived by parabolic interpolation.)
-
-No two components belonging to the same part may have the same name. Two components may have the same name provided only one of them precedes the part to which it belongs (see the part data structure description, below).
 
 
 Parts
@@ -328,139 +200,340 @@ from .volumes import Volume
 from .hull import Hull
 
 
+class GHSgeo:
 
-def read_shape_record(lines):
+    def __init__(self, filename):
+        self.filename = filename
+
+        self.warnings = []
+        self.shapes = dict()
+
+        self.frames = []
+        self.volumes = []
+
+        self.data = dict()
+
+        self.read()
+
+    def read(self):
+
+        with open(self.filename, 'r') as f:
+            self.lines = f.readlines()
+
+        # remove comments
+        self.lines = [line for line in self.lines if not line.startswith("\\")]
+
+        self.read_header()
+
+        # read the remaining sections
+
+        while self.lines:
+            next = self.lines.pop(0)
+
+            if next.startswith("****"):
+                break
+
+            if next.startswith("**"):
+                break
+
+            if next.startswith("*"):
+                self.read_shape_record()
+                continue
+
+            self.warnings.append("Unrecognized line: {}".format(next))
+
+
+
+
+
+    def read_header(self):
+
+        # read till HULL
+
+        self.data["name"] = self.lines.pop(0)
+
+        next = self.lines.pop(0)
+
+        # check if next starts with a digit
+        if next[0].isdigit():
+            self.data["reference"] = next
+            next = self.lines.pop(0)
+
+        while True:
+            if next.startswith("*"):
+                self.lines.insert(0, next)
+                break
+
+            if next.startswith("L:"):
+                self.data["overall length"] = next[2:].strip()
+            elif next.startswith("W:"):
+                self.data["overall width"] = next[2:].strip()
+            elif next.startswith("P:"):
+                self.data["Units Preference"] = next[2:].strip()
+            elif next.startswith("OL:"):
+                self.data["Longitudinal origin plane description"] = next[3:].strip()
+            elif next.startswith("OT:"):
+                self.data["Transverse origin plane description"] = next[3:].strip()
+            elif next.startswith("OV:"):
+                self.data["Vertical origin plane description"] = next[3:].strip()
+            elif next.startswith("N:"):
+                self.data["Number of part records"] = next[2:].strip()
+            else:
+                print(f"ignored: {next}")
+
+            next = self.lines.pop(0)
+
+        return
+
+
+
+    def read_shape_record(self):
+        """
+        Reads a shape record and adds the created volume into a shape['name']
+        - property tables are ignored
+        - TODO: thickness is ignored
+        - TODO: radius is ignored
+
+            4th shape line: The first line of the first section.
+
+            The section format is:
+                        Location, m
+                        Point 1
+                        ...
+                        Point m
+
+
+        Shapes
+
+        The shape data structure represents the solid model of some element of the vessel such as, for example, the hull, a skeg or a tank. The solid is represented as a discrete series of slices or planes all parallel to one another. It is assumed that the spacing between these slices (which may vary) is greater than 0.01 and small enough that all important aspects of the solid are adequately represented by the slices. The orientation of these planes is always normal to the longitudinal axis of the overall model.
+
+        At each slice or "section" of the solid shape is a closed curve representing the complete outline of the intersection of the solid with the cross-sectioning plane. Each curve is represented as an ordered series of points where either a straight line or circular arc connects points. The first and last points are always connected by a straight line.
+
+        The vertical axis is recognized as a possible line of symmetry, and the shape data structure takes advantage of this kind of symmetry by allowing the portion of a symmetrical curve that would be on the negative side (to the left of the vertical axis) to be omitted but still implied.
+
+        When a sectional curve is viewed with the positive transverse axis to the right and the positive vertical axis upwards, the progression of points is always such that the area enclosed in going from the first to the last point is positive.
+
+        The format of each shape record in the ASCII Geometry File is:
+                    *
+                    Shape name
+                    n
+                    Section 1
+                    ...
+                    Section n
+                    Shell thicknesses
+                    Property table
+
+        1st shape line: One asterisk. This must be the only character on the line.
+
+        2nd shape line: The shape name (e.g. HULL). The shape name must be the only thing on this line and there must be no leading or trailing blanks. Only letters and digits may be used, and letters should be upper case (except for the shape names automatically assigned that are of no concern to the user, which may include lower-case letters). Its length must not exceed 8 characters. No two shapes may have the same name within the same Geometry File.
+
+        3rd shape line: An integer n where 1 < n < 256 giving the number of sections comprising the shape.
+
+        4th shape line: The first line of the first section.
+
+        The section format is:
+                    Location, m
+                    Point 1
+                    ...
+                    Point m
+
+        1st section line: The section's longitudinal location and number of points on the section. Longitudinal locations may be relative to any convenient origin (different shapes may use different origins). The sections must be arranged in ascending order of their longitudinal locations. A section must have at least one point and less than 256 points.
+
+        2nd section line: The first point of the section. Points must be arranged in sequence so that going from point 1 to point 2 ... to point m results in a counterclockwise traversal of the section curve in a plane where the positive transverse axis is to the right and the positive vertical axis us upward.
+
+        The point format is:
+
+             Trans, Vert [, Surface code, Radius, Line code]
+
+        Trans is the transverse coordinate of the point relative to the shape's origin.
+
+        Vert is the vertical coordinate of the point relative to the shape's origin.
+
+        The remaining three items on the point line are optional. If the values of all three are zero or blank, they may be omitted along with the preceding comma.
+
+        Surface code is a single digit from 0 to 3. It indicates the wettable/covered and shell/no-shell status of the line segment between the point it is attached to and the next point:
+                  Surface code        Segment Covered?      Shell Gap Present?
+                       0                    No                      No
+                       1                    Yes                     No
+                       2                    No                      Yes
+                       3                    Yes                     Yes
+
+        Surface code 2 is a special case used to indicate portions of a section curve which are not on the surface of the actual shape. Surface codes may be ignored in some programs.
+
+        Radius, if present and not zero, is the radius of the arc connecting this point and neighboring points having exactly the same radius value. The distance between these points should be sufficiently small compared to the radius that straight lines connecting the same points would be an acceptable approximation to the curve. If the center of curvature of the arc is to the right when looking from the point to the next point (with the same radius), the radius number should be negative. The presence of the radius allows programs that recognize it to store the curve in a more compact form while programs that do not recognize the radius can treat the connections between points as linear with acceptable accuracy.
+
+        Line code is a short alphabetical string identifying a longitudinal line such a chine or knuckle. The only line code fully supported is "DK" which marks the point at the deck edge.
+
+        Shell thicknesses indicate the cumulative history of incremental expansions (positive) or contractions (negative) of the sectional outlines in a direction normal to the outline curve in the sectional plane and applying to the bottom, sides and top of every sectional curve on the shape. If omitted, all three thicknesses are assumed to be zero. If present, all three numbers must be present in the following sequence:
+
+             Bottom, Sides, Top
+
+        Zero shell thickness implies that the outlines are to the inside of any shell. A nonzero shell thickness means that the shell is included within the shape and that the interior space of the body it represents can be deduced by contracting the sectional outlines by the amounts of the shell thicknesses.
+
+        In the absence of Line codes defining the transition from bottom to side and side to top, the bottom of each sectional curve extends to the point where the slope passes through 1.0; the top begins where the magnitude of the slope becomes less than 0.25.
+
+        Property table is an optional data structure that contains formal properties of the portions of the shape below a series of horizontal planes. Its purpose is to provide alternate "Calibrated" properties that cannot be derived from the foregoing geometry. The format of this table is:
+                    PROP, n
+                    Height 1, Props 1
+                    ...
+                    Height n, Props n
+
+        1st property table line: The keyword "PROP" followed by n, the number of rows in the property table.
+
+        Other property table lines: Height, the vertical offset a "waterplane" normal to the vertical axis; Props, the properties of the portion of the solid below the waterplane. The format of the properties is:
+
+             Volume, LCV, TCV, VCV, Area, LCA, TCA, CML, CMT
+
+        Volume is the volume of the solid below the waterplane in cubic feet.
+
+        LCV, TCV, VCV are the longitudinal, transverse and vertical coordinates of the centroid of the volume below the waterplane, in feet.
+
+        Area is the area of the waterplane's intersection with the shape, in square feet.
+
+        LCA, TCA are the center of the waterplane area, in feet.
+
+        CML, CMT are the longitudinal and transverse moments of inertia of the waterplane area about its own center divided by the volume, in feet.
+
+        The rows in the table must be arranged such that the height increases monotonically. The height should range such that the volume goes from zero to the full volume of the shape.
+
+        A shape definition must appear before any of the component definitions that refer to it.
+
+        """
+        data = dict()
+
+        lines = self.lines # alias (by reference)
+
+        name = lines.pop(0)
+        n = int(lines.pop(0))
+
+        vertices = []
+
+        hull_data = []
+
+        # read sections
+        for i in range(n):
+            """The section format is:
+            Location, m
+            Point 1
+            ...
+            Point m
+    
+            """
+            section = dict()
+            location, m = lines.pop(0).split(",")
+            section["location"] = float(location)
+            section["points"] = []
+            for j in range(int(m)):
+                point_line = lines.pop(0)
+
+                parts = point_line.split(",")
+                y = float(parts[0])
+                z = float(parts[1])
+
+                if len(parts) >= 3:
+                    surface_code = int(parts[2])
+                if len(parts) >= 4:
+                    radius = int(parts[3])
+                if len(parts) >= 5:
+                    line_code = parts[4]
+
+                section["points"].append((y, z))
+
+            for point in section["points"]:
+                vertices.append((section["location"], point[0], point[1]))
+
+            as_points = []
+            for p in section["points"]:
+                as_points.append(p[0] * 0.3048)
+                as_points.append(p[1] * 0.3048)
+
+            f = Frame(*as_points).autocomplete()
+
+            hull_data.append(float(location) * 0.3048)
+            hull_data.append(f)
+
+        data["thickness"] = [float(x) for x in lines.pop(0).split(",")]
+
+        # check for property table
+        if lines[0].startswith("PROP"):
+            n = int(lines.pop(0).split(",")[1])
+
+            for i in range(n):
+                print("Skipping property table line : ", lines[0])
+                lines.pop(0)  # skip property table
+
+        # data['property table'] = lines.pop(0)
+
+        if hull_data:
+            self.shapes[name] = Hull(*hull_data)
+        else:
+            self.warnings.append("No hull data found for %s" % name)
+
+
+def read_compartment(lines):
     """
-    4th shape line: The first line of the first section.
 
-    The section format is:
-                Location, m
-                Point 1
-                ...
-                Point m
+    Components
+
+    The component data structure gives further definition to a shape by locating it relative to the ship's overall origin and assigning it an effectiveness factor. It also provides symmetry information for proper interpretation of the section curves. Note that more than one component may use the same shape.
+
+    Component format:
+                **
+                Component name
+                Side
+                Effectiveness
+                Shape origin shift
+                Shape name
+                Margins (optional)
+
+    1st component line: two asterisks. These must be the only characters on the line.
+
+    2nd component line: the component name (e.g. HULL). The component name must be the only thing on this line and there must be no leading or trailing blanks.
+                        Only upper case letters and digits, periods and hyphens should be used. (Lower case letters may be used for component names that are of no concern to the user.)
+                        Its length must not exceed 14 characters including any suffix denoting side.
+                        The suffix, if present, may be in one of two forms:
+                        1) of the form ".P", ".C", or ".S" which correspond, respectively, with -1, 0 and 1 values of the "side factor" on the next line; or
+                        2) "-n" where n must be "0" if the side factor is zero, even if the side factor is negative, and odd if the side factor is positive.
+
+    3rd component line: the side factor is an integer which must be -1, 0 or 1.
+                        If the component is fully described by the referenced shape data, the side factor is 1.
+                        If the component is as described by the shape data except that the shape's transverse coordinates are to be negated (moved to the opposite side) the side factor is -1.
+                        If only half of the component is described by the shape data (the other half being described by reflecting the transverse coordinates about the shape's origin),
+                            the side factor is 0.
+
+    IGNORED
+    4th component line: effectiveness is a factor which multiplies the volume and waterplane area of the component.
+                        It should be a real number in the range negative 1.0 to positive 1.0.
+                        If the component represents a tank or compartment where a permeability factor is to be used, the effectiveness is the permeability.
+                        Components which represent buoyant or windage structures normally have an effectiveness of 1.0,
+                         but in cases where the detail of structure is represented by a simpler enveloping surface,
+                         the effective volume would be less than the volume of the envelope, thereby requiring a lesser effectiveness factor.
+                         A negative effectiveness factor may be used to deduct the volume of a component when it is representing a void within a part.
+
+    5th component line: the shape's origin shift is a vector (longitudinal, transverse, vertical coordinates) representing the shift of the origin to which the shape data is referred,
+                        relative to the overall vessel origin. For example, if the shape data for a skeg is referred to a local origin at the skeg's centerline
+                         -- which is 9 feet from the ship's centerline -- and to the forward end of the skeg -- which is 40 feet aft of the ship's longitudinal
+                         origin -- the component origin shift would be 40,9,0.
+
+    6th component line: the name of the shape representing this component. The shape data structure must precede the component data which refers to it.
+
+    IGNORED
+    7th (optional) component line: three numbers representing freeboard margins relative to the deck edge.
+                        The first number applies to the forwardmost (least) section location and the last number applies to the aftmost (greatest) section location.
+                        The middle number applies to a location midway between the other two. (The margin distance at other locations is derived by parabolic interpolation.)
+
+    No two components belonging to the same part may have the same name. Two components may have the same name provided only one of them precedes the part to which it belongs
+                        (see the part data structure description, below).
 
 
-
-    :param lines:
-    :return:
     """
-    data = dict()
-
-    data['name'] = lines.pop(0)
-    n = int(lines.pop(0))
-
-    vertices = []
-
-    hull_data = []
-
-    # read sections
-    for i in range(n):
-        """The section format is:
-                Location, m
-                Point 1
-                ...
-                Point m
-
-                """
-        section = dict()
-        location, m = lines.pop(0).split(',')
-        section['location'] = float(location)
-        section['points'] = []
-        for j in range(int(m)):
-            point_line = lines.pop(0)
-
-            parts = point_line.split(',')
-            y = float(parts[0])
-            z = float(parts[1])
-
-            if len(parts) >= 3:
-                surface_code = int(parts[2])
-            if len(parts) >= 4:
-                radius = int(parts[3])
-            if len(parts) >= 5:
-                line_code = parts[4]
-
-            section['points'].append((y, z))
-
-        for point in section['points']:
-            vertices.append((section['location'], point[0], point[1]))
-
-        as_points = []
-        for p in section['points']:
-            as_points.append(p[0]*0.3048)
-            as_points.append(p[1]*0.3048)
-
-        f = Frame(*as_points).autocomplete()
-
-        hull_data.append(float(location) * 0.3048)
-        hull_data.append(f)
-
-    data['thickness'] = [float(x) for x in lines.pop(0).split(',')]
-    data['property table'] = lines.pop(0)
-
-    return Hull(*hull_data)
 
 
 # Press the green button in the gutter to run the script.
-def read_ghs_file(filename):
-    lines = []
+# def read_ghs(filename):
+#     lines = []
+#
+#     with open(filename, "r") as f:
+#         lines = f.readlines()
 
-    with open(filename, 'r') as f:
-        lines = f.readlines()
-
-    # remove comments
-    lines = [line for line in lines if not line.startswith('\\')]
-
-    # read till HULL
-    data = dict()
-    data['name'] = lines.pop(0)
-
-    next = lines.pop(0)
-
-    # check if next starts with a digit
-    if next[0].isdigit():
-        data['reference'] = next
-        next = lines.pop(0)
-
-    while True:
-        if next.startswith('*'):
-            break
-
-        if next.startswith('L:'):
-            data['overall length'] = next[2:].strip()
-        elif next.startswith('W:'):
-            data['overall width'] = next[2:].strip()
-        elif next.startswith('P:'):
-            data['Units Preference'] = next[2:].strip()
-        elif next.startswith('OL:'):
-            data['Longitudinal origin plane description'] = next[3:].strip()
-        elif next.startswith('OT:'):
-            data['Transverse origin plane description'] = next[3:].strip()
-        elif next.startswith('OV:'):
-            data['Vertical origin plane description'] = next[3:].strip()
-        elif next.startswith('N:'):
-            data['Number of part records'] = next[2:].strip()
-        else:
-            print(f'ignored: {next}')
-
-        next = lines.pop(0)
-
-    print(data)
-
-    VOLUMES = []
-
-    while True:
-        if next.startswith('****'):
-            break
-
-        if next.startswith('*'):
-            shape = read_shape_record(lines)
-
-            VOLUMES.append(shape)
-
-
-        if not lines:
-            break
-
-    return VOLUMES
 

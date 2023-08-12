@@ -20,6 +20,6 @@ finally:
 from .frames import Frame
 from .volumes import Volume, Box, Cylinder, Plot, Load
 from .hull import Hull
-from .ghs_import import read_ghs_file
+from .ghs_import import GHSgeo
 
-__all__ = ['Volume','Box','Cylinder','Plot', 'Frame','Hull','Load','read_ghs_file']
+__all__ = ['Volume','Box','Cylinder','Plot', 'Frame','Hull','Load', 'GHSgeo']
