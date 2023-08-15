@@ -12,6 +12,11 @@ class Frame():
         if not args:
             raise ValueError("Please provide x and y locations for the points")
 
+        if len(args) == 1:
+            if isinstance(args[0], Frame):
+                self.xy = tuple(args[0].xy)
+                return
+
         if len(args) % 2 != 0:
             raise ValueError("Number of coordinates should be even")
 
@@ -28,7 +33,7 @@ class Frame():
         self.xy = tuple(self.xy)  # make immutable
 
     def autocomplete(self):
-        """Retruns a copy of self with the frame expanded over the mirror in x=0"""
+        """Returns a copy of self with the frame expanded over the mirror in x=0"""
 
         frame = self.xy[:-1] # all except the last one (which is the duplicate of 1)
 

@@ -198,15 +198,31 @@ Copyright (C) 1997-1999 Creative Systems, Inc.
 from .frames import Frame
 from .volumes import Volume
 from .hull import Hull
+from .helpers.geo_math import points_on_circle
 
 
 class GHSgeo:
 
-    def __init__(self, filename):
+    def __init__(self, filename, circular_segments_step=999):
+        """
+Parameters
+----------
+filename : str
+    The name of the GHS geometry file to read.
+circular_segments_step : maximum distance (degrees) between points on a circular segment. Default to 999 (no additional points segments).
+    Used for the "radius" definitions in the geometry file.
+        """
+
+
         self.filename = filename
+        self.circular_segments_step = circular_segments_step
 
         self.warnings = []
-        self.shapes = dict()
+        self.shapes_outside = dict()  # volumes representing the outside of the hull
+        self.shapes_inside = dict()   # volumes representing the inside of the hull, difference is due to thickness
+        self.components = dict()
+        self.parts = dict()
+
 
         self.frames = []
         self.volumes = []
@@ -233,15 +249,51 @@ class GHSgeo:
             if next.startswith("****"):
                 break
 
-            if next.startswith("**"):
-                break
+            elif next.startswith("***"):
+                self.read_part()
+                continue
 
-            if next.startswith("*"):
+            elif next.startswith("**"):
+                self.read_component()
+                continue
+
+            elif next.startswith("*"):
                 self.read_shape_record()
                 continue
 
             self.warnings.append("Unrecognized line: {}".format(next))
 
+        self.compile()
+
+    def compile(self):
+        # Compiles the final parts of the geometry file
+
+        for name, values in self.parts.items():
+
+            # combine the components into a single volume
+
+            volume = Volume()
+
+            for component_name in values["components"]:
+                component = self.components[component_name]
+                shape_name = component['shape_name']
+                shape : Volume = self.shapes_outside[shape_name]
+
+                # part_type = component['part_type']
+
+                # shift and mirror the shape if necessary
+                if component['side_factor'] < 0:
+                    shape = shape.mirrorXZ()
+
+                shape = shape.move(*component['origin_shift'])
+
+                # are we an addition or a subtraction?
+                if component['effectiveness'] > 0:
+                    volume = volume.add(shape)
+                else:
+                    volume = volume.remove(shape)
+
+            self.parts[name]["volume"] = volume
 
 
 
@@ -289,14 +341,12 @@ class GHSgeo:
 
     def read_shape_record(self):
         """
-        Reads a shape record and adds the created volume into a shape['name']
+        Reads a shape record and adds the created volume into shape_outside['name'] as well as shape_inside['name']
+
         - property tables are ignored
-        - TODO: thickness is ignored
-        - TODO: radius is ignored
 
             4th shape line: The first line of the first section.
-
-            The section format is:
+                The section format is:
                         Location, m
                         Point 1
                         ...
@@ -369,7 +419,6 @@ class GHSgeo:
              Bottom, Sides, Top
 
         Zero shell thickness implies that the outlines are to the inside of any shell. A nonzero shell thickness means that the shell is included within the shape and that the interior space of the body it represents can be deduced by contracting the sectional outlines by the amounts of the shell thicknesses.
-
         In the absence of Line codes defining the transition from bottom to side and side to top, the bottom of each sectional curve extends to the point where the slope passes through 1.0; the top begins where the magnitude of the slope becomes less than 0.25.
 
         Property table is an optional data structure that contains formal properties of the portions of the shape below a series of horizontal planes. Its purpose is to provide alternate "Calibrated" properties that cannot be derived from the foregoing geometry. The format of this table is:
@@ -403,12 +452,14 @@ class GHSgeo:
 
         lines = self.lines # alias (by reference)
 
-        name = lines.pop(0)
+        name = lines.pop(0).strip()
         n = int(lines.pop(0))
 
         vertices = []
 
         hull_data = []
+        radius = -1
+        previous_radius = -1
 
         # read sections
         for i in range(n):
@@ -422,7 +473,11 @@ class GHSgeo:
             section = dict()
             location, m = lines.pop(0).split(",")
             section["location"] = float(location)
-            section["points"] = []
+
+            as_points = []
+
+            y_at_zero = False # to check for symmetry
+
             for j in range(int(m)):
                 point_line = lines.pop(0)
 
@@ -434,20 +489,47 @@ class GHSgeo:
                     surface_code = int(parts[2])
                 if len(parts) >= 4:
                     radius = int(parts[3])
+                else:
+                    radius = -1
                 if len(parts) >= 5:
                     line_code = parts[4]
 
-                section["points"].append((y, z))
 
-            for point in section["points"]:
-                vertices.append((section["location"], point[0], point[1]))
+                if radius > 0 and radius == previous_radius:
+                    # create arc
+                    px = as_points[-2]
+                    py = as_points[-1]
+                    cx = y * 0.3048
+                    cy = z * 0.3048
+                    r = radius * 0.3048
 
-            as_points = []
-            for p in section["points"]:
-                as_points.append(p[0] * 0.3048)
-                as_points.append(p[1] * 0.3048)
+                    points = points_on_circle(p1 = (px, py),
+                                              p2 = (cx, cy),
+                                              radius = r,
+                                              max_angle_deg=self.circular_segments_step)
 
-            f = Frame(*as_points).autocomplete()
+                    for p in points[1:-1]:  # skip the endpoints
+                        as_points.append(p[0])
+                        as_points.append(p[1])
+
+
+                previous_radius = radius
+
+                as_points.append(y * 0.3048)
+                as_points.append(z * 0.3048)
+
+                if y==0:
+                    y_at_zero = True
+
+            f = Frame(*as_points)
+
+
+            # check if auto-completion is needed
+            # Checking first and last point is not a solution
+            # checking if any point is on y=0 ?
+
+            if y_at_zero:
+                f = f.autocomplete()
 
             hull_data.append(float(location) * 0.3048)
             hull_data.append(f)
@@ -455,6 +537,7 @@ class GHSgeo:
         data["thickness"] = [float(x) for x in lines.pop(0).split(",")]
 
         # check for property table
+        # and then ignore it
         if lines[0].startswith("PROP"):
             n = int(lines.pop(0).split(",")[1])
 
@@ -462,71 +545,183 @@ class GHSgeo:
                 print("Skipping property table line : ", lines[0])
                 lines.pop(0)  # skip property table
 
-        # data['property table'] = lines.pop(0)
 
         if hull_data:
-            self.shapes[name] = Hull(*hull_data)
+            self.shapes_outside[name] = Hull(*hull_data)   #this is the outside of the hull
         else:
             self.warnings.append("No hull data found for %s" % name)
 
+        # calculate the inside (due to thickness)
+        if any(data["thickness"]): # any thickness not equal to zero
+            Bottom = data['thickness'][0]
+            Sides = data['thickness'][1]
+            Top = data['thickness'][2]
 
-def read_compartment(lines):
-    """
+            raise ValueError("I do not know how what this data would look like")
 
-    Components
+            # offset the shape and use boolean operations to create the inside
+            original : Volume = self.shapes_outside[name]
+            side1 = original.move(y = -Sides)
 
-    The component data structure gives further definition to a shape by locating it relative to the ship's overall origin and assigning it an effectiveness factor. It also provides symmetry information for proper interpretation of the section curves. Note that more than one component may use the same shape.
-
-    Component format:
-                **
-                Component name
-                Side
-                Effectiveness
-                Shape origin shift
-                Shape name
-                Margins (optional)
-
-    1st component line: two asterisks. These must be the only characters on the line.
-
-    2nd component line: the component name (e.g. HULL). The component name must be the only thing on this line and there must be no leading or trailing blanks.
-                        Only upper case letters and digits, periods and hyphens should be used. (Lower case letters may be used for component names that are of no concern to the user.)
-                        Its length must not exceed 14 characters including any suffix denoting side.
-                        The suffix, if present, may be in one of two forms:
-                        1) of the form ".P", ".C", or ".S" which correspond, respectively, with -1, 0 and 1 values of the "side factor" on the next line; or
-                        2) "-n" where n must be "0" if the side factor is zero, even if the side factor is negative, and odd if the side factor is positive.
-
-    3rd component line: the side factor is an integer which must be -1, 0 or 1.
-                        If the component is fully described by the referenced shape data, the side factor is 1.
-                        If the component is as described by the shape data except that the shape's transverse coordinates are to be negated (moved to the opposite side) the side factor is -1.
-                        If only half of the component is described by the shape data (the other half being described by reflecting the transverse coordinates about the shape's origin),
-                            the side factor is 0.
-
-    IGNORED
-    4th component line: effectiveness is a factor which multiplies the volume and waterplane area of the component.
-                        It should be a real number in the range negative 1.0 to positive 1.0.
-                        If the component represents a tank or compartment where a permeability factor is to be used, the effectiveness is the permeability.
-                        Components which represent buoyant or windage structures normally have an effectiveness of 1.0,
-                         but in cases where the detail of structure is represented by a simpler enveloping surface,
-                         the effective volume would be less than the volume of the envelope, thereby requiring a lesser effectiveness factor.
-                         A negative effectiveness factor may be used to deduct the volume of a component when it is representing a void within a part.
-
-    5th component line: the shape's origin shift is a vector (longitudinal, transverse, vertical coordinates) representing the shift of the origin to which the shape data is referred,
-                        relative to the overall vessel origin. For example, if the shape data for a skeg is referred to a local origin at the skeg's centerline
-                         -- which is 9 feet from the ship's centerline -- and to the forward end of the skeg -- which is 40 feet aft of the ship's longitudinal
-                         origin -- the component origin shift would be 40,9,0.
-
-    6th component line: the name of the shape representing this component. The shape data structure must precede the component data which refers to it.
-
-    IGNORED
-    7th (optional) component line: three numbers representing freeboard margins relative to the deck edge.
-                        The first number applies to the forwardmost (least) section location and the last number applies to the aftmost (greatest) section location.
-                        The middle number applies to a location midway between the other two. (The margin distance at other locations is derived by parabolic interpolation.)
-
-    No two components belonging to the same part may have the same name. Two components may have the same name provided only one of them precedes the part to which it belongs
-                        (see the part data structure description, below).
+        else:  # just the same
+            self.shapes_inside[name] = self.shapes_outside[name]
 
 
-    """
+
+
+    def read_component(self):
+        """
+        Reads components into self.components
+
+
+            Components
+
+        The component data structure gives further definition to a shape by locating it relative to the ship's overall origin and assigning it an effectiveness factor. It also provides symmetry information for proper interpretation of the section curves. Note that more than one component may use the same shape.
+
+        Component format:
+                    **
+                    Component name
+                    Side
+                    Effectiveness
+                    Shape origin shift
+                    Shape name
+                    Margins (optional)
+
+        1st component line: two asterisks. These must be the only characters on the line.
+
+        2nd component line: the component name (e.g. HULL). The component name must be the only thing on this line and there must be no leading or trailing blanks.
+                            Only upper case letters and digits, periods and hyphens should be used. (Lower case letters may be used for component names that are of no concern to the user.)
+                            Its length must not exceed 14 characters including any suffix denoting side.
+                            The suffix, if present, may be in one of two forms:
+                            1) of the form ".P", ".C", or ".S" which correspond, respectively, with -1, 0 and 1 values of the "side factor" on the next line; or
+                            2) "-n" where n must be "0" if the side factor is zero, even if the side factor is negative, and odd if the side factor is positive.
+
+        3rd component line: the side factor is an integer which must be -1, 0 or 1.
+                            If the component is fully described by the referenced shape data, the side factor is 1.
+                            If the component is as described by the shape data except that the shape's transverse coordinates are to be negated (moved to the opposite side) the side factor is -1.
+                            If only half of the component is described by the shape data (the other half being described by reflecting the transverse coordinates about the shape's origin),
+                                the side factor is 0.
+
+        IGNORED
+        4th component line: effectiveness is a factor which multiplies the volume and waterplane area of the component.
+                            It should be a real number in the range negative 1.0 to positive 1.0.
+                            If the component represents a tank or compartment where a permeability factor is to be used, the effectiveness is the permeability.
+                            Components which represent buoyant or windage structures normally have an effectiveness of 1.0,
+                             but in cases where the detail of structure is represented by a simpler enveloping surface,
+                             the effective volume would be less than the volume of the envelope, thereby requiring a lesser effectiveness factor.
+                             A negative effectiveness factor may be used to deduct the volume of a component when it is representing a void within a part.
+
+        5th component line: the shape's origin shift is a vector (longitudinal, transverse, vertical coordinates) representing the shift of the origin to which the shape data is referred,
+                            relative to the overall vessel origin. For example, if the shape data for a skeg is referred to a local origin at the skeg's centerline
+                             -- which is 9 feet from the ship's centerline -- and to the forward end of the skeg -- which is 40 feet aft of the ship's longitudinal
+                             origin -- the component origin shift would be 40,9,0.
+
+        6th component line: the name of the shape representing this component. The shape data structure must precede the component data which refers to it.
+
+        IGNORED
+        7th (optional) component line: three numbers representing freeboard margins relative to the deck edge.
+                            The first number applies to the forwardmost (least) section location and the last number applies to the aftmost (greatest) section location.
+                            The middle number applies to a location midway between the other two. (The margin distance at other locations is derived by parabolic interpolation.)
+
+        No two components belonging to the same part may have the same name. Two components may have the same name provided only one of them precedes the part to which it belongs
+                            (see the part data structure description, below).
+
+
+        """
+
+        lines =self.lines # alias by reference
+
+        name = lines.pop(0).strip()
+        suffix = name[-2:]
+
+        # side factor is only defined when suffix is not present?
+        if suffix in [".P", ".C", ".S"]:
+            if suffix == ".P":
+                side = -1
+            elif suffix == ".C":
+                side = 0
+            elif suffix == ".S":
+                side = 1
+        elif suffix in ["-0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9"]:
+            raise ValueError("No idea what to do with this - need example")
+        else:
+            side = int(lines.pop(0).strip())
+
+
+        side_factor = int(lines.pop(0).strip())
+        effectiveness = float(lines.pop(0).strip())
+        origin_shift = [float(x)*0.3048 for x in lines.pop(0).strip().split(",")]
+        shape_name = lines.pop(0).strip()
+
+        if not lines[0].startswith("*"):
+            margins = [float(x) for x in lines.pop(0).strip().split(",")]
+        else:
+            margins = None
+
+        self.components[name] = {
+            "name": name,
+            "suffix": suffix,
+            "side": side,
+            "side_factor": side_factor,
+            "effectiveness": effectiveness,
+            "origin_shift": origin_shift,
+            "shape_name": shape_name,
+            "margins": margins
+        }
+
+        print("read component", name, suffix, side, side_factor, effectiveness, origin_shift, shape_name, margins)
+
+
+    def read_part(self):
+
+        lines = self.lines # alias by ref
+
+        parts = lines.pop(0).split('\\')
+        name = parts[0].strip()
+        if len(parts) > 1:
+            part_description = parts[1].strip()
+        else:
+            part_description = None
+
+        fluid_name = lines.pop(0).strip()
+
+        part_type = int(lines.pop(0).strip())
+        """
+        
+            1 - Displacement part (e.g. HULL including appendages)
+            4 - Containment part  (e.g. a tank or compartment)
+           10 - Sail (windage) part (e.g. non-watertight superstructure)
+        """
+
+        specific_gravity = float(lines.pop(0).strip())
+        # as fraction of fresh water density
+
+        reference_point = [float(x) for x in lines.pop(0).strip().split(",")]
+
+        n_components = int(lines.pop(0).strip())
+
+        components = []
+        for i in range(n_components):
+            component_name = lines.pop(0).strip()
+            components.append(component_name)
+
+        # sounding tubes and correction factors
+        # ignored
+
+        while not lines[0].startswith('*'):
+            lines.pop(0)
+
+        self.parts[name] = {
+            "name": name,
+            "part_description": part_description,
+            "fluid_name": fluid_name,
+            "part_type": part_type,
+            "specific_gravity": specific_gravity,
+            "reference_point": reference_point,
+            "components": components
+        }
+
+        print("read part", name, part_description, fluid_name, part_type, specific_gravity, reference_point, n_components)
 
 
 # Press the green button in the gutter to run the script.
