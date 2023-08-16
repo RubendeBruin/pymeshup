@@ -261,7 +261,7 @@ class Gui():
 
         self.ui.pushButton_3.clicked.connect(self.save_volumes)
 
-        self.ui.actionOpen_2.triggered.connect(lambda : self.fileOpen(path = str(pathlib.Path(__file__).parent / 'examples')))
+        self.ui.actionOpen_2.triggered.connect(self.open_examples)
         self.ui.actionHelp_visible.triggered.connect(lambda: self.ui.dockWidget.setVisible(not self.ui.dockWidget.isVisible()))
 
         # ---- capytaine part
@@ -289,6 +289,19 @@ class Gui():
         self.style = BlenderStyle()
         self.iren.SetInteractorStyle(self.style)
         self.style.callbackSelect = self.select_3d_actor
+
+        self.update_period()
+        self.update_heading()
+
+    def open_examples(self):
+
+        import os, sys
+
+        if getattr(sys, 'frozen', False):
+            application_path = os.path.dirname(sys.executable)
+            self.fileOpen(path=application_path + '/examples')
+        else:
+            self.fileOpen(path=str(pathlib.Path(__file__).parent / 'examples'))
 
     def update_inf(self):
         self.ui.teWaterdepth.setEnabled(not self.ui.cbInf.isChecked())
