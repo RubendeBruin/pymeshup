@@ -17,11 +17,11 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDockWidget,
-    QFrame, QGridLayout, QHBoxLayout, QLabel,
-    QLineEdit, QListWidget, QListWidgetItem, QMainWindow,
-    QMenu, QMenuBar, QPushButton, QScrollArea,
-    QSizePolicy, QSplitter, QStatusBar, QTabWidget,
-    QTextEdit, QVBoxLayout, QWidget)
+    QDoubleSpinBox, QFrame, QGridLayout, QHBoxLayout,
+    QLabel, QLineEdit, QListWidget, QListWidgetItem,
+    QMainWindow, QMenu, QMenuBar, QPushButton,
+    QScrollArea, QSizePolicy, QSplitter, QStatusBar,
+    QTabWidget, QTextEdit, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -223,96 +223,20 @@ class Ui_MainWindow(object):
         self.Capytaine.setObjectName(u"Capytaine")
         self.gridLayout_4 = QGridLayout(self.Capytaine)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.lblPeriods = QLabel(self.Capytaine)
-        self.lblPeriods.setObjectName(u"lblPeriods")
-        self.lblPeriods.setWordWrap(True)
+        self.teOutputFile = QLineEdit(self.Capytaine)
+        self.teOutputFile.setObjectName(u"teOutputFile")
 
-        self.gridLayout_4.addWidget(self.lblPeriods, 4, 2, 1, 1)
-
-        self.pbShowMesh = QPushButton(self.Capytaine)
-        self.pbShowMesh.setObjectName(u"pbShowMesh")
-
-        self.gridLayout_4.addWidget(self.pbShowMesh, 11, 0, 1, 3)
-
-        self.teWaterdepth = QLineEdit(self.Capytaine)
-        self.teWaterdepth.setObjectName(u"teWaterdepth")
-
-        self.gridLayout_4.addWidget(self.teWaterdepth, 8, 2, 1, 1)
-
-        self.teShapeFile = QLineEdit(self.Capytaine)
-        self.teShapeFile.setObjectName(u"teShapeFile")
-
-        self.gridLayout_4.addWidget(self.teShapeFile, 18, 2, 1, 1)
-
-        self.cbMakeDaveModel = QCheckBox(self.Capytaine)
-        self.cbMakeDaveModel.setObjectName(u"cbMakeDaveModel")
-
-        self.gridLayout_4.addWidget(self.cbMakeDaveModel, 15, 1, 1, 1)
-
-        self.teHeading = QLineEdit(self.Capytaine)
-        self.teHeading.setObjectName(u"teHeading")
-
-        self.gridLayout_4.addWidget(self.teHeading, 5, 2, 1, 1)
-
-        self.label_13 = QLabel(self.Capytaine)
-        self.label_13.setObjectName(u"label_13")
-
-        self.gridLayout_4.addWidget(self.label_13, 5, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.teOutputFile, 15, 1, 1, 2)
 
         self.pbRunCapytaine = QPushButton(self.Capytaine)
         self.pbRunCapytaine.setObjectName(u"pbRunCapytaine")
 
-        self.gridLayout_4.addWidget(self.pbRunCapytaine, 23, 0, 1, 1)
-
-        self.label_11 = QLabel(self.Capytaine)
-        self.label_11.setObjectName(u"label_11")
-
-        self.gridLayout_4.addWidget(self.label_11, 2, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.pbRunCapytaine, 26, 0, 1, 1)
 
         self.teHydOrigin = QLineEdit(self.Capytaine)
         self.teHydOrigin.setObjectName(u"teHydOrigin")
 
-        self.gridLayout_4.addWidget(self.teHydOrigin, 16, 2, 1, 1)
-
-        self.label_20 = QLabel(self.Capytaine)
-        self.label_20.setObjectName(u"label_20")
-
-        self.gridLayout_4.addWidget(self.label_20, 12, 0, 1, 1)
-
-        self.tePeriods = QLineEdit(self.Capytaine)
-        self.tePeriods.setObjectName(u"tePeriods")
-
-        self.gridLayout_4.addWidget(self.tePeriods, 2, 2, 1, 1)
-
-        self.label_9 = QLabel(self.Capytaine)
-        self.label_9.setObjectName(u"label_9")
-
-        self.gridLayout_4.addWidget(self.label_9, 0, 0, 1, 1)
-
-        self.teOutputFile = QLineEdit(self.Capytaine)
-        self.teOutputFile.setObjectName(u"teOutputFile")
-
-        self.gridLayout_4.addWidget(self.teOutputFile, 12, 1, 1, 2)
-
-        self.teMeshFile = QLineEdit(self.Capytaine)
-        self.teMeshFile.setObjectName(u"teMeshFile")
-
-        self.gridLayout_4.addWidget(self.teMeshFile, 0, 2, 1, 1)
-
-        self.cbSymmetry = QCheckBox(self.Capytaine)
-        self.cbSymmetry.setObjectName(u"cbSymmetry")
-
-        self.gridLayout_4.addWidget(self.cbSymmetry, 10, 0, 1, 3)
-
-        self.label_15 = QLabel(self.Capytaine)
-        self.label_15.setObjectName(u"label_15")
-
-        self.gridLayout_4.addWidget(self.label_15, 8, 0, 1, 1)
-
-        self.teRadii = QLineEdit(self.Capytaine)
-        self.teRadii.setObjectName(u"teRadii")
-
-        self.gridLayout_4.addWidget(self.teRadii, 20, 2, 1, 1)
+        self.gridLayout_4.addWidget(self.teHydOrigin, 19, 2, 1, 1)
 
         self.lblHeading = QLabel(self.Capytaine)
         self.lblHeading.setObjectName(u"lblHeading")
@@ -320,40 +244,124 @@ class Ui_MainWindow(object):
 
         self.gridLayout_4.addWidget(self.lblHeading, 7, 2, 1, 1)
 
-        self.teCogZ = QLineEdit(self.Capytaine)
-        self.teCogZ.setObjectName(u"teCogZ")
+        self.cbMakeDaveModel = QCheckBox(self.Capytaine)
+        self.cbMakeDaveModel.setObjectName(u"cbMakeDaveModel")
 
-        self.gridLayout_4.addWidget(self.teCogZ, 22, 2, 1, 1)
+        self.gridLayout_4.addWidget(self.cbMakeDaveModel, 18, 1, 1, 1)
 
-        self.label_18 = QLabel(self.Capytaine)
-        self.label_18.setObjectName(u"label_18")
+        self.lblPeriods = QLabel(self.Capytaine)
+        self.lblPeriods.setObjectName(u"lblPeriods")
+        self.lblPeriods.setWordWrap(True)
 
-        self.gridLayout_4.addWidget(self.label_18, 20, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.lblPeriods, 4, 2, 1, 1)
 
-        self.label_17 = QLabel(self.Capytaine)
-        self.label_17.setObjectName(u"label_17")
+        self.cbInf = QCheckBox(self.Capytaine)
+        self.cbInf.setObjectName(u"cbInf")
 
-        self.gridLayout_4.addWidget(self.label_17, 18, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.cbInf, 8, 1, 1, 1)
+
+        self.label_11 = QLabel(self.Capytaine)
+        self.label_11.setObjectName(u"label_11")
+
+        self.gridLayout_4.addWidget(self.label_11, 2, 0, 1, 1)
 
         self.label_16 = QLabel(self.Capytaine)
         self.label_16.setObjectName(u"label_16")
 
-        self.gridLayout_4.addWidget(self.label_16, 16, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.label_16, 19, 1, 1, 1)
 
-        self.label_19 = QLabel(self.Capytaine)
-        self.label_19.setObjectName(u"label_19")
+        self.cbSymmetry = QCheckBox(self.Capytaine)
+        self.cbSymmetry.setObjectName(u"cbSymmetry")
 
-        self.gridLayout_4.addWidget(self.label_19, 22, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.cbSymmetry, 13, 0, 1, 3)
+
+        self.label_17 = QLabel(self.Capytaine)
+        self.label_17.setObjectName(u"label_17")
+
+        self.gridLayout_4.addWidget(self.label_17, 21, 1, 1, 1)
 
         self.label_12 = QLabel(self.Capytaine)
         self.label_12.setObjectName(u"label_12")
 
         self.gridLayout_4.addWidget(self.label_12, 1, 0, 1, 1)
 
+        self.teShapeFile = QLineEdit(self.Capytaine)
+        self.teShapeFile.setObjectName(u"teShapeFile")
+
+        self.gridLayout_4.addWidget(self.teShapeFile, 21, 2, 1, 1)
+
+        self.teHeading = QLineEdit(self.Capytaine)
+        self.teHeading.setObjectName(u"teHeading")
+
+        self.gridLayout_4.addWidget(self.teHeading, 5, 2, 1, 1)
+
+        self.label_20 = QLabel(self.Capytaine)
+        self.label_20.setObjectName(u"label_20")
+
+        self.gridLayout_4.addWidget(self.label_20, 15, 0, 1, 1)
+
+        self.teMeshFile = QLineEdit(self.Capytaine)
+        self.teMeshFile.setObjectName(u"teMeshFile")
+
+        self.gridLayout_4.addWidget(self.teMeshFile, 0, 2, 1, 1)
+
+        self.pbShowMesh = QPushButton(self.Capytaine)
+        self.pbShowMesh.setObjectName(u"pbShowMesh")
+
+        self.gridLayout_4.addWidget(self.pbShowMesh, 14, 0, 1, 3)
+
+        self.label_13 = QLabel(self.Capytaine)
+        self.label_13.setObjectName(u"label_13")
+
+        self.gridLayout_4.addWidget(self.label_13, 5, 0, 1, 1)
+
+        self.label_9 = QLabel(self.Capytaine)
+        self.label_9.setObjectName(u"label_9")
+
+        self.gridLayout_4.addWidget(self.label_9, 0, 0, 1, 1)
+
+        self.teCogZ = QLineEdit(self.Capytaine)
+        self.teCogZ.setObjectName(u"teCogZ")
+
+        self.gridLayout_4.addWidget(self.teCogZ, 25, 2, 1, 1)
+
         self.teName = QLineEdit(self.Capytaine)
         self.teName.setObjectName(u"teName")
 
         self.gridLayout_4.addWidget(self.teName, 1, 2, 1, 1)
+
+        self.label_19 = QLabel(self.Capytaine)
+        self.label_19.setObjectName(u"label_19")
+
+        self.gridLayout_4.addWidget(self.label_19, 25, 1, 1, 1)
+
+        self.label_18 = QLabel(self.Capytaine)
+        self.label_18.setObjectName(u"label_18")
+
+        self.gridLayout_4.addWidget(self.label_18, 23, 1, 1, 1)
+
+        self.label_15 = QLabel(self.Capytaine)
+        self.label_15.setObjectName(u"label_15")
+
+        self.gridLayout_4.addWidget(self.label_15, 8, 0, 1, 1)
+
+        self.tePeriods = QLineEdit(self.Capytaine)
+        self.tePeriods.setObjectName(u"tePeriods")
+
+        self.gridLayout_4.addWidget(self.tePeriods, 2, 2, 1, 1)
+
+        self.teRadii = QLineEdit(self.Capytaine)
+        self.teRadii.setObjectName(u"teRadii")
+
+        self.gridLayout_4.addWidget(self.teRadii, 23, 2, 1, 1)
+
+        self.teWaterdepth = QDoubleSpinBox(self.Capytaine)
+        self.teWaterdepth.setObjectName(u"teWaterdepth")
+        self.teWaterdepth.setMinimum(0.010000000000000)
+        self.teWaterdepth.setMaximum(9999999.000000000000000)
+        self.teWaterdepth.setValue(100.000000000000000)
+
+        self.gridLayout_4.addWidget(self.teWaterdepth, 8, 2, 1, 1)
 
         self.tabWidget.addTab(self.Capytaine, "")
         self.splitter_4.addWidget(self.tabWidget)
@@ -393,7 +401,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 190, 932))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 236, 934))
         self.horizontalLayout_6 = QHBoxLayout(self.scrollAreaWidgetContents)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.label = QLabel(self.scrollAreaWidgetContents)
@@ -422,7 +430,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -461,26 +469,26 @@ class Ui_MainWindow(object):
 "2/3 for 2d/3d", None))
 #endif // QT_CONFIG(tooltip)
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Mesh), QCoreApplication.translate("MainWindow", u"Mesh", None))
-        self.lblPeriods.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.pbShowMesh.setText(QCoreApplication.translate("MainWindow", u"Show mesh", None))
-        self.teWaterdepth.setText(QCoreApplication.translate("MainWindow", u"0", None))
-        self.cbMakeDaveModel.setText(QCoreApplication.translate("MainWindow", u"Make DAVE model", None))
-        self.teHeading.setText(QCoreApplication.translate("MainWindow", u"np.linspace(0, 180, 9)", None))
-        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Headings [degrees]", None))
-        self.pbRunCapytaine.setText(QCoreApplication.translate("MainWindow", u"Go!", None))
-        self.label_11.setText(QCoreApplication.translate("MainWindow", u"Periods [s]", None))
-        self.label_20.setText(QCoreApplication.translate("MainWindow", u"Output file names", None))
-        self.tePeriods.setText(QCoreApplication.translate("MainWindow", u"[*np.linspace(0.5,10,num=20), 11,12,14,16,20]", None))
-        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Mesh [file, in workfolder]", None))
         self.teOutputFile.setText(QCoreApplication.translate("MainWindow", u"my_model", None))
-        self.cbSymmetry.setText(QCoreApplication.translate("MainWindow", u"Symmetry in XZ", None))
-        self.label_15.setText(QCoreApplication.translate("MainWindow", u"Waterdepth [m]", None))
+        self.pbRunCapytaine.setText(QCoreApplication.translate("MainWindow", u"Go!", None))
         self.lblHeading.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.label_18.setText(QCoreApplication.translate("MainWindow", u"Radii of gyration", None))
-        self.label_17.setText(QCoreApplication.translate("MainWindow", u"shape file for buoyancy", None))
+        self.cbMakeDaveModel.setText(QCoreApplication.translate("MainWindow", u"Make DAVE model", None))
+        self.lblPeriods.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.cbInf.setText(QCoreApplication.translate("MainWindow", u"Infinite", None))
+        self.label_11.setText(QCoreApplication.translate("MainWindow", u"Periods [s]", None))
         self.label_16.setText(QCoreApplication.translate("MainWindow", u"hyd origin", None))
-        self.label_19.setText(QCoreApplication.translate("MainWindow", u"cog z", None))
+        self.cbSymmetry.setText(QCoreApplication.translate("MainWindow", u"Symmetry in XZ", None))
+        self.label_17.setText(QCoreApplication.translate("MainWindow", u"shape file for buoyancy", None))
         self.label_12.setText(QCoreApplication.translate("MainWindow", u"Body name [str]", None))
+        self.teHeading.setText(QCoreApplication.translate("MainWindow", u"np.linspace(0, 180, 9)", None))
+        self.label_20.setText(QCoreApplication.translate("MainWindow", u"Output file names", None))
+        self.pbShowMesh.setText(QCoreApplication.translate("MainWindow", u"Show mesh", None))
+        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Headings [degrees]", None))
+        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Mesh [file, in workfolder]", None))
+        self.label_19.setText(QCoreApplication.translate("MainWindow", u"cog z", None))
+        self.label_18.setText(QCoreApplication.translate("MainWindow", u"Radii of gyration", None))
+        self.label_15.setText(QCoreApplication.translate("MainWindow", u"Waterdepth [m]", None))
+        self.tePeriods.setText(QCoreApplication.translate("MainWindow", u"[*np.linspace(0.5,10,num=20), 11,12,14,16,20]", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Capytaine), QCoreApplication.translate("MainWindow", u"Capytaine", None))
         self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))

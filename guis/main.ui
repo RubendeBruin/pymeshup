@@ -54,7 +54,7 @@
          </property>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="Mesh">
            <attribute name="title">
@@ -285,118 +285,22 @@ B for box
             <string>Capytaine</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_4">
-            <item row="4" column="2">
-             <widget class="QLabel" name="lblPeriods">
-              <property name="text">
-               <string>TextLabel</string>
-              </property>
-              <property name="wordWrap">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="11" column="0" colspan="3">
-             <widget class="QPushButton" name="pbShowMesh">
-              <property name="text">
-               <string>Show mesh</string>
-              </property>
-             </widget>
-            </item>
-            <item row="8" column="2">
-             <widget class="QLineEdit" name="teWaterdepth">
-              <property name="text">
-               <string>0</string>
-              </property>
-             </widget>
-            </item>
-            <item row="18" column="2">
-             <widget class="QLineEdit" name="teShapeFile"/>
-            </item>
-            <item row="15" column="1">
-             <widget class="QCheckBox" name="cbMakeDaveModel">
-              <property name="text">
-               <string>Make DAVE model</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="2">
-             <widget class="QLineEdit" name="teHeading">
-              <property name="text">
-               <string>np.linspace(0, 180, 9)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_13">
-              <property name="text">
-               <string>Headings [degrees]</string>
-              </property>
-             </widget>
-            </item>
-            <item row="23" column="0">
-             <widget class="QPushButton" name="pbRunCapytaine">
-              <property name="text">
-               <string>Go!</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_11">
-              <property name="text">
-               <string>Periods [s]</string>
-              </property>
-             </widget>
-            </item>
-            <item row="16" column="2">
-             <widget class="QLineEdit" name="teHydOrigin"/>
-            </item>
-            <item row="12" column="0">
-             <widget class="QLabel" name="label_20">
-              <property name="text">
-               <string>Output file names</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="2">
-             <widget class="QLineEdit" name="tePeriods">
-              <property name="text">
-               <string>[*np.linspace(0.5,10,num=20), 11,12,14,16,20]</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_9">
-              <property name="text">
-               <string>Mesh [file, in workfolder]</string>
-              </property>
-             </widget>
-            </item>
-            <item row="12" column="1" colspan="2">
+            <item row="15" column="1" colspan="2">
              <widget class="QLineEdit" name="teOutputFile">
               <property name="text">
                <string>my_model</string>
               </property>
              </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="QLineEdit" name="teMeshFile"/>
-            </item>
-            <item row="10" column="0" colspan="3">
-             <widget class="QCheckBox" name="cbSymmetry">
+            <item row="26" column="0">
+             <widget class="QPushButton" name="pbRunCapytaine">
               <property name="text">
-               <string>Symmetry in XZ</string>
+               <string>Go!</string>
               </property>
              </widget>
             </item>
-            <item row="8" column="0">
-             <widget class="QLabel" name="label_15">
-              <property name="text">
-               <string>Waterdepth [m]</string>
-              </property>
-             </widget>
-            </item>
-            <item row="20" column="2">
-             <widget class="QLineEdit" name="teRadii"/>
+            <item row="19" column="2">
+             <widget class="QLineEdit" name="teHydOrigin"/>
             </item>
             <item row="7" column="2">
              <widget class="QLabel" name="lblHeading">
@@ -408,34 +312,55 @@ B for box
               </property>
              </widget>
             </item>
-            <item row="22" column="2">
-             <widget class="QLineEdit" name="teCogZ"/>
-            </item>
-            <item row="20" column="1">
-             <widget class="QLabel" name="label_18">
-              <property name="text">
-               <string>Radii of gyration</string>
-              </property>
-             </widget>
-            </item>
             <item row="18" column="1">
-             <widget class="QLabel" name="label_17">
+             <widget class="QCheckBox" name="cbMakeDaveModel">
               <property name="text">
-               <string>shape file for buoyancy</string>
+               <string>Make DAVE model</string>
               </property>
              </widget>
             </item>
-            <item row="16" column="1">
+            <item row="4" column="2">
+             <widget class="QLabel" name="lblPeriods">
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="1">
+             <widget class="QCheckBox" name="cbInf">
+              <property name="text">
+               <string>Infinite</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>Periods [s]</string>
+              </property>
+             </widget>
+            </item>
+            <item row="19" column="1">
              <widget class="QLabel" name="label_16">
               <property name="text">
                <string>hyd origin</string>
               </property>
              </widget>
             </item>
-            <item row="22" column="1">
-             <widget class="QLabel" name="label_19">
+            <item row="13" column="0" colspan="3">
+             <widget class="QCheckBox" name="cbSymmetry">
               <property name="text">
-               <string>cog z</string>
+               <string>Symmetry in XZ</string>
+              </property>
+             </widget>
+            </item>
+            <item row="21" column="1">
+             <widget class="QLabel" name="label_17">
+              <property name="text">
+               <string>shape file for buoyancy</string>
               </property>
              </widget>
             </item>
@@ -446,8 +371,96 @@ B for box
               </property>
              </widget>
             </item>
+            <item row="21" column="2">
+             <widget class="QLineEdit" name="teShapeFile"/>
+            </item>
+            <item row="5" column="2">
+             <widget class="QLineEdit" name="teHeading">
+              <property name="text">
+               <string>np.linspace(0, 180, 9)</string>
+              </property>
+             </widget>
+            </item>
+            <item row="15" column="0">
+             <widget class="QLabel" name="label_20">
+              <property name="text">
+               <string>Output file names</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="QLineEdit" name="teMeshFile"/>
+            </item>
+            <item row="14" column="0" colspan="3">
+             <widget class="QPushButton" name="pbShowMesh">
+              <property name="text">
+               <string>Show mesh</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>Headings [degrees]</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_9">
+              <property name="text">
+               <string>Mesh [file, in workfolder]</string>
+              </property>
+             </widget>
+            </item>
+            <item row="25" column="2">
+             <widget class="QLineEdit" name="teCogZ"/>
+            </item>
             <item row="1" column="2">
              <widget class="QLineEdit" name="teName"/>
+            </item>
+            <item row="25" column="1">
+             <widget class="QLabel" name="label_19">
+              <property name="text">
+               <string>cog z</string>
+              </property>
+             </widget>
+            </item>
+            <item row="23" column="1">
+             <widget class="QLabel" name="label_18">
+              <property name="text">
+               <string>Radii of gyration</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="0">
+             <widget class="QLabel" name="label_15">
+              <property name="text">
+               <string>Waterdepth [m]</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2">
+             <widget class="QLineEdit" name="tePeriods">
+              <property name="text">
+               <string>[*np.linspace(0.5,10,num=20), 11,12,14,16,20]</string>
+              </property>
+             </widget>
+            </item>
+            <item row="23" column="2">
+             <widget class="QLineEdit" name="teRadii"/>
+            </item>
+            <item row="8" column="2">
+             <widget class="QDoubleSpinBox" name="teWaterdepth">
+              <property name="minimum">
+               <double>0.010000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>9999999.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>100.000000000000000</double>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -518,8 +531,8 @@ B for box
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>190</width>
-          <height>932</height>
+          <width>236</width>
+          <height>934</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_6">

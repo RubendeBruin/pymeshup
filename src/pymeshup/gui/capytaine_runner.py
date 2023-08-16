@@ -1,5 +1,7 @@
 import logging
 
+import netCDF4 # required for saving - fallback to scipy.io.netcdf causes issues
+
 import numpy as np
 from numpy import pi
 
@@ -23,10 +25,10 @@ def make_database(body, omegas, wave_directions, waterdepth=0):
             problems += [cpt.RadiationProblem(omega=omega, body=body, radiating_dof=dof, water_depth=waterdepth) for dof in body.dofs]
             problems += [cpt.DiffractionProblem(omega=omega, body=body, wave_direction=wave_direction, water_depth=waterdepth)]
     results = [bem_solver.solve(problem) for problem in problems]
-    *radiation_results, diffraction_result = results
+    # *radiation_results, diffraction_result = results
     dataset = cpt.assemble_dataset(results)
 
-    dataset['diffraction_result'] = diffraction_result
+    # dataset['diffraction_result'] = diffraction_result
 
     return dataset
 
@@ -34,7 +36,7 @@ def run_capytaine(name: str,  # name of the body eg "boat"
                   file_grid : str,   # input file, e.g. grid.stl
                   periods : np.array, # periods in seconds
                   directions_deg : np.array,
-                  waterdepth : float = 0, # waterdepth
+                  waterdepth : float = None, # waterdepth
                   symmetry : bool = False, # symmetry in XZ plane
                   show_only : bool = False # show only the mesh
                   ):
@@ -65,10 +67,13 @@ def run_capytaine(name: str,  # name of the body eg "boat"
 
 
     sep = separate_complex_values(dataset)
+    # sep.to_netcdf(file_out_nc,
+    #               encoding={'radiating_dof': {'dtype': 'U'},
+    #                         'influenced_dof': {'dtype': 'U'},
+    #                         'diffraction_result': {'dtype': 'U'}})
     sep.to_netcdf(file_out_nc,
                   encoding={'radiating_dof': {'dtype': 'U'},
-                            'influenced_dof': {'dtype': 'U'},
-                            'diffraction_result': {'dtype': 'U'}})
+                            'influenced_dof': {'dtype': 'U'}})
 
     print(f'saved NC results as {file_out_nc}')
 

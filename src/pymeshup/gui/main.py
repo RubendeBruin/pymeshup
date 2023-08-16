@@ -175,6 +175,7 @@ class Gui():
     def __init__(self):
         # Main Window
 
+
         self.MainWindow = QMainWindow()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.MainWindow)
@@ -270,6 +271,12 @@ class Gui():
         self.ui.pbShowMesh.pressed.connect(lambda : self.run_captyaine(dryrun=True))
         self.ui.pbRunCapytaine.pressed.connect(lambda : self.run_captyaine(dryrun=False))
 
+        self.ui.cbInf.toggled.connect(self.update_inf)
+        self.ui.cbInf.setChecked(True)
+
+        self.update_period()
+        self.update_heading()
+
         # ---- Finalize
         self.ui.tabWidget.setCurrentIndex(0)
 
@@ -283,6 +290,8 @@ class Gui():
         self.iren.SetInteractorStyle(self.style)
         self.style.callbackSelect = self.select_3d_actor
 
+    def update_inf(self):
+        self.ui.teWaterdepth.setEnabled(not self.ui.cbInf.isChecked())
 
     def update_period(self):
         try:
@@ -318,10 +327,12 @@ class Gui():
         name = self.ui.teName.text()
         file_grid = str(pathlib.Path(self.curdir) / self.ui.teMeshFile.text())
         symmetry = self.ui.cbSymmetry.isChecked()
-        waterdepth = float(self.ui.teWaterdepth.text())
 
-        if waterdepth < 0:
-            waterdepth = np.infty
+        if self.ui.cbInf.isChecked():
+            waterdepth = None
+        else:
+            waterdepth = self.ui.teWaterdepth.value()
+
 
         run_capytaine(name=name,
                       file_grid=file_grid,
