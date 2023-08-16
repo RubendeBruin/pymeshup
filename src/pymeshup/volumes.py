@@ -85,6 +85,15 @@ class Volume():
         return self.ms.current_mesh().vertex_matrix()
 
     @property
+    def bounds(self):
+        """minx, maxx, miny, maxy, minz, maxz"""
+        bb = self.ms.get_geometric_measures()['bbox']
+        mins = bb.min()
+        maxs = bb.max()
+
+        return mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
+
+    @property
     def volume(self):
         return self.ms.get_geometric_measures()['mesh_volume']
 

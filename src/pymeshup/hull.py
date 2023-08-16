@@ -142,6 +142,17 @@ def Hull(*args):
     vertices = []
     faces = []
 
+    # remove redundant intermediate frames
+    i = 1
+    while i < len(frames)-2:
+        # frame i is redundant it is identical to frame i-1 and i+1
+
+        if frames[i].is_identical_to(frames[i-1]) and frames[i].is_identical_to(frames[i+1]):
+            frames.pop(i)
+            x.pop(i)
+        else:
+            i += 1
+
 
     for i in range(len(frames)-1):
 

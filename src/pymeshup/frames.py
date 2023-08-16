@@ -69,3 +69,14 @@ class Frame():
     def as_vertices_at(self, x):
         """Returns 3d points (vertices) if this frame is located in 3d at x=given"""
         return [(x, p[0], p[1]) for p in self.xy]
+
+    def is_identical_to(self, other):
+        """Returns True if this frame is identical to other"""
+        if self.n != other.n:
+            return False
+
+        for i in range(self.n):
+            if self.xy[i] != other.xy[i]:
+                return False
+
+        return True

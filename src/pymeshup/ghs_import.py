@@ -220,6 +220,7 @@ circular_segments_step : maximum distance (degrees) between points on a circular
         self.warnings = []
         self.shapes_outside = dict()  # volumes representing the outside of the hull
         self.shapes_inside = dict()   # volumes representing the inside of the hull, difference is due to thickness
+        self.shapes_raw = dict()      # raw shapes as read from the geometry file, not autocompleted
         self.components = dict()
         self.parts = dict()
 
@@ -265,6 +266,14 @@ circular_segments_step : maximum distance (degrees) between points on a circular
 
         self.compile()
 
+    def rotate180(self):
+        """Rotates all parts by 180 degrees"""
+
+        for part in self.parts.values():
+            part['volume'] = part['volume'].rotate(0,0,180)
+
+
+
     def compile(self):
         # Compiles the final parts of the geometry file
 
@@ -274,23 +283,45 @@ circular_segments_step : maximum distance (degrees) between points on a circular
 
             volume = Volume()
 
+            print('Compiling part {}'.format(name))
+
             for component_name in values["components"]:
                 component = self.components[component_name]
                 shape_name = component['shape_name']
-                shape : Volume = self.shapes_outside[shape_name]
+
+                print('  Adding shape {} to part {}'.format(shape_name, name))
+
+                #
+                side_factor = component['side_factor']
+
+                if side_factor == 0:
+                    print('   Side factor = {} using autocompleted volume'.format(side_factor))
+                    shape : Volume = self.shapes_outside[shape_name]
+                else:
+                    print('   Side factor = {} using single-side volume'.format(side_factor))
+                    shape : Volume = self.shapes_raw[shape_name]
+
+
+
 
                 # part_type = component['part_type']
 
                 # shift and mirror the shape if necessary
                 if component['side_factor'] < 0:
+                    print('    Mirroring shape {} in XZ'.format(shape_name))
                     shape = shape.mirrorXZ()
 
                 shape = shape.move(*component['origin_shift'])
+                print('    Moving shape {} by {}'.format(shape_name, component['origin_shift']))
+
+
 
                 # are we an addition or a subtraction?
                 if component['effectiveness'] > 0:
+                    print('    Adding shape {} to part {}'.format(shape_name, name))
                     volume = volume.add(shape)
                 else:
+                    print('    Removing shape {} from part {}'.format(shape_name, name))
                     volume = volume.remove(shape)
 
             self.parts[name]["volume"] = volume
@@ -457,7 +488,8 @@ circular_segments_step : maximum distance (degrees) between points on a circular
 
         vertices = []
 
-        hull_data = []
+        hull_data = []      # autocompleted
+        hull_data_raw = []  # raw data
         radius = -1
         previous_radius = -1
 
@@ -476,7 +508,7 @@ circular_segments_step : maximum distance (degrees) between points on a circular
 
             as_points = []
 
-            y_at_zero = False # to check for symmetry
+            # y_at_zero = False # to check for symmetry
 
             for j in range(int(m)):
                 point_line = lines.pop(0)
@@ -527,12 +559,21 @@ circular_segments_step : maximum distance (degrees) between points on a circular
             # check if auto-completion is needed
             # Checking first and last point is not a solution
             # checking if any point is on y=0 ?
+            #
+            # if y_at_zero:
+            #     if as_points[-1] == as_points[1] and as_points[-2] == as_points[0]:
+            #         # curve is already closed
+            #         print(f'Frame for shape {name} is already closed, not autocompleting')
+            #         pass
+            #     else:
+            #         f = f.autocomplete()
 
-            if y_at_zero:
-                f = f.autocomplete()
 
             hull_data.append(float(location) * 0.3048)
-            hull_data.append(f)
+            hull_data.append(f.autocomplete())
+
+            hull_data_raw.append(float(location) * 0.3048)
+            hull_data_raw.append(f)
 
         data["thickness"] = [float(x) for x in lines.pop(0).split(",")]
 
@@ -548,6 +589,7 @@ circular_segments_step : maximum distance (degrees) between points on a circular
 
         if hull_data:
             self.shapes_outside[name] = Hull(*hull_data)   #this is the outside of the hull
+            self.shapes_raw[name] = Hull(*hull_data_raw)   # raw (not autocompleted)
         else:
             self.warnings.append("No hull data found for %s" % name)
 
