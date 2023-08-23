@@ -30,6 +30,12 @@ class Volume():
         v.ms.compute_matrix_from_translation_rotation_scale(scalex=x, scaley=y, scalez=z)
         return v
 
+    def mirrorXZ(self):
+        """Returns a mirrored copy of the volume, mirrored in the XZ plane"""
+        v = self.scale(y=-1).invert_normals()
+        return v
+
+
 
     def rotate(self, x=0, y=0 , z=0):
         """Returns a rotated copy of the volume, rotation in degrees; Euler angles"""
@@ -39,6 +45,11 @@ class Volume():
 
     def add(self, other):
         """Returns a copy with other added to the volume"""
+
+        # if current mesh is empty, then return copy of other
+        if self.ms.number_meshes() == 0:
+            return Volume(other)
+
         v = Volume(self)
         v.ms.add_mesh(other.ms.current_mesh())
         v.ms.mesh_boolean_union()
@@ -72,6 +83,15 @@ class Volume():
     @property
     def vertices(self):
         return self.ms.current_mesh().vertex_matrix()
+
+    @property
+    def bounds(self):
+        """minx, maxx, miny, maxy, minz, maxz"""
+        bb = self.ms.get_geometric_measures()['bbox']
+        mins = bb.min()
+        maxs = bb.max()
+
+        return mins[0], maxs[0], mins[1], maxs[1], mins[2], maxs[2]
 
     @property
     def volume(self):
@@ -180,15 +200,20 @@ def Load(filename):
 
 def Plot(v : Volume or list[Volume]):
     import vedo
+    from matplotlib import cm
+    COLORMAP = cm.tab20
+
     p = vedo.Plotter()
 
     if isinstance(v, Volume):
         v = [v]
 
-    for m in v:
+    for icol, m in enumerate(v):
         vertices = m.ms.current_mesh().vertex_matrix()
         faces = m.ms.current_mesh().face_matrix()
         m2 = vedo.Mesh([vertices, faces])
-        p.add(m2, render=False)
+        m2.GetProperty().SetColor(COLORMAP(icol % 20)[:3])
+        m2.GetProperty().SetOpacity(0.5)
+        p.add(m2)
 
     p.show(axes=1, viewup='z')

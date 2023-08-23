@@ -423,6 +423,10 @@ class Gui():
                     volumes[key] = value
                 elif isinstance(value, Frame):
                     frames[key] = value
+                elif isinstance(value, GHSgeo):
+                    for name, part in value.parts.items():
+                        vol: Volume = part['volume']
+                        volumes[name] = vol
 
         self.frames = frames
         self.volumes = volumes
