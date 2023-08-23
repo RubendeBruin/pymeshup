@@ -599,11 +599,18 @@ circular_segments_step : maximum distance (degrees) between points on a circular
             Sides = data['thickness'][1]
             Top = data['thickness'][2]
 
-            raise ValueError("I do not know how what this data would look like")
+            # raise ValueError("I do not know how what this data would look like")
+            # well, apparently it is only a single line
 
             # offset the shape and use boolean operations to create the inside
             original : Volume = self.shapes_outside[name]
             side1 = original.move(y = -Sides)
+            side2 = original.move(y = Sides)
+            bottom = original.move(z = Bottom)
+            top = original.move(z = -Top)
+
+            # create the inside
+            self.shapes_inside[name] = side1.inside_of(side2).inside_of(bottom).inside_of(top)
 
         else:  # just the same
             self.shapes_inside[name] = self.shapes_outside[name]
@@ -687,8 +694,7 @@ circular_segments_step : maximum distance (degrees) between points on a circular
         elif suffix in ["-0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9"]:
             raise ValueError("No idea what to do with this - need example")
         else:
-            side = int(lines.pop(0).strip())
-
+            side = 0 # int(lines.pop(0).strip())
 
         side_factor = int(lines.pop(0).strip())
         effectiveness = float(lines.pop(0).strip())
@@ -711,7 +717,7 @@ circular_segments_step : maximum distance (degrees) between points on a circular
             "margins": margins
         }
 
-        print("read component", name, suffix, side, side_factor, effectiveness, origin_shift, shape_name, margins)
+        print("read component", name, suffix, side, effectiveness, origin_shift, shape_name, margins)
 
 
     def read_part(self):
