@@ -18,20 +18,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_10">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="text">
-       <string>Workfolder:</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
+    <item row="0" column="2">
      <widget class="QLabel" name="label_3">
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
@@ -44,7 +31,7 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="0" colspan="3">
+    <item row="1" column="0" colspan="4">
      <widget class="QWidget" name="widget_3" native="true">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -54,7 +41,7 @@
          </property>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="Mesh">
            <attribute name="title">
@@ -471,6 +458,13 @@ B for box
       </layout>
      </widget>
     </item>
+    <item row="0" column="1">
+     <widget class="QPushButton" name="pbWorkFolder">
+      <property name="text">
+       <string>Workfolder:</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -531,8 +525,8 @@ B for box
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>236</width>
-          <height>934</height>
+          <width>214</width>
+          <height>932</height>
          </rect>
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_6">

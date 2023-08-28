@@ -264,6 +264,8 @@ class Gui():
         self.ui.actionOpen_2.triggered.connect(self.open_examples)
         self.ui.actionHelp_visible.triggered.connect(lambda: self.ui.dockWidget.setVisible(not self.ui.dockWidget.isVisible()))
 
+        self.ui.pbWorkFolder.clicked.connect(self.openFolder)
+
         # ---- capytaine part
 
         self.ui.tePeriods.textChanged.connect(self.update_period)
@@ -342,7 +344,7 @@ class Gui():
         symmetry = self.ui.cbSymmetry.isChecked()
 
         if self.ui.cbInf.isChecked():
-            waterdepth = None
+            waterdepth = float('inf')
         else:
             waterdepth = self.ui.teWaterdepth.value()
 
@@ -645,7 +647,7 @@ class Gui():
             if path:
                 self.open(path)
 
-    def openFolder(self):
+    def openFolder(self, *args):
         path = QFileDialog.getExistingDirectory()
         if path:
             self.setWorkPath(path)
