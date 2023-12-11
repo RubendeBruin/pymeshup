@@ -25,10 +25,9 @@ def test_read_ghs_with_circular_segments():
 #
 #
 if __name__ == '__main__':
-    filename_gf1 = r"C:\Users\beneden\Jottacloud\RdBr\HEBO\assets\P81\in\GHS SB6\Gf\SMIT-6_modified.GF2"
-    # filename = r"C:\data\Dave\Public\pymeshup\src\pymeshup\gui\examples\tank.gf1"
+    filename_gf1 = r"C:\data\Dave\Public\pymeshup\src\pymeshup\gui\examples\tank.gf1"
     # filename = r"C:\data\Dave\Public\pymeshup\src\pymeshup\gui\examples\DEMOBARGE_SPUD.GF1"
-    a = GHSgeo(filename_gf1, circular_segments_step=1)
+    a = GHSgeo(filename_gf1) # , circular_segments_step=1)
 
     # shapes = [_ for _ in a.shapes_raw.values()]
     # Plot(shapes)

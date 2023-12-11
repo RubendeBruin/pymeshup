@@ -95,7 +95,12 @@ class Volume():
 
     @property
     def volume(self):
-        return self.ms.get_geometric_measures()['mesh_volume']
+        data = self.ms.get_geometric_measures()
+        if 'mesh_volume' in data:
+            return data['mesh_volume']
+        else:
+            raise ValueError(f"Volume not available, we do have the following mesh data {data}")
+
 
     @property
     def center(self):

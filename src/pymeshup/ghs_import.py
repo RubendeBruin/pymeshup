@@ -589,7 +589,11 @@ circular_segments_step : maximum distance (degrees) between points on a circular
 
         if hull_data:
             self.shapes_outside[name] = Hull(*hull_data)   #this is the outside of the hull
-            self.shapes_raw[name] = Hull(*hull_data_raw)   # raw (not autocompleted)
+            try:
+                self.shapes_raw[name] = Hull(*hull_data_raw)   # raw (not autocompleted)
+            except ValueError:
+                self.warnings.append("Can not create raw shape for %s" % name)
+                self.shapes_raw[name] = None
         else:
             self.warnings.append("No hull data found for %s" % name)
 
