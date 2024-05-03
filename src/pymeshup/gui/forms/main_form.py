@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.5.1
+## Created by: Qt User Interface Compiler version 6.6.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -41,10 +41,13 @@ class Ui_MainWindow(object):
         self.actionOpen_2.setObjectName(u"actionOpen_2")
         self.actionSet_work_folder = QAction(MainWindow)
         self.actionSet_work_folder.setObjectName(u"actionSet_work_folder")
+        self.actionOpen_GSH_to_DAVE_conversion_tool = QAction(MainWindow)
+        self.actionOpen_GSH_to_DAVE_conversion_tool.setObjectName(u"actionOpen_GSH_to_DAVE_conversion_tool")
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.gridLayout_3 = QGridLayout(self.centralwidget)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
+        self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
         self.label_3 = QLabel(self.centralwidget)
         self.label_3.setObjectName(u"label_3")
         sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
@@ -84,7 +87,9 @@ class Ui_MainWindow(object):
         sizePolicy2.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
         self.widget.setSizePolicy(sizePolicy2)
         self.verticalLayout_3 = QVBoxLayout(self.widget)
+        self.verticalLayout_3.setSpacing(0)
         self.verticalLayout_3.setObjectName(u"verticalLayout_3")
+        self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.label_2 = QLabel(self.widget)
         self.label_2.setObjectName(u"label_2")
         sizePolicy2.setHeightForWidth(self.label_2.sizePolicy().hasHeightForWidth())
@@ -388,6 +393,7 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.dockWidget = QDockWidget(MainWindow)
         self.dockWidget.setObjectName(u"dockWidget")
+        self.dockWidget.setStyleSheet(u"background:rgb(227, 255, 225)")
         self.dockWidgetContents = QWidget()
         self.dockWidgetContents.setObjectName(u"dockWidgetContents")
         self.verticalLayout_2 = QVBoxLayout(self.dockWidgetContents)
@@ -399,7 +405,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollAreaWidgetContents = QWidget()
         self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 214, 932))
+        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 232, 932))
         self.horizontalLayout_6 = QHBoxLayout(self.scrollAreaWidgetContents)
         self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
         self.label = QLabel(self.scrollAreaWidgetContents)
@@ -424,6 +430,8 @@ class Ui_MainWindow(object):
         self.menuFile.addAction(self.actionSave_as)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionSet_work_folder)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionOpen_GSH_to_DAVE_conversion_tool)
         self.menuExamples.addAction(self.actionOpen_2)
 
         self.retranslateUi(MainWindow)
@@ -442,6 +450,7 @@ class Ui_MainWindow(object):
         self.actionSave_as.setText(QCoreApplication.translate("MainWindow", u"Save as", None))
         self.actionOpen_2.setText(QCoreApplication.translate("MainWindow", u"Open", None))
         self.actionSet_work_folder.setText(QCoreApplication.translate("MainWindow", u"Set work folder", None))
+        self.actionOpen_GSH_to_DAVE_conversion_tool.setText(QCoreApplication.translate("MainWindow", u"Open GSH to DAVE conversion tool", None))
         self.label_3.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
         self.label_2.setText(QCoreApplication.translate("MainWindow", u"SCRIPT", None))
         self.pushButton.setText(QCoreApplication.translate("MainWindow", u">> Run [F5]", None))

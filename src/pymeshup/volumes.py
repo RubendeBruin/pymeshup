@@ -52,7 +52,10 @@ class Volume():
 
         v = Volume(self)
         v.ms.add_mesh(other.ms.current_mesh())
-        v.ms.mesh_boolean_union()
+
+
+        # v.ms.mesh_boolean_union()
+        v.ms.generate_boolean_union()
 
         return v
 
@@ -217,8 +220,8 @@ def Plot(v : Volume or list[Volume]):
         vertices = m.ms.current_mesh().vertex_matrix()
         faces = m.ms.current_mesh().face_matrix()
         m2 = vedo.Mesh([vertices, faces])
-        m2.GetProperty().SetColor(COLORMAP(icol % 20)[:3])
-        m2.GetProperty().SetOpacity(0.5)
+        m2.actor.GetProperty().SetColor(COLORMAP(icol % 20)[:3])
+        m2.actor.GetProperty().SetOpacity(0.5)
         p.add(m2)
 
     p.show(axes=1, viewup='z')

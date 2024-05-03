@@ -5,6 +5,7 @@ from .frames import Frame
 from .volumes import Volume
 
 
+
 def build_triangles(f1,f2):
     """
     Builds triangles between two lists of points
@@ -38,11 +39,13 @@ def build_triangles(f1,f2):
     crossed1 = False
     crossed2 = False
 
-
     triangles = list()
+
+    segments = list()
 
     while True:
 
+        # current points on frame1 and frame2
         p1 = f1[i1]
         p2 = f2[i2]
 
@@ -53,6 +56,7 @@ def build_triangles(f1,f2):
                 # finish the halfs simultaneously
         else:
 
+            # possible next points on 1 and 2
             a1 = f1[i1+1]  # advance
             a2 = f2[i2+1]
 
@@ -66,13 +70,43 @@ def build_triangles(f1,f2):
                 i1 += 1
             else:
 
-                l1 = np.linalg.norm(np.array(a1) - p2)  # Line to next point on frame 1
-                l2 = np.linalg.norm(np.array(a2) - p1)
+                # if one of the lines has only three vertices, and both frames are still at index 0,
+                # the advance on the one with the most vertices
 
-                if l1 > l2:
-                    i2 += 1
+                if i1==0 and i2==0 and (n1==3 or n2==3):
+                    if n1 > n2:
+                        i1 += 1
+                    else:
+                        i2 += 1
+
                 else:
-                    i1 += 1
+
+                    # should we advance on 1 or on 2?
+                    #
+                    # advance in frame 1 --> a1, p2
+                    # advance on frame 2 --> p1, a2
+                    # select the new line based on the shortest distance
+
+                    l1 = np.linalg.norm(np.array(a1) - p2)  # advance on 1, stay on 2
+                    l2 = np.linalg.norm(np.array(a2) - p1)  # keep point on 1, advance on 2
+
+                    if l1==l2:
+                        # print('equal')
+                        # advance the one with the lowest relative index
+                        if (i1/n1 < i2/n2):
+                            i1 += 1
+                        else:
+                            i2 += 1
+
+
+                    elif l1 > l2:
+                        i2 += 1
+                    else:
+                        i1 += 1
+
+        # print('connecting {} and {}'.format(i1,i2))
+
+        segments.append((f1[i1], f2[i2]))
 
         # we now have point i1 and i2
         if i1==o1:
@@ -129,12 +163,15 @@ def Hull(*args):
         x.append(xx)
 
     # add one-frames at start and end, if needed
-    if frames[0].n > 1:
+    # The frames are always closed
+    # n is the number of vertices, where the first is identical to the last
+    # so n=3 means two unique vertices --> a line
+    if frames[0].n > 3:
         stern = Frame(*frames[0].center())
         frames.insert(0,stern)
         x.insert(0, x[0])
 
-    if frames[-1].n > 1:
+    if frames[-1].n > 3:
         bow = Frame(*frames[-1].center())
         frames.append(bow)
         x.append(x[-1])
@@ -154,6 +191,7 @@ def Hull(*args):
             i += 1
 
 
+    # print("---------------")
     for i in range(len(frames)-1):
 
         f1 = frames[i]
@@ -161,6 +199,9 @@ def Hull(*args):
 
         vertices1 = f1.as_vertices_at(x[i])
         vertices2 = f2.as_vertices_at(x[i+1])
+
+        # print(f"Building triangles between {len(vertices1)} and {len(vertices2)} vertices")
+
 
         verts, face_ids = build_triangles(vertices1,vertices2)
 
@@ -174,6 +215,16 @@ def Hull(*args):
     v = Volume()
     v.set_vertices_and_faces(vertices, faces)
     v.ms.meshing_remove_duplicate_vertices()
+
+    try:
+        volume = v.volume
+    except ValueError:
+
+        print("Volume not available, we do have the following mesh data")
+        #
+        # from pymeshup import Plot
+        # Plot(v)
+        return v
 
     if v.volume < 0:
         v = v.invert_normals()
@@ -199,7 +250,7 @@ def hull_from_file(filename) -> Volume:
         reader = csv.reader(f, delimiter=delimiter)
         data = [row for row in reader]
 
-    print(data)
+    # print(data)
 
     # remove empties
     new_data = []
@@ -207,7 +258,7 @@ def hull_from_file(filename) -> Volume:
         new_row = [item for item in row if item != '']
         new_data.append(new_row)
 
-    print(new_data)
+    # print(new_data)
 
     # Construct frames
 

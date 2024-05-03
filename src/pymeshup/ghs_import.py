@@ -202,39 +202,39 @@ from .helpers.geo_math import points_on_circle
 
 
 class GHSgeo:
-
     def __init__(self, filename, circular_segments_step=999):
         """
-Parameters
-----------
-filename : str
-    The name of the GHS geometry file to read.
-circular_segments_step : maximum distance (degrees) between points on a circular segment. Default to 999 (no additional points segments).
-    Used for the "radius" definitions in the geometry file.
+        Parameters
+        ----------
+        filename : str
+            The name of the GHS geometry file to read.
+        circular_segments_step : maximum distance (degrees) between points on a circular segment. Default to 999 (no additional points segments).
+            Used for the "radius" definitions in the geometry file.
         """
-
 
         self.filename = filename
         self.circular_segments_step = circular_segments_step
 
         self.warnings = []
         self.shapes_outside = dict()  # volumes representing the outside of the hull
-        self.shapes_inside = dict()   # volumes representing the inside of the hull, difference is due to thickness
-        self.shapes_raw = dict()      # raw shapes as read from the geometry file, not autocompleted
+        self.shapes_inside = (
+            dict()
+        )  # volumes representing the inside of the hull, difference is due to thickness
+        self.shapes_raw = (
+            dict()
+        )  # raw shapes as read from the geometry file, not autocompleted
         self.components = dict()
         self.parts = dict()
 
-
-        self.frames = []
-        self.volumes = []
+        # self.frames = []
+        # self.volumes = []
 
         self.data = dict()
 
         self.read()
 
     def read(self):
-
-        with open(self.filename, 'r') as f:
+        with open(self.filename, "r") as f:
             self.lines = f.readlines()
 
         # remove comments
@@ -251,14 +251,17 @@ circular_segments_step : maximum distance (degrees) between points on a circular
                 break
 
             elif next.startswith("***"):
+                print("Reading part")
                 self.read_part()
                 continue
 
             elif next.startswith("**"):
+                print("Component part")
                 self.read_component()
                 continue
 
             elif next.startswith("*"):
+                print("Reading Shape Record")
                 self.read_shape_record()
                 continue
 
@@ -270,67 +273,85 @@ circular_segments_step : maximum distance (degrees) between points on a circular
         """Rotates all parts by 180 degrees"""
 
         for part in self.parts.values():
-            part['volume'] = part['volume'].rotate(0,0,180)
-
-
+            if "volume" in part:
+                part["volume"] = part["volume"].rotate(0, 0, 180)
 
     def compile(self):
         # Compiles the final parts of the geometry file
 
         for name, values in self.parts.items():
-
             # combine the components into a single volume
 
-            volume = Volume()
+            try:
+                volume = Volume()
 
-            print('Compiling part {}'.format(name))
+                print("Compiling part {}".format(name))
 
-            for component_name in values["components"]:
-                component = self.components[component_name]
-                shape_name = component['shape_name']
+                for component_name in values["components"]:
+                    component = self.components[component_name]
+                    shape_name = component["shape_name"]
 
-                print('  Adding shape {} to part {}'.format(shape_name, name))
+                    print("  Adding shape {} to part {}".format(shape_name, name))
 
-                #
-                side_factor = component['side_factor']
+                    #
+                    side_factor = component["side_factor"]
 
-                if side_factor == 0:
-                    print('   Side factor = {} using autocompleted volume'.format(side_factor))
-                    shape : Volume = self.shapes_outside[shape_name]
-                else:
-                    print('   Side factor = {} using single-side volume'.format(side_factor))
-                    shape : Volume = self.shapes_raw[shape_name]
+                    if side_factor == 0:
+                        print(
+                            "   Side factor = {} using autocompleted volume".format(
+                                side_factor
+                            )
+                        )
+                        shape: Volume = self.shapes_outside[shape_name]
+                    else:
+                        print(
+                            "   Side factor = {} using single-side volume".format(
+                                side_factor
+                            )
+                        )
+                        shape: Volume = self.shapes_raw[shape_name]
 
+                    # part_type = component['part_type']
 
+                    # shift and mirror the shape if necessary
+                    if component["side_factor"] < 0:
+                        print("    Mirroring shape {} in XZ".format(shape_name))
+                        shape = shape.mirrorXZ()
 
+                    shape = shape.move(*component["origin_shift"])
+                    print(
+                        "    Moving shape {} by {}".format(
+                            shape_name, component["origin_shift"]
+                        )
+                    )
 
-                # part_type = component['part_type']
+                    # are we an addition or a subtraction?
+                    if component["effectiveness"] > 0:
+                        print("    Adding shape {} to part {}".format(shape_name, name))
+                        volume = volume.add(shape)
+                    else:
+                        print(
+                            "    Removing shape {} from part {}".format(
+                                shape_name, name
+                            )
+                        )
+                        volume = volume.remove(shape)
 
-                # shift and mirror the shape if necessary
-                if component['side_factor'] < 0:
-                    print('    Mirroring shape {} in XZ'.format(shape_name))
-                    shape = shape.mirrorXZ()
+                self.parts[name]["volume"] = volume
 
-                shape = shape.move(*component['origin_shift'])
-                print('    Moving shape {} by {}'.format(shape_name, component['origin_shift']))
+            except Exception as E:
+                print(E)
+                self.warnings.append("Error compiling part {}".format(name) + str(E))
 
-
-
-                # are we an addition or a subtraction?
-                if component['effectiveness'] > 0:
-                    print('    Adding shape {} to part {}'.format(shape_name, name))
-                    volume = volume.add(shape)
-                else:
-                    print('    Removing shape {} from part {}'.format(shape_name, name))
-                    volume = volume.remove(shape)
-
-            self.parts[name]["volume"] = volume
-
-
-
+    @property
+    def volumes(self):
+        for part in self.parts.values():
+            if "volume" in part:
+                yield part["volume"]
+            else:
+                print("No volume for part {}".format(part["name"]))
 
     def read_header(self):
-
         # read till HULL
 
         self.data["name"] = self.lines.pop(0)
@@ -367,8 +388,6 @@ circular_segments_step : maximum distance (degrees) between points on a circular
             next = self.lines.pop(0)
 
         return
-
-
 
     def read_shape_record(self):
         """
@@ -481,14 +500,14 @@ circular_segments_step : maximum distance (degrees) between points on a circular
         """
         data = dict()
 
-        lines = self.lines # alias (by reference)
+        lines = self.lines  # alias (by reference)
 
         name = lines.pop(0).strip()
         n = int(lines.pop(0))
 
         vertices = []
 
-        hull_data = []      # autocompleted
+        hull_data = []  # autocompleted
         hull_data_raw = []  # raw data
         radius = -1
         previous_radius = -1
@@ -500,11 +519,13 @@ circular_segments_step : maximum distance (degrees) between points on a circular
             Point 1
             ...
             Point m
-    
+
             """
             section = dict()
             location, m = lines.pop(0).split(",")
             section["location"] = float(location)
+
+            print(f"Location = {location}")
 
             as_points = []
 
@@ -520,12 +541,14 @@ circular_segments_step : maximum distance (degrees) between points on a circular
                 if len(parts) >= 3:
                     surface_code = int(parts[2])
                 if len(parts) >= 4:
-                    radius = int(parts[3])
+                    if parts[3] == "0.\n":
+                        radius = 0
+                    else:
+                        radius = int(parts[3])
                 else:
                     radius = -1
                 if len(parts) >= 5:
                     line_code = parts[4]
-
 
                 if radius > 0 and radius == previous_radius:
                     # create arc
@@ -535,26 +558,28 @@ circular_segments_step : maximum distance (degrees) between points on a circular
                     cy = z * 0.3048
                     r = radius * 0.3048
 
-                    points = points_on_circle(p1 = (px, py),
-                                              p2 = (cx, cy),
-                                              radius = r,
-                                              max_angle_deg=self.circular_segments_step)
+                    points = points_on_circle(
+                        p1=(px, py),
+                        p2=(cx, cy),
+                        radius=r,
+                        max_angle_deg=self.circular_segments_step,
+                    )
 
                     for p in points[1:-1]:  # skip the endpoints
                         as_points.append(p[0])
                         as_points.append(p[1])
-
 
                 previous_radius = radius
 
                 as_points.append(y * 0.3048)
                 as_points.append(z * 0.3048)
 
-                if y==0:
+                if y == 0:
                     y_at_zero = True
 
-            f = Frame(*as_points)
+            print(f"Number of coordinates = {len(as_points)}")
 
+            f = Frame(*as_points)
 
             # check if auto-completion is needed
             # Checking first and last point is not a solution
@@ -567,7 +592,6 @@ circular_segments_step : maximum distance (degrees) between points on a circular
             #         pass
             #     else:
             #         f = f.autocomplete()
-
 
             hull_data.append(float(location) * 0.3048)
             hull_data.append(f.autocomplete())
@@ -586,11 +610,12 @@ circular_segments_step : maximum distance (degrees) between points on a circular
                 print("Skipping property table line : ", lines[0])
                 lines.pop(0)  # skip property table
 
-
         if hull_data:
-            self.shapes_outside[name] = Hull(*hull_data)   #this is the outside of the hull
+            self.shapes_outside[name] = Hull(
+                *hull_data
+            )  # this is the outside of the hull
             try:
-                self.shapes_raw[name] = Hull(*hull_data_raw)   # raw (not autocompleted)
+                self.shapes_raw[name] = Hull(*hull_data_raw)  # raw (not autocompleted)
             except ValueError:
                 self.warnings.append("Can not create raw shape for %s" % name)
                 self.shapes_raw[name] = None
@@ -598,29 +623,28 @@ circular_segments_step : maximum distance (degrees) between points on a circular
             self.warnings.append("No hull data found for %s" % name)
 
         # calculate the inside (due to thickness)
-        if any(data["thickness"]): # any thickness not equal to zero
-            Bottom = data['thickness'][0]
-            Sides = data['thickness'][1]
-            Top = data['thickness'][2]
+        if any(data["thickness"]):  # any thickness not equal to zero
+            Bottom = data["thickness"][0]
+            Sides = data["thickness"][1]
+            Top = data["thickness"][2]
 
             # raise ValueError("I do not know how what this data would look like")
             # well, apparently it is only a single line
 
             # offset the shape and use boolean operations to create the inside
-            original : Volume = self.shapes_outside[name]
-            side1 = original.move(y = -Sides)
-            side2 = original.move(y = Sides)
-            bottom = original.move(z = Bottom)
-            top = original.move(z = -Top)
+            original: Volume = self.shapes_outside[name]
+            side1 = original.move(y=-Sides)
+            side2 = original.move(y=Sides)
+            bottom = original.move(z=Bottom)
+            top = original.move(z=-Top)
 
             # create the inside
-            self.shapes_inside[name] = side1.inside_of(side2).inside_of(bottom).inside_of(top)
+            self.shapes_inside[name] = (
+                side1.inside_of(side2).inside_of(bottom).inside_of(top)
+            )
 
         else:  # just the same
             self.shapes_inside[name] = self.shapes_outside[name]
-
-
-
 
     def read_component(self):
         """
@@ -682,7 +706,7 @@ circular_segments_step : maximum distance (degrees) between points on a circular
 
         """
 
-        lines =self.lines # alias by reference
+        lines = self.lines  # alias by reference
 
         name = lines.pop(0).strip()
         suffix = name[-2:]
@@ -698,11 +722,11 @@ circular_segments_step : maximum distance (degrees) between points on a circular
         elif suffix in ["-0", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9"]:
             raise ValueError("No idea what to do with this - need example")
         else:
-            side = 0 # int(lines.pop(0).strip())
+            side = 0  # int(lines.pop(0).strip())
 
         side_factor = int(lines.pop(0).strip())
         effectiveness = float(lines.pop(0).strip())
-        origin_shift = [float(x)*0.3048 for x in lines.pop(0).strip().split(",")]
+        origin_shift = [float(x) * 0.3048 for x in lines.pop(0).strip().split(",")]
         shape_name = lines.pop(0).strip()
 
         if not lines[0].startswith("*"):
@@ -718,17 +742,24 @@ circular_segments_step : maximum distance (degrees) between points on a circular
             "effectiveness": effectiveness,
             "origin_shift": origin_shift,
             "shape_name": shape_name,
-            "margins": margins
+            "margins": margins,
         }
 
-        print("read component", name, suffix, side, effectiveness, origin_shift, shape_name, margins)
-
+        print(
+            "read component",
+            name,
+            suffix,
+            side,
+            effectiveness,
+            origin_shift,
+            shape_name,
+            margins,
+        )
 
     def read_part(self):
+        lines = self.lines  # alias by ref
 
-        lines = self.lines # alias by ref
-
-        parts = lines.pop(0).split('\\')
+        parts = lines.pop(0).split("\\")
         name = parts[0].strip()
         if len(parts) > 1:
             part_description = parts[1].strip()
@@ -760,7 +791,7 @@ circular_segments_step : maximum distance (degrees) between points on a circular
         # sounding tubes and correction factors
         # ignored
 
-        while not lines[0].startswith('*'):
+        while not lines[0].startswith("*"):
             lines.pop(0)
 
         self.parts[name] = {
@@ -770,17 +801,16 @@ circular_segments_step : maximum distance (degrees) between points on a circular
             "part_type": part_type,
             "specific_gravity": specific_gravity,
             "reference_point": reference_point,
-            "components": components
+            "components": components,
         }
 
-        print("read part", name, part_description, fluid_name, part_type, specific_gravity, reference_point, n_components)
-
-
-# Press the green button in the gutter to run the script.
-# def read_ghs(filename):
-#     lines = []
-#
-#     with open(filename, "r") as f:
-#         lines = f.readlines()
-
-
+        print(
+            "read part",
+            name,
+            part_description,
+            fluid_name,
+            part_type,
+            specific_gravity,
+            reference_point,
+            n_components,
+        )

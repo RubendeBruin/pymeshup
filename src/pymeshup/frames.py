@@ -1,3 +1,5 @@
+from copy import copy
+
 import numpy as np
 
 class Frame():
@@ -25,6 +27,10 @@ class Frame():
                 raise ValueError(f"Only numeric entries are accepted, {a} is not nummeric")
 
         n = len(args) // 2
+
+        if n==0:
+            raise ValueError("Please provide coordinates")
+
         self.xy = [(args[2*i], args[2*i+1]) for i in range(n)]
 
         if self.xy[0] != self.xy[-1]:
@@ -32,12 +38,23 @@ class Frame():
 
         self.xy = tuple(self.xy)  # make immutable
 
+    def copy(self):
+        f = Frame(0,0)  # use dummy data
+        f.xy = copy(self.xy)
+
+        return f
+
     def autocomplete(self):
         """Returns a copy of self with the frame expanded over the mirror in x=0"""
 
         frame = self.xy[:-1] # all except the last one (which is the duplicate of 1)
 
         n = len(frame)
+
+        if n==0:  # Only a single point, nothing to auto-complete
+            # return a copy of self
+            return self.copy()
+
         xs = [f[0] for f in frame]
         ys = [f[1] for f in frame]
 

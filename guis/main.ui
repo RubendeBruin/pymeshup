@@ -18,6 +18,18 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item row="0" column="2">
      <widget class="QLabel" name="label_3">
       <property name="sizePolicy">
@@ -67,6 +79,21 @@
                 </sizepolicy>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_3">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <property name="leftMargin">
+                 <number>0</number>
+                </property>
+                <property name="topMargin">
+                 <number>0</number>
+                </property>
+                <property name="rightMargin">
+                 <number>0</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>0</number>
+                </property>
                 <item>
                  <widget class="QLabel" name="label_2">
                   <property name="sizePolicy">
@@ -491,6 +518,8 @@ B for box
     <addaction name="actionSave_as"/>
     <addaction name="separator"/>
     <addaction name="actionSet_work_folder"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpen_GSH_to_DAVE_conversion_tool"/>
    </widget>
    <widget class="QMenu" name="menuExamples">
     <property name="title">
@@ -504,6 +533,9 @@ B for box
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockWidget">
+   <property name="styleSheet">
+    <string notr="true">background:rgb(227, 255, 225)</string>
+   </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
@@ -525,7 +557,7 @@ B for box
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>214</width>
+          <width>232</width>
           <height>932</height>
          </rect>
         </property>
@@ -575,6 +607,11 @@ B for box
   <action name="actionSet_work_folder">
    <property name="text">
     <string>Set work folder</string>
+   </property>
+  </action>
+  <action name="actionOpen_GSH_to_DAVE_conversion_tool">
+   <property name="text">
+    <string>Open GSH to DAVE conversion tool</string>
    </property>
   </action>
  </widget>

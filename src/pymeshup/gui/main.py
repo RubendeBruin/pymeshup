@@ -5,7 +5,14 @@ from io import StringIO
 from contextlib import redirect_stdout
 
 from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF, QTextCursor
-from PySide6.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QListWidgetItem, QMessageBox, QFileDialog
+from PySide6.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QVBoxLayout,
+    QListWidgetItem,
+    QMessageBox,
+    QFileDialog,
+)
 from PySide6.QtCore import Qt, QSettings
 
 import numpy as np
@@ -19,17 +26,15 @@ from vtkmodules.vtkCommonCore import vtkPoints
 from vtkmodules.vtkCommonDataModel import vtkPolyData, vtkCellArray
 from vtkmodules.util.numpy_support import numpy_to_vtk, numpy_to_vtkIdTypeArray
 
-from vtkmodules.vtkRenderingCore import (
-    vtkActor,
-    vtkPolyDataMapper,
-    vtkRenderer
-)
+from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
 
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
 
-from matplotlib.backends.backend_qtagg import (FigureCanvas,
-     NavigationToolbar2QT as NavigationToolbar)
+from matplotlib.backends.backend_qtagg import (
+    FigureCanvas,
+    NavigationToolbar2QT as NavigationToolbar,
+)
 from matplotlib.figure import Figure
 from matplotlib import cm
 
@@ -43,8 +48,11 @@ Primitive volumes can be created using:
 - Box(xmin, xmax, ymin, ymax, zmin, zmax)
 - Cylinder(radius, height, resolution)
 
-Or load them from a file
+Or load them from a mesh file (eg stl, obj)
 - Load('filename') 
+
+Or load from a GHS geometry file
+- g = GHSgeo(filename)
 
 Meshes can be combined and modified using:
 - add(other)
@@ -117,8 +125,8 @@ hg = h.regrid()
 
 COLORMAP = cm.tab20
 
-def CreateVTKActor(vertices, faces):
 
+def CreateVTKActor(vertices, faces):
     # create data
     poly = vtkPolyData()
     points = vtkPoints()
@@ -150,7 +158,8 @@ def CreateVTKActor(vertices, faces):
 
     return actor
 
-def CreateVTKLineActor(start, end, color=(0,0,0)):
+
+def CreateVTKLineActor(start, end, color=(0, 0, 0)):
     # create data
     lineSource = vtkLineSource()
     lineSource.SetPoint1(start)
@@ -169,24 +178,21 @@ def CreateVTKLineActor(start, end, color=(0,0,0)):
     return actor
 
 
-
-class Gui():
-
+class Gui:
     def __init__(self):
         # Main Window
-
 
         self.MainWindow = QMainWindow()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.MainWindow)
 
-        self.ui.label.setText(HELP.replace('\n','<br>'))
+        self.ui.label.setText(HELP.replace("\n", "<br>"))
 
         # ---- Volumes
 
         self._actors = []
 
-        self.vtkWidget  = QVTKRenderWindowInteractor()
+        self.vtkWidget = QVTKRenderWindowInteractor()
         layout = QVBoxLayout()
         layout.addWidget(self.vtkWidget)
         self.ui.widgetGraphics.setLayout(layout)
@@ -195,13 +201,17 @@ class Gui():
         self.vtkWidget.GetRenderWindow().AddRenderer(self.renderer)
         self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
 
-        self.renderer.SetBackground((254,254,254))
+        self.renderer.SetBackground((254, 254, 254))
         self.create3Dorigin()
 
         self.ui.teCode.setPlainText(example_code)
 
         self.ui.pushButton.pressed.connect(self.run)
         self.ui.listVolumes.itemChanged.connect(self.update_visibility)
+
+        self.ui.actionOpen_GSH_to_DAVE_conversion_tool.triggered.connect(
+            self.ghs_to_dave
+        )
 
         # ---- Frames
 
@@ -222,15 +232,17 @@ class Gui():
 
         self.ui.listFrames.currentRowChanged.connect(self.select_frame)
 
-        self.ui.splitter.setStretchFactor(1,60)
+        self.ui.splitter.setStretchFactor(1, 60)
 
         # ---- Code formatting
 
         font = QFont()
         font.setPointSize(12)
-        font.setFamily('Segou UI')
+        font.setFamily("Segou UI")
         self.ui.teCode.setFont(font)
-        self.ui.teCode.setTabStopDistance(QFontMetricsF(self.ui.teCode.font()).horizontalAdvance(' ') * 4)
+        self.ui.teCode.setTabStopDistance(
+            QFontMetricsF(self.ui.teCode.font()).horizontalAdvance(" ") * 4
+        )
 
         highlight = PythonHighlighter(self.ui.teCode.document())
 
@@ -241,9 +253,9 @@ class Gui():
         self.ui.actionSave_as.triggered.connect(self.fileSaveAs)
         self.ui.actionSet_work_folder.triggered.connect(self.openFolder)
 
-        self.settings = QSettings('pymeshup','gui')
+        self.settings = QSettings("pymeshup", "gui")
 
-        self.filename = self.settings.value('lastfile')
+        self.filename = self.settings.value("lastfile")
         if self.filename:
             try:
                 self.open(self.filename)
@@ -251,7 +263,7 @@ class Gui():
                 self.filename = None
 
         if self.filename is None:
-            curdir = self.settings.value('last_workdir')
+            curdir = self.settings.value("last_workdir")
             if curdir:
                 self.curdir = curdir
             else:
@@ -262,7 +274,9 @@ class Gui():
         self.ui.pushButton_3.clicked.connect(self.save_volumes)
 
         self.ui.actionOpen_2.triggered.connect(self.open_examples)
-        self.ui.actionHelp_visible.triggered.connect(lambda: self.ui.dockWidget.setVisible(not self.ui.dockWidget.isVisible()))
+        self.ui.actionHelp_visible.triggered.connect(
+            lambda: self.ui.dockWidget.setVisible(not self.ui.dockWidget.isVisible())
+        )
 
         self.ui.pbWorkFolder.clicked.connect(self.openFolder)
 
@@ -270,8 +284,8 @@ class Gui():
 
         self.ui.tePeriods.textChanged.connect(self.update_period)
         self.ui.teHeading.textChanged.connect(self.update_heading)
-        self.ui.pbShowMesh.pressed.connect(lambda : self.run_captyaine(dryrun=True))
-        self.ui.pbRunCapytaine.pressed.connect(lambda : self.run_captyaine(dryrun=False))
+        self.ui.pbShowMesh.pressed.connect(lambda: self.run_captyaine(dryrun=True))
+        self.ui.pbRunCapytaine.pressed.connect(lambda: self.run_captyaine(dryrun=False))
 
         self.ui.cbInf.toggled.connect(self.update_inf)
         self.ui.cbInf.setChecked(True)
@@ -296,14 +310,18 @@ class Gui():
         self.update_heading()
 
     def open_examples(self):
-
         import os, sys
 
-        if getattr(sys, 'frozen', False):
+        if getattr(sys, "frozen", False):
             application_path = os.path.dirname(sys.executable)
-            self.fileOpen(path=application_path + '/examples')
+            self.fileOpen(path=application_path + "/examples")
         else:
-            self.fileOpen(path=str(pathlib.Path(__file__).parent / 'examples'))
+            self.fileOpen(path=str(pathlib.Path(__file__).parent / "examples"))
+
+    def ghs_to_dave(self, *args):
+        from pymeshup.DAVE.GHS_to_DAVE_dialog import GHS_to_DAVE_conversion_dialog
+
+        GHS_to_DAVE_conversion_dialog()
 
     def update_inf(self):
         self.ui.teWaterdepth.setEnabled(not self.ui.cbInf.isChecked())
@@ -344,20 +362,19 @@ class Gui():
         symmetry = self.ui.cbSymmetry.isChecked()
 
         if self.ui.cbInf.isChecked():
-            waterdepth = float('inf')
+            waterdepth = float("inf")
         else:
             waterdepth = self.ui.teWaterdepth.value()
 
-
-        run_capytaine(name=name,
-                      file_grid=file_grid,
-                      periods=periods,
-                      directions_deg=heading,
-                      waterdepth=waterdepth,
-                      symmetry=symmetry,
-                      show_only=dryrun)
-
-
+        run_capytaine(
+            name=name,
+            file_grid=file_grid,
+            periods=periods,
+            directions_deg=heading,
+            waterdepth=waterdepth,
+            symmetry=symmetry,
+            show_only=dryrun,
+        )
 
     def run(self):
         code = self.ui.teCode.toPlainText()
@@ -374,29 +391,25 @@ class Gui():
 
             s = f.getvalue()
             self.ui.teFeedback.setPlainText(s)
-            self.ui.teFeedback.append('..Done!')
+            self.ui.teFeedback.append("..Done!")
 
         except SyntaxError as E:
-
-            print(f'Error {E.msg} in {E.text}')
+            print(f"Error {E.msg} in {E.text}")
 
             try:
-                print(f'Error on line {E.lineno} to {E.end_lineno}')
-                print(f'Error from {E.offset} to {E.end_offset}')
+                print(f"Error on line {E.lineno} to {E.end_lineno}")
+                print(f"Error from {E.offset} to {E.end_offset}")
             except:
                 pass
 
             for i, line in enumerate(self.ui.teCode.toPlainText()):
-                self.ui.teFeedback.append(f'{i} : {line}')
+                self.ui.teFeedback.append(f"{i} : {line}")
 
-            self.ui.teFeedback.setPlainText('\n\n' + str(E))
-
+            self.ui.teFeedback.setPlainText("\n\n" + str(E))
 
             self.setErrorPos(E.lineno, E.offset)
 
-
         except (NameError, AttributeError) as E:
-
             # print(f'Error NameError in {E.msg}')
             # print(f'Error on line {E.lineno} to {E.end_lineno}')
             # print(f'Error from {E.offset} to {E.end_offset}')
@@ -404,13 +417,8 @@ class Gui():
             self.ui.teFeedback.setPlainText(str(E))
             # self.setErrorPos(E.lineno, E.offset)
 
-
         except Exception as E:
-
             self.ui.teFeedback.setPlainText(str(E))
-
-
-
 
         key_after = [v for v in locals().keys()]
         local_vars = [v for v in locals().values()]
@@ -427,8 +435,9 @@ class Gui():
                     frames[key] = value
                 elif isinstance(value, GHSgeo):
                     for name, part in value.parts.items():
-                        vol: Volume = part['volume']
-                        volumes[name] = vol
+                        if "volume" in part:
+                            vol: Volume = part["volume"]
+                            volumes[name] = vol
 
         self.frames = frames
         self.volumes = volumes
@@ -456,16 +465,14 @@ class Gui():
         name = self.ui.listFrames.currentItem().text()
         self.plot_frames(active_key=name)
 
-    def plot_frames(self, active_key = None):
-
+    def plot_frames(self, active_key=None):
         self.static_ax.clear()
 
         for key, frame in self.frames.items():
-
             xx = [p[0] for p in frame.xy]
             yy = [p[1] for p in frame.xy]
 
-            self.static_ax.plot(xx,yy,'k-', linewidth = 0.5)
+            self.static_ax.plot(xx, yy, "k-", linewidth=0.5)
 
         if active_key is not None:
             frame = self.frames[active_key]
@@ -473,18 +480,19 @@ class Gui():
             xx = [p[0] for p in frame.xy]
             yy = [p[1] for p in frame.xy]
 
-            self.static_ax.plot(xx, yy, 'b-', linewidth=1)
+            self.static_ax.plot(xx, yy, "b-", linewidth=1)
 
             for i, point in enumerate(frame.xy):
-                self.static_ax.plot(point[0], point[1], 'k.' )
-                self.static_ax.text(point[0], point[1], f'{point[0]:.3f} , {point[1]:.3f}')
+                self.static_ax.plot(point[0], point[1], "k.")
+                self.static_ax.text(
+                    point[0], point[1], f"{point[0]:.3f} , {point[1]:.3f}"
+                )
 
         self.static_canvas.figure.canvas.draw()
 
     # --- 3D
 
     def update_3d_listbox(self):
-
         self.ui.listVolumes.blockSignals(True)
 
         # remember currently unchecked items
@@ -495,8 +503,6 @@ class Gui():
             visible = item.checkState() == Qt.CheckState.Checked
             if not visible:
                 unchecked.append(key)
-
-
 
         self.ui.listVolumes.clear()
 
@@ -509,7 +515,7 @@ class Gui():
                 item.setCheckState(Qt.CheckState.Checked)
 
             rgb = COLORMAP(icol % 20)
-            brush = QBrush(QColor.fromRgb(254*rgb[0], 254*rgb[1], 254*rgb[2]))
+            brush = QBrush(QColor.fromRgb(254 * rgb[0], 254 * rgb[1], 254 * rgb[2]))
             item.setBackground(brush)
             self.ui.listVolumes.addItem(item)
             icol += 1
@@ -523,23 +529,19 @@ class Gui():
             visible = item.checkState() == Qt.CheckState.Checked
             self.volumes[key].actor.SetVisibility(visible)
 
-
         self.renderer.Render()
         self.vtkWidget.update()
 
     def create3Dorigin(self):
-        self.renderer.AddActor(CreateVTKLineActor((0,0,0),(10,0,0),(254,0,0)))
-        self.renderer.AddActor(CreateVTKLineActor((0,0,0),(0,10,0),(0,254,0)))
-        self.renderer.AddActor(CreateVTKLineActor((0,0,0),(0,0,10),(0,0,254)))
-
+        self.renderer.AddActor(CreateVTKLineActor((0, 0, 0), (10, 0, 0), (254, 0, 0)))
+        self.renderer.AddActor(CreateVTKLineActor((0, 0, 0), (0, 10, 0), (0, 254, 0)))
+        self.renderer.AddActor(CreateVTKLineActor((0, 0, 0), (0, 0, 10), (0, 0, 254)))
 
     def update_3dplotter(self):
-
         # add volumes to plotter
         self.renderer.RemoveAllViewProps()
         self._actors.clear()
         self.create3Dorigin()
-
 
         icol = 0
 
@@ -551,9 +553,9 @@ class Gui():
             self._actors.append(actor)
             self.renderer.AddActor(actor)
             actor.SetVisibility(False)
-            actor.GetProperty().SetColor(COLORMAP(icol %20)[:3])
+            actor.GetProperty().SetColor(COLORMAP(icol % 20)[:3])
             m.actor = actor
-            icol +=1
+            icol += 1
 
         self.renderer.Render()
         try:
@@ -562,11 +564,10 @@ class Gui():
             pass
 
     def select_3d_actor(self, actors):
-        name = getattr(actors[0],'name')
+        name = getattr(actors[0], "name")
         self.ui.teFeedback.append(f"Clicked on {name}")
 
-
-# === file operations
+    # === file operations
 
     def closeEvent(self, event):
         if self.maybeSave():
@@ -578,14 +579,18 @@ class Gui():
         return self.ui.teCode.document().isModified()
 
         ### ask to save
+
     def maybeSave(self):
         if not self.isModified():
             return True
 
-        ret = QMessageBox.question(self.MainWindow, "Message",
-                "<h4><p>The script was modified.</p>\n" 
-                "<p>Do you want to save changes?</p></h4>",
-                QMessageBox.Yes | QMessageBox.Discard | QMessageBox.Cancel)
+        ret = QMessageBox.question(
+            self.MainWindow,
+            "Message",
+            "<h4><p>The script was modified.</p>\n"
+            "<p>Do you want to save changes?</p></h4>",
+            QMessageBox.Yes | QMessageBox.Discard | QMessageBox.Cancel,
+        )
 
         if ret == QMessageBox.Yes:
             if self.filename == "":
@@ -602,14 +607,13 @@ class Gui():
 
     def fileSave(self):
         if self.filename is not None:
-
-            with open(self.filename, 'w') as file:
+            with open(self.filename, "w") as file:
                 file.write(self.ui.teCode.toPlainText())
 
             self.ui.teCode.document().setModified(False)
             self.MainWindow.setWindowTitle(self.filename + "[*]")
 
-            self.settings.setValue('lastfile',self.filename)
+            self.settings.setValue("lastfile", self.filename)
 
         else:
             self.fileSaveAs()
@@ -617,21 +621,23 @@ class Gui():
             ### save File
 
     def fileSaveAs(self):
-        fn, _ = QFileDialog.getSaveFileName(self.MainWindow, "Save as...", self.filename, "PyMeshUp files (*.pym)")
+        fn, _ = QFileDialog.getSaveFileName(
+            self.MainWindow, "Save as...", self.filename, "PyMeshUp files (*.pym)"
+        )
 
         if not fn:
             print("Error saving")
             return False
 
         lfn = fn.lower()
-        if not lfn.endswith('.pym'):
-            fn += '.pym'
+        if not lfn.endswith(".pym"):
+            fn += ".pym"
 
         self.filename = fn
 
         self.curdir = str(pathlib.Path(fn).parent)
         os.chdir(self.curdir)
-        self.ui.label_3.setText(f'Workfolder = {self.curdir}')
+        self.ui.label_3.setText(f"Workfolder = {self.curdir}")
 
         return self.fileSave()
 
@@ -643,7 +649,12 @@ class Gui():
             path = str(self.curdir)
 
         if self.maybeSave():
-            path, _ = QFileDialog.getOpenFileName(self.MainWindow, "Open File", path, "Python Files (*.pym);; all Files (*)")
+            path, _ = QFileDialog.getOpenFileName(
+                self.MainWindow,
+                "Open File",
+                path,
+                "Python Files (*.pym);; all Files (*)",
+            )
             if path:
                 self.open(path)
 
@@ -652,24 +663,20 @@ class Gui():
         if path:
             self.setWorkPath(path)
 
-
     def open(self, path):
-        with open(path, 'r') as f:
+        with open(path, "r") as f:
             self.ui.teCode.setPlainText(f.read())
-            self.settings.setValue('lastfile',path)
+            self.settings.setValue("lastfile", path)
 
             path = pathlib.Path(path).parent
             self.setWorkPath(str(path))
 
-
-
     def setWorkPath(self, path):
-
         self.curdir = path
 
         os.chdir(self.curdir)
-        self.ui.label_3.setText(f'Workfolder = {self.curdir}')
-        self.settings.setValue('last_workdir',path)
+        self.ui.label_3.setText(f"Workfolder = {self.curdir}")
+        self.settings.setValue("last_workdir", path)
 
     # -------- save volumes
 
@@ -680,13 +687,12 @@ class Gui():
             visible = item.checkState() == Qt.CheckState.Checked
 
             if visible:
-                fname = str(self.curdir) + '/' + key + self.ui.comboBox.currentText()
+                fname = str(self.curdir) + "/" + key + self.ui.comboBox.currentText()
                 self.volumes[key].save(fname)
-                self.ui.teFeedback.append(f'Saved: {fname}')
+                self.ui.teFeedback.append(f"Saved: {fname}")
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     app = QApplication()
     gui = Gui()
     app.exec()
