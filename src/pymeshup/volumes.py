@@ -145,22 +145,22 @@ class Volume():
 
     def cut_plane(self, planeaxis ='Z Axis'):
         v = Volume(self)
-        v.ms.compute_planar_section(planeaxis = planeaxis, splitsurfacewithsection = True) #plane_origin = (x,y,z), plane_normal = (nx,ny,nz))
+        v.ms.generate_polyline_from_planar_section(planeaxis = planeaxis, splitsurfacewithsection = True) #plane_origin = (x,y,z), plane_normal = (nx,ny,nz))
         v.ms.set_current_mesh(3)
-        v.ms.delete_all_non_visible_mesh_layers()
+        v.ms.delete_non_visible_meshes()
         return v
 
     def regrid(self, iterations=20, pct=1):
         v = Volume(self)
-        v.ms.meshing_isotropic_explicit_remeshing(iterations = iterations, targetlen = pymeshlab.Percentage(pct))
+        v.ms.meshing_isotropic_explicit_remeshing(iterations = iterations, targetlen = pymeshlab.PercentageValue(pct))
         return v
 
     def merge_close_vertices(self, pct=1):
         v = Volume(self)
-        v.ms.meshing_merge_close_vertices(threshold  =  pymeshlab.Percentage(pct))
+        v.ms.meshing_merge_close_vertices(threshold  =  pymeshlab.PercentageValue(pct))
         v.ms.meshing_remove_null_faces()
         v.ms.meshing_repair_non_manifold_edges()
-        v.ms.meshing_re_orient_faces_coherentely()
+        v.ms.meshing_re_orient_faces_coherently()
 
         return v
 
