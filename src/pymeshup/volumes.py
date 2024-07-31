@@ -1,7 +1,12 @@
+import tempfile
+
 import pymeshlab
 from math import sqrt, cos, sin, pi
 from numpy import min, max
 from pathlib import Path
+
+from vtkmodules.vtkIOGeometry import vtkSTLWriter
+
 
 class Volume():
 
@@ -166,6 +171,46 @@ class Volume():
 
     def save(self, filename):
         self.ms.save_current_mesh(file_name=filename)
+
+    def to_polydata(self):
+        """Returns a vtkPolyData object with the mesh data.
+        Save to stl and then load the stl file into vtk"""
+
+        file = tempfile.mktemp(".stl")
+        self.save(file)
+
+        from vtk import vtkSTLReader
+        reader = vtkSTLReader()
+        reader.SetFileName(file)
+        reader.Update()
+
+        return reader.GetOutput()
+
+    def simplify(self):
+        pd = self.to_polydata()
+        from vtk import vtkDecimatePro
+
+        # # triangulate first
+        # from vtk import vtkTriangleFilter
+        # tri = vtkTriangleFilter()
+        # tri.SetInputData(pd)
+        # tri.Update()
+
+        decimate = vtkDecimatePro()
+        decimate.SetInputData(pd)
+        decimate.SetTargetReduction(1.0)
+        decimate.SetPreserveTopology(1)
+        decimate.Update()
+
+        # save the output to stl
+
+        file = tempfile.mktemp(".stl")
+        writer = vtkSTLWriter()
+        writer.SetFileName(file)
+        writer.SetInputData(decimate.GetOutput())
+        writer.Write()
+
+        return Load(file)
 
 
 def Box(xmin = -0.5, xmax = 0.5, ymin = -0.5, ymax = 0.5, zmin = -0.5, zmax = 0.5):

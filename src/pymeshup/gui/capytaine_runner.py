@@ -11,6 +11,7 @@ from capytaine.io.xarray import separate_complex_values
 from capytaine.meshes.geometry import xOz_Plane
 from capytaine.meshes.symmetric import ReflectionSymmetricMesh
 
+import mafredo
 from mafredo import Hyddb1
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)-8s: %(message)s')
@@ -78,6 +79,12 @@ def run_capytaine(name: str,  # name of the body eg "boat"
     print(f'saved NC results as {file_out_nc}')
 
     hyd = Hyddb1.create_from_capytaine(filename=file_out_nc)
+    if symmetry:
+        hyd.symmetry = mafredo.Symmetry.XZ
+    else:
+        hyd.symmetry = mafredo.Symmetry.No
+
+   
     hyd.save_as(outfile)
     print(f'Saved as: {outfile}')
     hyd.plot(do_show=True)

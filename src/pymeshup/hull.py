@@ -229,7 +229,7 @@ def Hull(*args):
     if v.volume < 0:
         v = v.invert_normals()
 
-    return v
+    return v.simplify()
 
 def hull_from_file(filename) -> Volume:
     """Reads a hull from a file:
