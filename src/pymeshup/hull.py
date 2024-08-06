@@ -162,19 +162,19 @@ def Hull(*args):
         frames.append(f)
         x.append(xx)
 
-    # add one-frames at start and end, if needed
-    # The frames are always closed
-    # n is the number of vertices, where the first is identical to the last
-    # so n=3 means two unique vertices --> a line
-    if frames[0].n > 3:
-        stern = Frame(*frames[0].center())
-        frames.insert(0,stern)
-        x.insert(0, x[0])
-
-    if frames[-1].n > 3:
-        bow = Frame(*frames[-1].center())
-        frames.append(bow)
-        x.append(x[-1])
+    # # add one-frames at start and end, if needed
+    # # The frames are always closed
+    # # n is the number of vertices, where the first is identical to the last
+    # # so n=3 means two unique vertices --> a line
+    # if frames[0].n > 3:
+    #     stern = Frame(*frames[0].center())
+    #     frames.insert(0,stern)
+    #     x.insert(0, x[0])
+    #
+    # if frames[-1].n > 3:
+    #     bow = Frame(*frames[-1].center())
+    #     frames.append(bow)
+    #     x.append(x[-1])
 
     vertices = []
     faces = []
@@ -192,6 +192,13 @@ def Hull(*args):
 
 
     # print("---------------")
+
+    # mesh (frame0)
+
+    verts, face_ids = frames[0].to_plane_at(x[0])
+    vertices.extend(verts)
+    faces.extend(face_ids)
+
     for i in range(len(frames)-1):
 
         f1 = frames[i]
@@ -201,8 +208,6 @@ def Hull(*args):
         vertices2 = f2.as_vertices_at(x[i+1])
 
         # print(f"Building triangles between {len(vertices1)} and {len(vertices2)} vertices")
-
-
         verts, face_ids = build_triangles(vertices1,vertices2)
 
         # correct face_ids for t
@@ -211,6 +216,16 @@ def Hull(*args):
 
         vertices.extend(verts)
         faces.extend(faces_corrected)
+
+    # mesh last frame
+    verts, face_ids = frames[-1].to_plane_at(x[-1], invert_normal=True)
+
+    nva = len(vertices)
+    faces_corrected = [(a[0] + nva, a[1] + nva, a[2] + nva) for a in face_ids]
+    faces.extend(faces_corrected)
+
+    vertices.extend(verts)
+
 
     v = Volume()
     v.set_vertices_and_faces(vertices, faces)
@@ -229,7 +244,7 @@ def Hull(*args):
     if v.volume < 0:
         v = v.invert_normals()
 
-    return v.simplify()
+    return v
 
 def hull_from_file(filename) -> Volume:
     """Reads a hull from a file:

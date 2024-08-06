@@ -191,10 +191,10 @@ class Volume():
         from vtk import vtkDecimatePro
 
         # # triangulate first
-        # from vtk import vtkTriangleFilter
-        # tri = vtkTriangleFilter()
-        # tri.SetInputData(pd)
-        # tri.Update()
+        from vtk import vtkTriangleFilter
+        tri = vtkTriangleFilter()
+        tri.SetInputData(pd)
+        tri.Update()
 
         decimate = vtkDecimatePro()
         decimate.SetInputData(pd)
@@ -266,7 +266,7 @@ def Plot(v : Volume or list[Volume]):
         faces = m.ms.current_mesh().face_matrix()
         m2 = vedo.Mesh([vertices, faces])
         m2.actor.GetProperty().SetColor(COLORMAP(icol % 20)[:3])
-        m2.actor.GetProperty().SetOpacity(0.5)
+        # m2.actor.GetProperty().SetOpacity(0.5)
         p.add(m2)
 
     p.show(axes=1, viewup='z')

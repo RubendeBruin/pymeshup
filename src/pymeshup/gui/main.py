@@ -385,11 +385,11 @@ class Gui:
         key_before = [v for v in locals().keys()]
 
         try:
-            f = StringIO()
-            with redirect_stdout(f):
+            _output_redirect = StringIO()
+            with redirect_stdout(_output_redirect):
                 exec(code)
 
-            s = f.getvalue()
+            s = _output_redirect.getvalue()
             self.ui.teFeedback.setPlainText(s)
             self.ui.teFeedback.append("..Done!")
 

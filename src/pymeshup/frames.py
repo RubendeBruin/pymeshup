@@ -2,6 +2,9 @@ from copy import copy
 
 import numpy as np
 
+from pymeshup.helpers.triangulate_non_convex import triangulate_poly
+
+
 class Frame():
     """Frames are 2d slices
 
@@ -37,6 +40,20 @@ class Frame():
             self.xy.append(self.xy[0])
 
         self.xy = tuple(self.xy)  # make immutable
+
+    @classmethod
+    def from_xy(cls,x, y):
+        """Construct a Frame using my_frame = Frame.from_xy(x,y)"""
+        return cls(*[a for pair in zip(x, y) for a in pair])
+
+    def scaled(self, x=1, y=1):
+        """Returns a scaled copy of the frame"""
+
+        new_x = [x * xx for xx in self.x]
+        new_y = [y * yy for yy in self.y]
+
+
+        return Frame.from_xy(new_x, new_y)
 
     def copy(self):
         f = Frame(0,0)  # use dummy data
@@ -83,6 +100,33 @@ class Frame():
     def n(self):
         return len(self.xy)
 
+    @property
+    def x(self):
+        return [f[0] for f in self.xy]
+
+    @x.setter
+    def x(self, value):
+        assert len(value) == self.n, "Length of x should be equal to the number of points"
+
+        # update self.xy
+        self._set_xy(value, self.y)
+
+
+    @property
+    def y(self):
+        return [f[1] for f in self.xy]
+
+    @y.setter
+    def y(self, value):
+        assert len(value) == self.n, "Length of y should be equal to the number of points"
+
+        # update self.xy
+        self._set_xy(self.x, value)
+
+    def _set_xy(self, x, y):
+        self.xy = tuple([(x[i], y[i]) for i in range(self.n)])
+
+
     def as_vertices_at(self, x):
         """Returns 3d points (vertices) if this frame is located in 3d at x=given"""
         return [(x, p[0], p[1]) for p in self.xy]
@@ -97,3 +141,19 @@ class Frame():
                 return False
 
         return True
+
+    def to_plane_at(self, x, invert_normal=False):
+        """Returns the vertices and faces for a plane at x"""
+
+        vertices = self.as_vertices_at(x)
+
+        if len(vertices) < 3:
+            return [], []
+
+        if invert_normal:
+            vertices = vertices[::-1]
+
+        vertices, faces = triangulate_poly(vertices)
+
+        return vertices, faces
+
