@@ -1,4 +1,5 @@
 import logging
+import warnings
 
 import netCDF4 # required for saving - fallback to scipy.io.netcdf causes issues
 
@@ -33,29 +34,48 @@ def make_database(body, omegas, wave_directions, waterdepth=0):
 
     return dataset
 
-def run_capytaine(name: str,  # name of the body eg "boat"
-                  file_grid : str,   # input file, e.g. grid.stl
-                  periods : np.array, # periods in seconds
+def run_capytaine(file_grid : str,  # input file, e.g. grid.stl
+                  periods : np.array,  # periods in seconds
                   directions_deg : np.array,
-                  waterdepth : float = None, # waterdepth
-                  symmetry : bool = False, # symmetry in XZ plane
-                  show_only : bool = False # show only the mesh
+                  waterdepth : float = None,  # waterdepth
+                  grid_symmetry : bool = False,  # symmetry in XZ plane
+                  heading_symmetry : bool = False,  # symmetry in YZ plane
+                  show_only : bool = False,  # show only the mesh
+                  lid : bool = True,  # add a lid
+                  outfile : str = None  # output file
                   ):
+
+    name = file_grid[:-4]
+
+    if grid_symmetry and not heading_symmetry:
+        warnings.warn('Grid symmetry requires heading symmetry')
 
     periods = np.array(periods)
     directions = np.array(directions_deg) * pi / 180
 
-    file_out_nc = file_grid[:-4] + '.nc'
-    outfile = "{}.dhyd".format(file_grid[:-4])
+    file_out_nc = outfile + '.nc'
+    outfile_dhyd = outfile + '.dhyd'
 
 
     omega = 2 * np.pi / periods
 
-    boat = cpt.FloatingBody.from_file(file_grid, file_format="stl", name=name)
+    # load and create mesh
+    hull_mesh = cpt.load_mesh(file_grid, file_format="stl")
 
-    if symmetry:
-        mesh = ReflectionSymmetricMesh(boat.mesh, plane=xOz_Plane, name=f"{name}_mesh")
-        boat = cpt.FloatingBody(mesh=mesh)
+    # generate lid
+    if lid:
+        lid_mesh = hull_mesh.generate_lid(z=-0.01)
+    else:
+        lid_mesh = None
+
+
+    if grid_symmetry:
+        if lid:
+            raise ValueError('Symmetry and lid are not compatible')
+
+        hull_mesh = ReflectionSymmetricMesh(hull_mesh, plane=xOz_Plane, name=f"{name}_mesh")
+
+    boat = cpt.FloatingBody(mesh=hull_mesh, lid_mesh=lid_mesh)
 
     boat.add_all_rigid_body_dofs()
     boat.keep_immersed_part()
@@ -79,12 +99,12 @@ def run_capytaine(name: str,  # name of the body eg "boat"
     print(f'saved NC results as {file_out_nc}')
 
     hyd = Hyddb1.create_from_capytaine(filename=file_out_nc)
-    if symmetry:
+    if heading_symmetry:
         hyd.symmetry = mafredo.Symmetry.XZ
     else:
         hyd.symmetry = mafredo.Symmetry.No
 
    
-    hyd.save_as(outfile)
-    print(f'Saved as: {outfile}')
+    hyd.save_as(outfile_dhyd)
+    print(f'Saved as: {outfile_dhyd}')
     hyd.plot(do_show=True)
