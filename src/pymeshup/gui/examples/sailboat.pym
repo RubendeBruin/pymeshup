@@ -1,0 +1,47 @@
+# Example of a pontoon shaped barge
+# created from Frames
+
+width = 30.48
+height = 6.114
+fr = 100.6 / 55 # frame
+
+stern = Frame(0,4.284,
+					width/2, 4.284,
+					width/2, height).autocomplete()
+
+end_of_skeg = Frame(0,0,
+					width/2, 0,
+					width/2, height).autocomplete()
+
+main = Frame(0,0,
+					width/2, 0,
+					width/2, height).autocomplete()
+
+half_bow = Frame(0,1.5,
+					width/2, 1.5,
+					width/2, height).autocomplete()
+
+
+bow = stern.copy()
+
+
+Barge = Hull(
+		0, bow,
+		6*fr, end_of_skeg,
+		47*fr, main,
+		53*fr, half_bow,
+		55*fr, bow
+   )
+
+
+# Add skegs
+
+skeg = Box(0, 8.9,
+				  -0.2, 0.2,
+                  0, 6)
+skegPS = skeg.move(y=8)
+skegSB = skeg.move(y=-8)
+
+Hull_K10031 = Barge.add(skegPS).add(skegSB)
+
+del skegPS, skegSB, skeg, Barge

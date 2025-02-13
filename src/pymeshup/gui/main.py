@@ -357,23 +357,35 @@ class Gui:
 
         periods = self.update_period()
         heading = self.update_heading()
-        name = self.ui.teName.text()
         file_grid = str(pathlib.Path(self.curdir) / self.ui.teMeshFile.text())
-        symmetry = self.ui.cbSymmetry.isChecked()
+        symmetry_m = self.ui.cbSymmetryMesh.isChecked()
+        symmetry_h = self.ui.cbSymmetryHeadings.isChecked()
+
+        if symmetry_m and not symmetry_h:
+            msg_box = QMessageBox()
+            msg_box.setText("Symmetry in grid but not in headings, are you sure? Continue?")
+            msg_box.setWindowTitle("Confirmation")
+            msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            if msg_box.exec() == QMessageBox.No:
+                return
 
         if self.ui.cbInf.isChecked():
             waterdepth = float("inf")
         else:
             waterdepth = self.ui.teWaterdepth.value()
 
+        do_lid = self.ui.cbLid.isChecked()
+
         run_capytaine(
-            name=name,
             file_grid=file_grid,
             periods=periods,
             directions_deg=heading,
             waterdepth=waterdepth,
-            symmetry=symmetry,
+            grid_symmetry=symmetry_m,
+            heading_symmetry=symmetry_h,
             show_only=dryrun,
+            lid=do_lid,
+            outfile=self.ui.teOutputFile.text()
         )
 
     def run(self):
