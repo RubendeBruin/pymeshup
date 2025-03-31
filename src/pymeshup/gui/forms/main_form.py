@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'main.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.6.1
+## Created by: Qt User Interface Compiler version 6.8.2
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -20,8 +20,8 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDockWidget,
     QDoubleSpinBox, QFrame, QGridLayout, QHBoxLayout,
     QLabel, QLineEdit, QListWidget, QListWidgetItem,
     QMainWindow, QMenu, QMenuBar, QPushButton,
-    QScrollArea, QSizePolicy, QSplitter, QStatusBar,
-    QTabWidget, QTextEdit, QVBoxLayout, QWidget)
+    QSizePolicy, QSplitter, QStatusBar, QTabWidget,
+    QTextEdit, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -50,7 +50,7 @@ class Ui_MainWindow(object):
         self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
         self.label_3 = QLabel(self.centralwidget)
         self.label_3.setObjectName(u"label_3")
-        sizePolicy = QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Minimum)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
@@ -64,7 +64,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.splitter_4 = QSplitter(self.widget_3)
         self.splitter_4.setObjectName(u"splitter_4")
-        self.splitter_4.setOrientation(Qt.Vertical)
+        self.splitter_4.setOrientation(Qt.Orientation.Vertical)
         self.tabWidget = QTabWidget(self.splitter_4)
         self.tabWidget.setObjectName(u"tabWidget")
         self.Mesh = QWidget()
@@ -73,15 +73,15 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.splitter = QSplitter(self.Mesh)
         self.splitter.setObjectName(u"splitter")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.MinimumExpanding)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.MinimumExpanding)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.splitter.sizePolicy().hasHeightForWidth())
         self.splitter.setSizePolicy(sizePolicy1)
-        self.splitter.setOrientation(Qt.Horizontal)
+        self.splitter.setOrientation(Qt.Orientation.Horizontal)
         self.widget = QWidget(self.splitter)
         self.widget.setObjectName(u"widget")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Preferred)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
@@ -98,16 +98,6 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_3.addWidget(self.label_2)
 
-        self.teCode = QTextEdit(self.widget)
-        self.teCode.setObjectName(u"teCode")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.teCode.sizePolicy().hasHeightForWidth())
-        self.teCode.setSizePolicy(sizePolicy3)
-
-        self.verticalLayout_3.addWidget(self.teCode)
-
         self.pushButton = QPushButton(self.widget)
         self.pushButton.setObjectName(u"pushButton")
 
@@ -122,8 +112,8 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.setContentsMargins(2, 2, 2, 2)
         self.splitter_2 = QSplitter(self.widget_2)
         self.splitter_2.setObjectName(u"splitter_2")
-        self.splitter_2.setFrameShape(QFrame.NoFrame)
-        self.splitter_2.setOrientation(Qt.Vertical)
+        self.splitter_2.setFrameShape(QFrame.Shape.NoFrame)
+        self.splitter_2.setOrientation(Qt.Orientation.Vertical)
         self.widget_4 = QWidget(self.splitter_2)
         self.widget_4.setObjectName(u"widget_4")
         self.gridLayout_2 = QGridLayout(self.widget_4)
@@ -135,9 +125,12 @@ class Ui_MainWindow(object):
 
         self.listFrames = QListWidget(self.widget_4)
         self.listFrames.setObjectName(u"listFrames")
+        sizePolicy3 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        sizePolicy3.setHorizontalStretch(0)
+        sizePolicy3.setVerticalStretch(0)
         sizePolicy3.setHeightForWidth(self.listFrames.sizePolicy().hasHeightForWidth())
         self.listFrames.setSizePolicy(sizePolicy3)
-        self.listFrames.setFrameShape(QFrame.Box)
+        self.listFrames.setFrameShape(QFrame.Shape.Box)
 
         self.gridLayout_2.addWidget(self.listFrames, 1, 0, 1, 1)
 
@@ -171,7 +164,7 @@ class Ui_MainWindow(object):
         self.listVolumes.setObjectName(u"listVolumes")
         sizePolicy3.setHeightForWidth(self.listVolumes.sizePolicy().hasHeightForWidth())
         self.listVolumes.setSizePolicy(sizePolicy3)
-        self.listVolumes.setFrameShape(QFrame.Box)
+        self.listVolumes.setFrameShape(QFrame.Shape.Box)
 
         self.verticalLayout_4.addWidget(self.listVolumes)
 
@@ -335,7 +328,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 1179, 22))
+        self.menubar.setGeometry(QRect(0, 0, 1179, 33))
         self.menuHelp = QMenu(self.menubar)
         self.menuHelp.setObjectName(u"menuHelp")
         self.menuFile = QMenu(self.menubar)
@@ -348,33 +341,21 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
         self.dockWidget = QDockWidget(MainWindow)
         self.dockWidget.setObjectName(u"dockWidget")
-        self.dockWidget.setStyleSheet(u"background:rgb(227, 255, 225)")
+        self.dockWidget.setStyleSheet(u"")
         self.dockWidgetContents = QWidget()
         self.dockWidgetContents.setObjectName(u"dockWidgetContents")
         self.verticalLayout_2 = QVBoxLayout(self.dockWidgetContents)
+        self.verticalLayout_2.setSpacing(0)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
-        self.scrollArea = QScrollArea(self.dockWidgetContents)
-        self.scrollArea.setObjectName(u"scrollArea")
-        self.scrollArea.setEnabled(True)
-        self.scrollArea.setFrameShape(QFrame.NoFrame)
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollAreaWidgetContents = QWidget()
-        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 250, 932))
-        self.horizontalLayout_6 = QHBoxLayout(self.scrollAreaWidgetContents)
-        self.horizontalLayout_6.setObjectName(u"horizontalLayout_6")
-        self.label = QLabel(self.scrollAreaWidgetContents)
-        self.label.setObjectName(u"label")
-        self.label.setWordWrap(True)
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.teHelp = QTextEdit(self.dockWidgetContents)
+        self.teHelp.setObjectName(u"teHelp")
+        self.teHelp.setReadOnly(True)
 
-        self.horizontalLayout_6.addWidget(self.label)
-
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-
-        self.verticalLayout_2.addWidget(self.scrollArea)
+        self.verticalLayout_2.addWidget(self.teHelp)
 
         self.dockWidget.setWidget(self.dockWidgetContents)
-        MainWindow.addDockWidget(Qt.LeftDockWidgetArea, self.dockWidget)
+        MainWindow.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea, self.dockWidget)
 
         self.menubar.addAction(self.menuFile.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
@@ -391,7 +372,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -451,6 +432,5 @@ class Ui_MainWindow(object):
         self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuExamples.setTitle(QCoreApplication.translate("MainWindow", u"Examples", None))
-        self.label.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p><span style=\" font-weight:600;\">HELP</span></p><p><br/></p><p>PyMeshUp is a simple script-based application to generate meshes.</p><p><br/></p><p>Primitive volumes can be created using:</p><p>- Box</p><p>- Cylinder</p><p>- Hull</p><p><br/></p><p>Meshes can be combined and modified using:</p><p>- add</p><p>- remove</p><p>- rotate</p><p>- move</p><p>- scale</p><p>- crop</p></body></html>", None))
     # retranslateUi
 

@@ -4,7 +4,7 @@ import pathlib
 from io import StringIO
 from contextlib import redirect_stdout
 
-from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF, QTextCursor
+from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -40,6 +40,8 @@ from matplotlib import cm
 
 from pymeshup.gui.helpers.highlighter import PythonHighlighter
 from pymeshup.gui.helpers.vtkBlenderLikeInteractionStyle import BlenderStyle
+
+from pymeshup.syntaxedit.core import SyntaxEdit
 
 HELP = """
 <html><body><b>PyMeshUp</b>
@@ -186,7 +188,7 @@ class Gui:
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.MainWindow)
 
-        self.ui.label.setText(HELP.replace("\n", "<br>"))
+        self.ui.teHelp.setHtml(HELP.replace("\n", "<br>"))
 
         # ---- Volumes
 
@@ -204,7 +206,9 @@ class Gui:
         self.renderer.SetBackground((254, 254, 254))
         self.create3Dorigin()
 
-        self.ui.teCode.setPlainText(example_code)
+        self.ui.teCode = SyntaxEdit(example_code, syntax="Python", use_smart_indentation=True)
+
+        self.ui.verticalLayout_3.addWidget(self.ui.teCode)
 
         self.ui.pushButton.pressed.connect(self.run)
         self.ui.listVolumes.itemChanged.connect(self.update_visibility)

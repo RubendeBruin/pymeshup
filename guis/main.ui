@@ -49,11 +49,11 @@
        <item>
         <widget class="QSplitter" name="splitter_4">
          <property name="orientation">
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Orientation::Vertical</enum>
          </property>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="Mesh">
            <attribute name="title">
@@ -69,7 +69,7 @@
                </sizepolicy>
               </property>
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Orientation::Horizontal</enum>
               </property>
               <widget class="QWidget" name="widget" native="true">
                <property name="sizePolicy">
@@ -111,16 +111,6 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QTextEdit" name="teCode">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                 </widget>
-                </item>
-                <item>
                  <widget class="QPushButton" name="pushButton">
                   <property name="text">
                    <string>&gt;&gt; Run [F5]</string>
@@ -152,10 +142,10 @@
                 <item>
                  <widget class="QSplitter" name="splitter_2">
                   <property name="frameShape">
-                   <enum>QFrame::NoFrame</enum>
+                   <enum>QFrame::Shape::NoFrame</enum>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Vertical</enum>
+                   <enum>Qt::Orientation::Vertical</enum>
                   </property>
                   <widget class="QWidget" name="widget_4" native="true">
                    <layout class="QGridLayout" name="gridLayout_2">
@@ -175,7 +165,7 @@
                        </sizepolicy>
                       </property>
                       <property name="frameShape">
-                       <enum>QFrame::Box</enum>
+                       <enum>QFrame::Shape::Box</enum>
                       </property>
                      </widget>
                     </item>
@@ -227,7 +217,7 @@
                           </sizepolicy>
                          </property>
                          <property name="frameShape">
-                          <enum>QFrame::Box</enum>
+                          <enum>QFrame::Shape::Box</enum>
                          </property>
                         </widget>
                        </item>
@@ -457,7 +447,7 @@ B for box
      <x>0</x>
      <y>0</y>
      <width>1179</width>
-     <height>22</height>
+     <height>33</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuHelp">
@@ -491,46 +481,33 @@ B for box
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dockWidget">
    <property name="styleSheet">
-    <string notr="true">background:rgb(227, 255, 225)</string>
+    <string notr="true"/>
    </property>
    <attribute name="dockWidgetArea">
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
     <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
      <item>
-      <widget class="QScrollArea" name="scrollArea">
-       <property name="enabled">
+      <widget class="QTextEdit" name="teHelp">
+       <property name="readOnly">
         <bool>true</bool>
        </property>
-       <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
-       </property>
-       <property name="widgetResizable">
-        <bool>true</bool>
-       </property>
-       <widget class="QWidget" name="scrollAreaWidgetContents">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>250</width>
-          <height>932</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;HELP&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;PyMeshUp is a simple script-based application to generate meshes.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Primitive volumes can be created using:&lt;/p&gt;&lt;p&gt;- Box&lt;/p&gt;&lt;p&gt;- Cylinder&lt;/p&gt;&lt;p&gt;- Hull&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Meshes can be combined and modified using:&lt;/p&gt;&lt;p&gt;- add&lt;/p&gt;&lt;p&gt;- remove&lt;/p&gt;&lt;p&gt;- rotate&lt;/p&gt;&lt;p&gt;- move&lt;/p&gt;&lt;p&gt;- scale&lt;/p&gt;&lt;p&gt;- crop&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
       </widget>
      </item>
     </layout>
