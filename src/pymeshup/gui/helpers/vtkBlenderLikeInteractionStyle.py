@@ -1,5 +1,4 @@
 import logging
-import vtk
 import numpy as np
 from dataclasses import dataclass
 
@@ -7,8 +6,6 @@ from vtkmodules.vtkRenderingCore import (
     vtkActor2D,
     vtkTextMapper,
 )
-from vtkmodules.vtkCommonColor import vtkNamedColors
-
 from vtkmodules.vtkInteractionStyle import vtkInteractorStyleUser
 
 from vtkmodules.vtkCommonCore import vtkCommand, vtkUnsignedCharArray

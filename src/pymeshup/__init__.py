@@ -21,5 +21,6 @@ from .frames import Frame
 from .volumes import Volume, Box, Cylinder, Plot, Load
 from .hull import Hull
 from .ghs_import import GHSgeo
+from .step_import import STEP
 
-__all__ = ['Volume','Box','Cylinder','Plot', 'Frame','Hull','Load', 'GHSgeo']
+__all__ = ['Volume','Box','Cylinder','Plot', 'Frame','Hull','Load', 'GHSgeo', 'STEP']

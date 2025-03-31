@@ -56,6 +56,11 @@ Or load them from a mesh file (eg stl, obj)
 Or load from a GHS geometry file
 - g = GHSgeo(filename)
 
+
+Loading from STEP (.stp) files is supported using an additional step:
+- step_model = STEP(filename, scale=1.0)
+- volume = step_model.to_volume(angular_tolerance=5, linear_tolerance=0.1)
+
 Meshes can be combined and modified using:
 - add(other)
 - remove(other)
