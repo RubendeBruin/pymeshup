@@ -1,4 +1,4 @@
-"""
+r"""
 
 # https://converthullform.aerohydro.nl/Externals/GHS_format-APPEND-A.htm
 
@@ -232,6 +232,21 @@ class GHSgeo:
         self.data = dict()
 
         self.read()
+
+    def __getitem__(self, name) -> Volume:
+        return self.get_volume(name.upper())
+
+
+    def get_volume(self, name) -> Volume:
+        """Returns the volume of the part with the given name"""
+        if name not in self.parts:
+            raise ValueError(f"Part {name} not found")
+
+        if "volume" not in self.parts[name]:
+            raise ValueError(f"Part {name} has no volume")
+
+        return self.parts[name]["volume"]
+
 
     def read(self):
         with open(self.filename, "r") as f:

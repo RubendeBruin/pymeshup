@@ -46,20 +46,25 @@ from pymeshup.syntaxedit.core import SyntaxEdit
 HELP = """
 <html><body><b>PyMeshUp</b>
 PyMeshUp is a simple script-based application to generate meshes.<br><br>
-Primitive volumes can be created using:
+<b>Primitive volumes can be created using:</b>
 - Box(xmin, xmax, ymin, ymax, zmin, zmax)
 - Cylinder(radius, height, resolution)
 
-Or load them from a mesh file (eg stl, obj)
+
+Or load them from a <b>mesh file</b> (eg stl, obj)
 - Load('filename') 
 
-Or load from a GHS geometry file
+Or load from a <b>GHS geometry file</b>
 - g = GHSgeo(filename)
+and then:
+- volume = g['HULL']
 
 
-Loading from STEP (.stp) files is supported using an additional step:
+<b>Loading from STEP (.stp)</b> files is supported using an additional step:
 - step_model = STEP(filename, scale=1.0)
 - volume = step_model.to_volume(angular_tolerance=5, linear_tolerance=0.1)
+
+<b>Combining meshes</b>
 
 Meshes can be combined and modified using:
 - add(other)
@@ -77,6 +82,8 @@ Meshes can be combined and modified using:
 - b.rotate(90) # does not do anything
 - b = b.rotate(90) # works
 
+<b>Creating frames and hulls</b>
+
 Hulls can be constructed using Frames
 - First construct a Frame using
   f1 =  Frame(x1,y1,x2,y2,...)
@@ -84,7 +91,7 @@ Hulls can be constructed using Frames
 - then construct a hull from frames and their positions using
   h = Hull(0,f1, 20, f2, 30, f2, ...)
 
-Creating a panel distribution:
+<b>Creating a panel distribution</b>
 - regrid(iterations=10, pct=5)
 
 Deleting
@@ -595,6 +602,8 @@ class Gui:
             event.accept()
         else:
             event.ignore()
+
+        self.vtkWidget.GetRenderWindow().Finalize()
 
     def isModified(self):
         return self.ui.teCode.document().isModified()

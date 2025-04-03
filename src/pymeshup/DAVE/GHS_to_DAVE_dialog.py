@@ -18,7 +18,6 @@ def GHS_to_DAVE_conversion_dialog():
     def go(*args):
         filename = dialog.ui.tbFilename.text()
         output_folder = dialog.ui.tbOutputDir.text()
-        prefix = dialog.ui.tbPrefix.text()
         name = dialog.ui.tbVesselName.text()
         resolution_deg = dialog.ui.sbDeg.value()
 
@@ -34,7 +33,6 @@ def GHS_to_DAVE_conversion_dialog():
             GHS_to_DAVE(
                 filename_gf1=filename,
                 outdir=output_folder,
-                resource_prefix=prefix,
                 vessel_name=name,
                 circular_segments_step=resolution_deg,
                 output=output,
@@ -45,7 +43,16 @@ def GHS_to_DAVE_conversion_dialog():
 
         dialog.ui.tbOutput.setPlainText("\n".join(output))
 
+
+    def browse():
+        from PySide6.QtWidgets import QFileDialog
+
+        filename, _ = QFileDialog.getOpenFileName(dialog, "Select GHS file", "", "GHS files (*.gf; *.gf1);;All files (*)")
+        if filename:
+            dialog.ui.tbFilename.setText(filename)
+
     dialog.ui.pbGo.clicked.connect(go)
+    dialog.ui.pbBrowse.clicked.connect(browse)
 
     dialog.ui.tbFilename.setFocus()
 

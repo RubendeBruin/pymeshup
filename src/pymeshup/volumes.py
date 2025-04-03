@@ -52,7 +52,7 @@ class Volume():
         """Returns a copy with other added to the volume"""
 
         # if current mesh is empty, then return copy of other
-        if self.ms.number_meshes() == 0:
+        if self.ms.mesh_number() == 0:
             return Volume(other)
 
         v = Volume(self)

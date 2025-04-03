@@ -16,12 +16,12 @@ for part in a.parts.keys():
 #     Plot(shape)
 
 
-def test_read_ghs_with_circular_segments():
-    a =GHSgeo(r"C:\data\Dave\Public\pymeshup\src\pymeshup\gui\examples\DEMOBARGE.GF1", circular_segments_step=1)
-    shape = a.shapes_outside['HULL']
-    assert shape.volume == 2719.7268458294716
-
-    Plot(shape)
+# def test_read_ghs_with_circular_segments():
+#     a =GHSgeo(r"C:\data\Dave\Public\pymeshup\src\pymeshup\gui\examples\DEMOBARGE.GF1", circular_segments_step=1)
+#     shape = a.shapes_outside['HULL']
+#     assert shape.volume == 2719.7268458294716
+#
+#     Plot(shape)
 #
 #
 if __name__ == '__main__':

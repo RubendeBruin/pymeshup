@@ -9,13 +9,14 @@ The GHSgeo class is still under development so this function should be considere
 """
 
 
+
 def GHS_to_DAVE(
     filename_gf1,
-    outdir,
-    resource_prefix,
     vessel_name,
+    outdir = None,
     circular_segments_step=10,
     output: list = None,
+    resource_prefix = None
 ):
     """Converts a GHS file to a DAVE vessel file
 
@@ -23,6 +24,20 @@ def GHS_to_DAVE(
     data is returned in case of exception)
 
     """
+
+    if not vessel_name:
+        raise ValueError("No vessel name given, please provide a name")
+
+
+    if outdir == '':
+        outdir = None
+
+    if outdir is None:
+        outdir = Path(filename_gf1).parent
+
+    if resource_prefix is None:
+        resource_prefix = f"res: {vessel_name}/geometry/"
+
     if output is None:
         output = []
 
@@ -30,11 +45,31 @@ def GHS_to_DAVE(
 
     output.append("reading GHS file:" + filename_gf1)
 
+    # make sure that the output directory exists
+    outdir = Path(outdir)
+    outdir = outdir.resolve()
+
+    outdir = outdir / vessel_name
+
+    if not outdir.exists():
+        outdir.mkdir(parents=True, exist_ok=True)
+
+    # make sure that the geometry directory exists
+    geometry_dir = outdir / "geometry"
+    if not geometry_dir.exists():
+        geometry_dir.mkdir(parents=True, exist_ok=True)
+
+    # let the user know where we are writing to
+    output.append("saving to vessel to " + str(outdir))
+    output.append("saving geometry to " + str(geometry_dir))
+
+
+    output.append("Reading GHS file, may take a while...")
     a = GHSgeo(filename_gf1, circular_segments_step=circular_segments_step)
     output.extend(a.warnings)
 
     Path(outdir).mkdir(exist_ok=True)
-    output.append("saving to " + outdir)
+    output.append("saving to " + str(outdir))
 
     a.rotate180()  # to align with positive x axis
 
@@ -49,13 +84,27 @@ def GHS_to_DAVE(
 
         vol: Volume = part["volume"]
 
-        filename = f"{outdir}/{name}.stl"
+        filename = f"{outdir}/geometry/{name}.stl"
 
         vol.save(filename)
 
     # generate a DAVE vessel file
 
-    hull: Volume = a.parts["HULL"]["volume"]
+    # hull: Volume = a.parts["HULL"]["volume"]
+
+    # get the hull for the parts lists
+    # this is the part with part_type 1 (int) with the largest volume
+
+    hull = None
+    hull_volume = 0
+    for name, part in a.parts.items():
+        if part["part_type"] == 1:
+            if part["volume"].volume > hull_volume:
+                hull = part["volume"]
+                hull_volume = part["volume"].volume
+    if hull is None:
+        output.append("WARNING: No hull found in GHS file")
+        return output
 
     # get deck elevation
     general = dict()
@@ -88,6 +137,20 @@ def GHS_to_DAVE(
             part["part_type"] == 4
         ):  #  4 - Containment part  (e.g. a tank or compartment):
             # Name, resource, permeability,density,Fill-pct, off-x, off-y, off-z, rot-x, rot-y, rot-z, scale-x, scale-y, scale-z, invert-normals
+
+            try:
+                volume = part["volume"].volume
+            except Exception as e:
+                output.append(
+                    f"WARNING: {name} has an error in the volume calculation, skipping it."
+                )
+                continue
+
+            if volume < 0:
+                invert_normals = True
+            else:
+                invert_normals = False
+
             data = (
                 name,
                 resource_prefix + name + ".stl",
@@ -103,7 +166,7 @@ def GHS_to_DAVE(
                 1,  # scale-x
                 1,  # scale-y
                 1,  # scale-z
-                False,
+                invert_normals,
             )  # invert-normals
             ballast_tanks[name] = data
 
