@@ -1,9 +1,55 @@
 [build-system]
-# AVOID CHANGING REQUIRES: IT WILL BE UPDATED BY PYSCAFFOLD!
-requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5", "wheel"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 # For smarter version schemes and other configuration options,
 # check out https://github.com/pypa/setuptools_scm
 version_scheme = "no-guess-dev"
+
+[project]
+name = "pymeshup"
+version = "0.1.0"
+description = "Make volume meshes the easy way"
+authors = [
+    { name = "Ruben de Bruin", email = "rubendebruin@gmail.com" }
+]
+license = "MPL-2.0"
+readme = "README.md"
+keywords = ["meshing", "volume", "geometry"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent"
+]
+requires-python = ">=3.8"
+dependencies = [
+    "vedo",
+    "vtk",
+    "numpy",
+    "matplotlib",
+    "PySide6-Essentials",
+    "pymeshlab",
+    "capytaine>=2.0",
+    "mafredo",
+    "cadquery",
+    "netcdf4>=1.7.2",
+]
+urls = { "Documentation" = "https://open-ocean.org/" }
+
+[project.optional-dependencies]
+testing = [
+    "setuptools",
+    "pytest",
+    "pytest-cov"
+]
+exe = ["pyinstaller"]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.sdist]
+include = ["src/**", "tests/**", "docs/**", "README.md", "LICENSE.txt"]
+
+[tool.hatch.build.targets.wheel]
+include = ["src/**", "tests/**", "docs/**", "README.md", "LICENSE.txt"]
