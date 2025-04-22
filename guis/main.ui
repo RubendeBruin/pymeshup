@@ -53,7 +53,7 @@
          </property>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="Mesh">
            <attribute name="title">
@@ -289,13 +289,10 @@ B for box
             <string>Capytaine</string>
            </attribute>
            <layout class="QGridLayout" name="gridLayout_4">
-            <item row="7" column="2">
-             <widget class="QLabel" name="lblHeading">
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_11">
               <property name="text">
-               <string>TextLabel</string>
-              </property>
-              <property name="wordWrap">
-               <bool>true</bool>
+               <string>Periods [s]</string>
               </property>
              </widget>
             </item>
@@ -312,40 +309,36 @@ B for box
               </property>
              </widget>
             </item>
-            <item row="8" column="1">
-             <widget class="QCheckBox" name="cbInf">
+            <item row="9" column="0">
+             <widget class="QLabel" name="label_16">
               <property name="text">
-               <string>Infinite</string>
+               <string>Water level elevation [m]</string>
               </property>
              </widget>
             </item>
-            <item row="5" column="0">
-             <widget class="QLabel" name="label_13">
+            <item row="5" column="2">
+             <widget class="QLineEdit" name="teHeading">
               <property name="text">
-               <string>Headings [degrees]</string>
+               <string>np.linspace(0, 180, 9)</string>
               </property>
              </widget>
             </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="label_20">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_9">
               <property name="text">
-               <string>Output file names</string>
+               <string>Mesh [file, in workfolder]</string>
               </property>
              </widget>
             </item>
-            <item row="9" column="0" colspan="3">
-             <widget class="QCheckBox" name="cbLid">
+            <item row="1" column="2">
+             <widget class="QLineEdit" name="teOutputFile">
               <property name="text">
-               <string>Add lid at z=-0.01m (can not be used together with symmetry)</string>
+               <string>my_model</string>
               </property>
              </widget>
             </item>
-            <item row="15" column="0" colspan="3">
-             <widget class="QCheckBox" name="cbSymmetryHeadings">
-              <property name="text">
-               <string>Use symmetry in XY for output (only headings 0...180 defined)</string>
-              </property>
-             </widget>
+            <item row="0" column="2">
+             <widget class="QLineEdit" name="teMeshFile"/>
             </item>
             <item row="4" column="2">
              <widget class="QLabel" name="lblPeriods">
@@ -357,6 +350,48 @@ B for box
               </property>
              </widget>
             </item>
+            <item row="15" column="0" colspan="3">
+             <widget class="QCheckBox" name="cbSymmetryMesh">
+              <property name="text">
+               <string>Use symmetry in XZ for mesh (only half of mesh defined)</string>
+              </property>
+             </widget>
+            </item>
+            <item row="11" column="0" colspan="3">
+             <widget class="QCheckBox" name="cbLid">
+              <property name="text">
+               <string>Add lid at z=-0.01m (can not be used together with symmetry)</string>
+              </property>
+             </widget>
+            </item>
+            <item row="8" column="1">
+             <widget class="QCheckBox" name="cbInf">
+              <property name="text">
+               <string>Infinite</string>
+              </property>
+             </widget>
+            </item>
+            <item row="18" column="0">
+             <widget class="QPushButton" name="pbShowMesh">
+              <property name="text">
+               <string>Show mesh</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_20">
+              <property name="text">
+               <string>Output file names</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0">
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>Headings [degrees]</string>
+              </property>
+             </widget>
+            </item>
             <item row="2" column="2">
              <widget class="QLineEdit" name="tePeriods">
               <property name="text">
@@ -364,24 +399,20 @@ B for box
               </property>
              </widget>
             </item>
-            <item row="16" column="0">
-             <widget class="QPushButton" name="pbShowMesh">
+            <item row="7" column="2">
+             <widget class="QLabel" name="lblHeading">
               <property name="text">
-               <string>Show mesh</string>
+               <string>TextLabel</string>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_11">
+            <item row="23" column="0">
+             <widget class="QPushButton" name="pbRunCapytaine">
               <property name="text">
-               <string>Periods [s]</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_9">
-              <property name="text">
-               <string>Mesh [file, in workfolder]</string>
+               <string>Go!</string>
               </property>
              </widget>
             </item>
@@ -392,34 +423,23 @@ B for box
               </property>
              </widget>
             </item>
-            <item row="13" column="0" colspan="3">
-             <widget class="QCheckBox" name="cbSymmetryMesh">
+            <item row="17" column="0" colspan="3">
+             <widget class="QCheckBox" name="cbSymmetryHeadings">
               <property name="text">
-               <string>Use symmetry in XZ for mesh (only half of mesh defined)</string>
+               <string>Use symmetry in XY for output (only headings 0...180 defined)</string>
               </property>
              </widget>
             </item>
-            <item row="21" column="0">
-             <widget class="QPushButton" name="pbRunCapytaine">
-              <property name="text">
-               <string>Go!</string>
+            <item row="9" column="2">
+             <widget class="QDoubleSpinBox" name="te_water_level_elevation">
+              <property name="minimum">
+               <double>-999.000000000000000</double>
               </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <widget class="QLineEdit" name="teMeshFile"/>
-            </item>
-            <item row="5" column="2">
-             <widget class="QLineEdit" name="teHeading">
-              <property name="text">
-               <string>np.linspace(0, 180, 9)</string>
+              <property name="maximum">
+               <double>999.000000000000000</double>
               </property>
-             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QLineEdit" name="teOutputFile">
-              <property name="text">
-               <string>my_model</string>
+              <property name="value">
+               <double>0.000000000000000</double>
               </property>
              </widget>
             </item>

@@ -19,13 +19,13 @@ logging.basicConfig(level=logging.INFO, format='%(levelname)-8s: %(message)s')
 bem_solver = cpt.BEMSolver()
 
 # Helper
-def make_database(body, omegas, wave_directions, waterdepth=0):
+def make_database(body, omegas, wave_directions, waterdepth=0, water_level=0):
     # SOLVE BEM PROBLEMS
     problems = []
     for wave_direction in wave_directions:
         for omega in omegas:
-            problems += [cpt.RadiationProblem(omega=omega, body=body, radiating_dof=dof, water_depth=waterdepth) for dof in body.dofs]
-            problems += [cpt.DiffractionProblem(omega=omega, body=body, wave_direction=wave_direction, water_depth=waterdepth)]
+            problems += [cpt.RadiationProblem(omega=omega, body=body, radiating_dof=dof, water_depth=waterdepth, free_surface=water_level) for dof in body.dofs]
+            problems += [cpt.DiffractionProblem(omega=omega, body=body, wave_direction=wave_direction, water_depth=waterdepth, free_surface=water_level)]
     results = [bem_solver.solve(problem) for problem in problems]
     # *radiation_results, diffraction_result = results
     dataset = cpt.assemble_dataset(results)
@@ -38,6 +38,7 @@ def run_capytaine(file_grid : str,  # input file, e.g. grid.stl
                   periods : np.array,  # periods in seconds
                   directions_deg : np.array,
                   waterdepth : float = None,  # waterdepth
+                  water_level : float = 0,  # water level
                   grid_symmetry : bool = False,  # symmetry in XZ plane
                   heading_symmetry : bool = False,  # symmetry in YZ plane
                   show_only : bool = False,  # show only the mesh
@@ -84,7 +85,7 @@ def run_capytaine(file_grid : str,  # input file, e.g. grid.stl
     if show_only:
         return
 
-    dataset = make_database(body=boat, omegas=omega, wave_directions=directions, waterdepth=waterdepth)
+    dataset = make_database(body=boat, omegas=omega, wave_directions=directions, waterdepth=waterdepth, water_level=water_level)
 
 
     sep = separate_complex_values(dataset)

@@ -214,11 +214,10 @@ class Ui_MainWindow(object):
         self.Capytaine.setObjectName(u"Capytaine")
         self.gridLayout_4 = QGridLayout(self.Capytaine)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.lblHeading = QLabel(self.Capytaine)
-        self.lblHeading.setObjectName(u"lblHeading")
-        self.lblHeading.setWordWrap(True)
+        self.label_11 = QLabel(self.Capytaine)
+        self.label_11.setObjectName(u"label_11")
 
-        self.gridLayout_4.addWidget(self.lblHeading, 7, 2, 1, 1)
+        self.gridLayout_4.addWidget(self.label_11, 2, 0, 1, 1)
 
         self.teWaterdepth = QDoubleSpinBox(self.Capytaine)
         self.teWaterdepth.setObjectName(u"teWaterdepth")
@@ -228,30 +227,30 @@ class Ui_MainWindow(object):
 
         self.gridLayout_4.addWidget(self.teWaterdepth, 8, 2, 1, 1)
 
-        self.cbInf = QCheckBox(self.Capytaine)
-        self.cbInf.setObjectName(u"cbInf")
+        self.label_16 = QLabel(self.Capytaine)
+        self.label_16.setObjectName(u"label_16")
 
-        self.gridLayout_4.addWidget(self.cbInf, 8, 1, 1, 1)
+        self.gridLayout_4.addWidget(self.label_16, 9, 0, 1, 1)
 
-        self.label_13 = QLabel(self.Capytaine)
-        self.label_13.setObjectName(u"label_13")
+        self.teHeading = QLineEdit(self.Capytaine)
+        self.teHeading.setObjectName(u"teHeading")
 
-        self.gridLayout_4.addWidget(self.label_13, 5, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.teHeading, 5, 2, 1, 1)
 
-        self.label_20 = QLabel(self.Capytaine)
-        self.label_20.setObjectName(u"label_20")
+        self.label_9 = QLabel(self.Capytaine)
+        self.label_9.setObjectName(u"label_9")
 
-        self.gridLayout_4.addWidget(self.label_20, 1, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.label_9, 0, 0, 1, 1)
 
-        self.cbLid = QCheckBox(self.Capytaine)
-        self.cbLid.setObjectName(u"cbLid")
+        self.teOutputFile = QLineEdit(self.Capytaine)
+        self.teOutputFile.setObjectName(u"teOutputFile")
 
-        self.gridLayout_4.addWidget(self.cbLid, 9, 0, 1, 3)
+        self.gridLayout_4.addWidget(self.teOutputFile, 1, 2, 1, 1)
 
-        self.cbSymmetryHeadings = QCheckBox(self.Capytaine)
-        self.cbSymmetryHeadings.setObjectName(u"cbSymmetryHeadings")
+        self.teMeshFile = QLineEdit(self.Capytaine)
+        self.teMeshFile.setObjectName(u"teMeshFile")
 
-        self.gridLayout_4.addWidget(self.cbSymmetryHeadings, 15, 0, 1, 3)
+        self.gridLayout_4.addWidget(self.teMeshFile, 0, 2, 1, 1)
 
         self.lblPeriods = QLabel(self.Capytaine)
         self.lblPeriods.setObjectName(u"lblPeriods")
@@ -259,55 +258,69 @@ class Ui_MainWindow(object):
 
         self.gridLayout_4.addWidget(self.lblPeriods, 4, 2, 1, 1)
 
+        self.cbSymmetryMesh = QCheckBox(self.Capytaine)
+        self.cbSymmetryMesh.setObjectName(u"cbSymmetryMesh")
+
+        self.gridLayout_4.addWidget(self.cbSymmetryMesh, 15, 0, 1, 3)
+
+        self.cbLid = QCheckBox(self.Capytaine)
+        self.cbLid.setObjectName(u"cbLid")
+
+        self.gridLayout_4.addWidget(self.cbLid, 11, 0, 1, 3)
+
+        self.cbInf = QCheckBox(self.Capytaine)
+        self.cbInf.setObjectName(u"cbInf")
+
+        self.gridLayout_4.addWidget(self.cbInf, 8, 1, 1, 1)
+
+        self.pbShowMesh = QPushButton(self.Capytaine)
+        self.pbShowMesh.setObjectName(u"pbShowMesh")
+
+        self.gridLayout_4.addWidget(self.pbShowMesh, 18, 0, 1, 1)
+
+        self.label_20 = QLabel(self.Capytaine)
+        self.label_20.setObjectName(u"label_20")
+
+        self.gridLayout_4.addWidget(self.label_20, 1, 0, 1, 1)
+
+        self.label_13 = QLabel(self.Capytaine)
+        self.label_13.setObjectName(u"label_13")
+
+        self.gridLayout_4.addWidget(self.label_13, 5, 0, 1, 1)
+
         self.tePeriods = QLineEdit(self.Capytaine)
         self.tePeriods.setObjectName(u"tePeriods")
 
         self.gridLayout_4.addWidget(self.tePeriods, 2, 2, 1, 1)
 
-        self.pbShowMesh = QPushButton(self.Capytaine)
-        self.pbShowMesh.setObjectName(u"pbShowMesh")
+        self.lblHeading = QLabel(self.Capytaine)
+        self.lblHeading.setObjectName(u"lblHeading")
+        self.lblHeading.setWordWrap(True)
 
-        self.gridLayout_4.addWidget(self.pbShowMesh, 16, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.lblHeading, 7, 2, 1, 1)
 
-        self.label_11 = QLabel(self.Capytaine)
-        self.label_11.setObjectName(u"label_11")
+        self.pbRunCapytaine = QPushButton(self.Capytaine)
+        self.pbRunCapytaine.setObjectName(u"pbRunCapytaine")
 
-        self.gridLayout_4.addWidget(self.label_11, 2, 0, 1, 1)
-
-        self.label_9 = QLabel(self.Capytaine)
-        self.label_9.setObjectName(u"label_9")
-
-        self.gridLayout_4.addWidget(self.label_9, 0, 0, 1, 1)
+        self.gridLayout_4.addWidget(self.pbRunCapytaine, 23, 0, 1, 1)
 
         self.label_15 = QLabel(self.Capytaine)
         self.label_15.setObjectName(u"label_15")
 
         self.gridLayout_4.addWidget(self.label_15, 8, 0, 1, 1)
 
-        self.cbSymmetryMesh = QCheckBox(self.Capytaine)
-        self.cbSymmetryMesh.setObjectName(u"cbSymmetryMesh")
+        self.cbSymmetryHeadings = QCheckBox(self.Capytaine)
+        self.cbSymmetryHeadings.setObjectName(u"cbSymmetryHeadings")
 
-        self.gridLayout_4.addWidget(self.cbSymmetryMesh, 13, 0, 1, 3)
+        self.gridLayout_4.addWidget(self.cbSymmetryHeadings, 17, 0, 1, 3)
 
-        self.pbRunCapytaine = QPushButton(self.Capytaine)
-        self.pbRunCapytaine.setObjectName(u"pbRunCapytaine")
+        self.te_water_level_elevation = QDoubleSpinBox(self.Capytaine)
+        self.te_water_level_elevation.setObjectName(u"te_water_level_elevation")
+        self.te_water_level_elevation.setMinimum(-999.000000000000000)
+        self.te_water_level_elevation.setMaximum(999.000000000000000)
+        self.te_water_level_elevation.setValue(0.000000000000000)
 
-        self.gridLayout_4.addWidget(self.pbRunCapytaine, 21, 0, 1, 1)
-
-        self.teMeshFile = QLineEdit(self.Capytaine)
-        self.teMeshFile.setObjectName(u"teMeshFile")
-
-        self.gridLayout_4.addWidget(self.teMeshFile, 0, 2, 1, 1)
-
-        self.teHeading = QLineEdit(self.Capytaine)
-        self.teHeading.setObjectName(u"teHeading")
-
-        self.gridLayout_4.addWidget(self.teHeading, 5, 2, 1, 1)
-
-        self.teOutputFile = QLineEdit(self.Capytaine)
-        self.teOutputFile.setObjectName(u"teOutputFile")
-
-        self.gridLayout_4.addWidget(self.teOutputFile, 1, 2, 1, 1)
+        self.gridLayout_4.addWidget(self.te_water_level_elevation, 9, 2, 1, 1)
 
         self.tabWidget.addTab(self.Capytaine, "")
         self.splitter_4.addWidget(self.tabWidget)
@@ -372,7 +385,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
 
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -411,22 +424,23 @@ class Ui_MainWindow(object):
 "2/3 for 2d/3d", None))
 #endif // QT_CONFIG(tooltip)
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Mesh), QCoreApplication.translate("MainWindow", u"Mesh", None))
-        self.lblHeading.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.cbInf.setText(QCoreApplication.translate("MainWindow", u"Infinite", None))
-        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Headings [degrees]", None))
-        self.label_20.setText(QCoreApplication.translate("MainWindow", u"Output file names", None))
-        self.cbLid.setText(QCoreApplication.translate("MainWindow", u"Add lid at z=-0.01m (can not be used together with symmetry)", None))
-        self.cbSymmetryHeadings.setText(QCoreApplication.translate("MainWindow", u"Use symmetry in XY for output (only headings 0...180 defined)", None))
-        self.lblPeriods.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
-        self.tePeriods.setText(QCoreApplication.translate("MainWindow", u"[*np.linspace(0.5,10,num=20), 11,12,14,16,20]", None))
-        self.pbShowMesh.setText(QCoreApplication.translate("MainWindow", u"Show mesh", None))
         self.label_11.setText(QCoreApplication.translate("MainWindow", u"Periods [s]", None))
-        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Mesh [file, in workfolder]", None))
-        self.label_15.setText(QCoreApplication.translate("MainWindow", u"Waterdepth [m]", None))
-        self.cbSymmetryMesh.setText(QCoreApplication.translate("MainWindow", u"Use symmetry in XZ for mesh (only half of mesh defined)", None))
-        self.pbRunCapytaine.setText(QCoreApplication.translate("MainWindow", u"Go!", None))
+        self.label_16.setText(QCoreApplication.translate("MainWindow", u"Water level elevation [m]", None))
         self.teHeading.setText(QCoreApplication.translate("MainWindow", u"np.linspace(0, 180, 9)", None))
+        self.label_9.setText(QCoreApplication.translate("MainWindow", u"Mesh [file, in workfolder]", None))
         self.teOutputFile.setText(QCoreApplication.translate("MainWindow", u"my_model", None))
+        self.lblPeriods.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.cbSymmetryMesh.setText(QCoreApplication.translate("MainWindow", u"Use symmetry in XZ for mesh (only half of mesh defined)", None))
+        self.cbLid.setText(QCoreApplication.translate("MainWindow", u"Add lid at z=-0.01m (can not be used together with symmetry)", None))
+        self.cbInf.setText(QCoreApplication.translate("MainWindow", u"Infinite", None))
+        self.pbShowMesh.setText(QCoreApplication.translate("MainWindow", u"Show mesh", None))
+        self.label_20.setText(QCoreApplication.translate("MainWindow", u"Output file names", None))
+        self.label_13.setText(QCoreApplication.translate("MainWindow", u"Headings [degrees]", None))
+        self.tePeriods.setText(QCoreApplication.translate("MainWindow", u"[*np.linspace(0.5,10,num=20), 11,12,14,16,20]", None))
+        self.lblHeading.setText(QCoreApplication.translate("MainWindow", u"TextLabel", None))
+        self.pbRunCapytaine.setText(QCoreApplication.translate("MainWindow", u"Go!", None))
+        self.label_15.setText(QCoreApplication.translate("MainWindow", u"Waterdepth [m]", None))
+        self.cbSymmetryHeadings.setText(QCoreApplication.translate("MainWindow", u"Use symmetry in XY for output (only headings 0...180 defined)", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Capytaine), QCoreApplication.translate("MainWindow", u"Capytaine", None))
         self.pbWorkFolder.setText(QCoreApplication.translate("MainWindow", u"Workfolder:", None))
         self.menuHelp.setTitle(QCoreApplication.translate("MainWindow", u"Help", None))

@@ -1,6 +1,8 @@
 import os
 import pathlib
 
+import vtk  # Needed to initialize VTK !
+
 from io import StringIO
 from contextlib import redirect_stdout
 
