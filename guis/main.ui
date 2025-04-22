@@ -487,6 +487,10 @@ B for box
     <addaction name="actionSet_work_folder"/>
     <addaction name="separator"/>
     <addaction name="actionOpen_GSH_to_DAVE_conversion_tool"/>
+    <addaction name="actionOpen_work_folder_in_explorer"/>
+    <addaction name="separator"/>
+    <addaction name="actionLoad_Capytaine_settings"/>
+    <addaction name="actionSave_Capytaine_settings"/>
    </widget>
    <widget class="QMenu" name="menuExamples">
     <property name="title">
@@ -566,6 +570,21 @@ B for box
   <action name="actionOpen_GSH_to_DAVE_conversion_tool">
    <property name="text">
     <string>Open GSH to DAVE conversion tool</string>
+   </property>
+  </action>
+  <action name="actionOpen_work_folder_in_explorer">
+   <property name="text">
+    <string>Open work folder in explorer</string>
+   </property>
+  </action>
+  <action name="actionLoad_Capytaine_settings">
+   <property name="text">
+    <string>Load Capytaine settings</string>
+   </property>
+  </action>
+  <action name="actionSave_Capytaine_settings">
+   <property name="text">
+    <string>Save Capytaine settings</string>
    </property>
   </action>
  </widget>
