@@ -1,5 +1,8 @@
 import os
 import pathlib
+import json  # Add import for JSON
+
+import vtk  # Needed to initialize VTK !
 
 from io import StringIO
 from contextlib import redirect_stdout
@@ -268,6 +271,10 @@ class Gui:
         self.ui.actionSave.triggered.connect(self.fileSave)
         self.ui.actionSave_as.triggered.connect(self.fileSaveAs)
         self.ui.actionSet_work_folder.triggered.connect(self.openFolder)
+        self.ui.actionOpen_work_folder_in_explorer.triggered.connect(self.openWorkFolder)
+
+        self.ui.actionLoad_Capytaine_settings.triggered.connect(self.load_capytaine_settings)
+        self.ui.actionSave_Capytaine_settings.triggered.connect(self.save_capytaine_settings)
 
         self.settings = QSettings("pymeshup", "gui")
 
@@ -708,6 +715,75 @@ class Gui:
         self.ui.label_3.setText(f"Workfolder = {self.curdir}")
         self.settings.setValue("last_workdir", path)
 
+    def openWorkFolder(self):
+        if self.curdir is not None:
+            os.startfile(self.curdir)
+        else:
+            QMessageBox.warning(
+                self.MainWindow,
+                "Warning",
+                "No work folder set. Please set a work folder first.",
+            )
+
+    def load_capytaine_settings(self):
+        """Load Capytaine settings from a JSON file."""
+        path, _ = QFileDialog.getOpenFileName(
+            self.MainWindow, "Load Capytaine Settings", "", "JSON Files (*.json);;All Files (*)"
+        )
+        if not path:
+            return
+
+        try:
+            with open(path, "r") as file:
+                settings = json.load(file)
+
+            self.ui.tePeriods.setText(settings.get("periods", ""))
+            self.ui.teHeading.setText(settings.get("heading", ""))
+            self.ui.teMeshFile.setText(settings.get("mesh_file", ""))
+            self.ui.teOutputFile.setText(settings.get("output_file", ""))
+            self.ui.cbSymmetryMesh.setChecked(settings.get("symmetry_mesh", False))
+            self.ui.cbSymmetryHeadings.setChecked(settings.get("symmetry_headings", False))
+            self.ui.cbInf.setChecked(settings.get("infinite_waterdepth", False))
+            self.ui.teWaterdepth.setValue(settings.get("waterdepth", 100.0))
+            self.ui.cbLid.setChecked(settings.get("lid", False))
+            self.setWorkPath(settings.get("work_folder", self.curdir))
+
+            QMessageBox.information(self.MainWindow, "Success", "Settings loaded successfully.")
+        except Exception as e:
+            QMessageBox.critical(self.MainWindow, "Error", f"Failed to load settings: {e}")
+
+    def save_capytaine_settings(self):
+        """Save Capytaine settings to a JSON file."""
+        path, _ = QFileDialog.getSaveFileName(
+            self.MainWindow, "Save Capytaine Settings", "", "JSON Files (*.json);;All Files (*)"
+        )
+        if not path:
+            return
+
+        if not path.endswith(".json"):
+            path += ".json"
+
+        settings = {
+            "periods": self.ui.tePeriods.text(),
+            "heading": self.ui.teHeading.text(),
+            "mesh_file": self.ui.teMeshFile.text(),
+            "output_file": self.ui.teOutputFile.text(),
+            "symmetry_mesh": self.ui.cbSymmetryMesh.isChecked(),
+            "symmetry_headings": self.ui.cbSymmetryHeadings.isChecked(),
+            "infinite_waterdepth": self.ui.cbInf.isChecked(),
+            "waterdepth": self.ui.teWaterdepth.value(),
+            "lid": self.ui.cbLid.isChecked(),
+            "work_folder": self.curdir,
+        }
+
+        try:
+            with open(path, "w") as file:
+                json.dump(settings, file, indent=4)
+
+            QMessageBox.information(self.MainWindow, "Success", "Settings saved successfully.")
+        except Exception as e:
+            QMessageBox.critical(self.MainWindow, "Error", f"Failed to save settings: {e}")
+
     # -------- save volumes
 
     def save_volumes(self):
@@ -726,3 +802,4 @@ if __name__ == "__main__":
     app = QApplication()
     gui = Gui()
     app.exec()
+
