@@ -27,7 +27,11 @@ hiddenimports = ["vtkmodules.vtkCommonMath",
                  'capytaine.green_functions.libs.Delhommeau_float64',
                  'capytaine.green_functions.libs.Delhommeau_float32',
                  'capytaine.green_functions.libs.XieDelhommeau_float64',
-                 'capytaine.green_functions.libs.XieDelhommeau_float32'
+                 'capytaine.green_functions.libs.XieDelhommeau_float32',
+                 # ---------------
+                 'OCP',
+                 'casadi',
+                 'casadi._casadi',
                   ]
 
 
@@ -85,3 +89,9 @@ coll = COLLECT(
     upx_exclude=[],
     name='PyMeshupGUI',
 )
+
+print('==================================================================================)
+print('==================================================================================)
+print('copy-paste the origin (site-packages) casadi folder into the _internal folder')
+print('==================================================================================)
+print('==================================================================================)
