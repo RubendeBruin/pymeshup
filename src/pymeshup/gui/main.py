@@ -2,7 +2,7 @@ import os
 import pathlib
 import json  # Add import for JSON
 
-import vtk  # Needed to initialize VTK !
+import vtkmodules.vtkRenderingOpenGL2   # Needed to initialize VTK !
 
 from io import StringIO
 from contextlib import redirect_stdout
