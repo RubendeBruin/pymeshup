@@ -312,12 +312,41 @@ class GHSgeo:
                     side_factor = component["side_factor"]
 
                     if side_factor == 0:
+
+                        # If the side-factor is 0 then only half the shape was defined.
+                        # It is possible that this was already taken into account in the shape definition
+                        # using the "autocompleted" function. In that case shapes_outside contains
+                        # the autocompleted shape.
+                        #
+                        # But it is also possible that the shape was purposely defined as a single side shape
+                        # on a single side, for example a skeg, and the raw shape shall be mirror-copied
+                        # to the other side.
+                        #
+                        # This is easily checked by looking at the y-bounds of the raw shape. If both of them
+                        # are on the same side (product > 0) then the shape was defined as a single side shape
+                        # and its mirror shall be added.
+
+                        shape: Volume = self.shapes_outside[shape_name] # default
                         print(
                             "   Side factor = {} using autocompleted volume".format(
                                 side_factor
                             )
                         )
-                        shape: Volume = self.shapes_outside[shape_name]
+
+                        if shape_name in self.shapes_raw:
+                            as_defined_shape = self.shapes_raw[shape_name]
+                            if as_defined_shape.bounds[2] * as_defined_shape.bounds[3] > 0:
+                                # the shape was defined as a single side shape
+                                print(
+                                    "   REDEFINING; Using raw volume and adding mirror copy"
+
+                                    )
+
+                                shape = as_defined_shape.add(as_defined_shape.mirrorXZ())
+
+
+
+
                     else:
                         print(
                             "   Side factor = {} using single-side volume".format(

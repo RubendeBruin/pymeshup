@@ -6,5 +6,12 @@
     - https://docs.pytest.org/en/stable/fixture.html
     - https://docs.pytest.org/en/stable/writing_plugins.html
 """
+from pathlib import Path
 
-# import pytest
+import pytest
+
+
+@pytest.fixture
+def assets_dir() -> Path:
+    """Returns the path to the assets directory for tests."""
+    return Path(__file__).parent / "assets_for_tests"
