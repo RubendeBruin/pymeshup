@@ -1,15 +1,16 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=42", "setuptools_scm>=6.2"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 # For smarter version schemes and other configuration options,
 # check out https://github.com/pypa/setuptools_scm
-version_scheme = "no-guess-dev"
+version_scheme = "post-release"
+local_scheme = "no-local-version"
 
 [project]
 name = "pymeshup"
-version = "0.2.0"
+dynamic = ["version"]
 description = "Make volume meshes the easy way"
 authors = [
     { name = "Ruben de Bruin", email = "rubendebruin@gmail.com" }
@@ -44,6 +45,7 @@ testing = [
     "pytest-cov"
 ]
 exe = ["pyinstaller"]
+
 
 [tool.hatch.metadata]
 allow-direct-references = true
