@@ -9,7 +9,7 @@ version_scheme = "no-guess-dev"
 
 [project]
 name = "pymeshup"
-version = "0.1.0"
+version = "0.2.0"
 description = "Make volume meshes the easy way"
 authors = [
     { name = "Ruben de Bruin", email = "rubendebruin@gmail.com" }
