@@ -93,6 +93,15 @@ def run_capytaine(file_grid : str,  # input file, e.g. grid.stl
     #               encoding={'radiating_dof': {'dtype': 'U'},
     #                         'influenced_dof': {'dtype': 'U'},
     #                         'diffraction_result': {'dtype': 'U'}})
+
+
+    # Before saving to NetCDF, convert categorical variables to strings
+    for var_name in sep.variables:
+        if hasattr(sep[var_name].dtype, 'name') and sep[var_name].dtype.name == 'category':
+            sep[var_name] = sep[var_name].astype(str)
+
+
+
     sep.to_netcdf(file_out_nc,
                   encoding={'radiating_dof': {'dtype': 'U'},
                             'influenced_dof': {'dtype': 'U'}})

@@ -26,12 +26,12 @@ classifiers = [
 requires-python = ">=3.8"
 dependencies = [
     "vedo",
-    "vtk",
+    "vtk==9.4.1",
     "numpy",
     "matplotlib",
     "PySide6-Essentials",
     "pymeshlab",
-    "capytaine>=2.0",
+    "capytaine>=2.2",
     "mafredo",
     "cadquery",
     "netcdf4>=1.7.2",
