@@ -30,9 +30,15 @@ class HighlightSlot:
         )
 
         position = self.widget().cursorPosition()
+        # get scroll position
+        scroll_position = self.widget().verticalScrollBar().value()
 
         self.widget().blockSignals(True)
         self.widget().setHtml(markup)
         self.widget().blockSignals(False)
 
         self.widget().setCursorPosition(position)
+
+        # restore scroll position
+        self.widget().verticalScrollBar().setValue(scroll_position)
+

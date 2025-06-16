@@ -49,9 +49,14 @@ class Frame():
     def scaled(self, x=1, y=1):
         """Returns a scaled copy of the frame"""
 
-        new_x = [x * xx for xx in self.x]
-        new_y = [y * yy for yy in self.y]
+        y_max = np.max(self.y)
+        y_from_top  = [y_max - yy for yy in self.y]
 
+
+        new_x = [x * xx for xx in self.x]
+        new_y = [y * yy for yy in y_from_top]
+
+        new_y = [y_max - yy for yy in new_y]  # flip y to match the original orientation
 
         return Frame.from_xy(new_x, new_y)
 

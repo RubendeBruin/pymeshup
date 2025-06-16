@@ -7,7 +7,7 @@ import vtkmodules.vtkRenderingOpenGL2   # Needed to initialize VTK !
 from io import StringIO
 from contextlib import redirect_stdout
 
-from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF
+from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF, QAction
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -15,10 +15,12 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QMessageBox,
     QFileDialog,
+    QMenu,
 )
 from PySide6.QtCore import Qt, QSettings
 
 import numpy as np
+from vedo import camera_to_dict, camera_from_dict
 from vtkmodules.vtkFiltersSources import vtkLineSource
 
 from pymeshup import *
@@ -91,6 +93,7 @@ Hulls can be constructed using Frames
 - First construct a Frame using
   f1 =  Frame(x1,y1,x2,y2,...)
   f2 =  Frame(x1,y1,x2,y2,...)
+- frames can be scaled using new_f = f1.scaled(x=2, y=2)
 - then construct a hull from frames and their positions using
   h = Hull(0,f1, 20, f2, 30, f2, ...)
 
@@ -197,6 +200,11 @@ def CreateVTKLineActor(start, end, color=(0, 0, 0)):
 
 class Gui:
     def __init__(self):
+        # private variables
+
+        self._digitizer_dialog = None  # Digitizer dialog instance
+        self._first_run = True  # Flag to check if this is the first run
+
         # Main Window
 
         self.MainWindow = QMainWindow()
@@ -264,6 +272,10 @@ class Gui:
         )
 
         highlight = PythonHighlighter(self.ui.teCode.document())
+
+        # Add context menu to teCode
+        self.ui.teCode.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.ui.teCode.customContextMenuRequested.connect(self.show_code_context_menu)
 
         # --- Save , open
 
@@ -574,6 +586,20 @@ class Gui:
 
     def update_3dplotter(self):
         # add volumes to plotter
+
+        # try to capture the current state of the renderer,
+        # so that we can restore it later
+
+        camera_dict = None
+        try:
+            if not self._first_run:
+                camera_dict = camera_to_dict(self.renderer.active_camera)
+        except:
+            pass
+
+
+
+
         self.renderer.RemoveAllViewProps()
         self._actors.clear()
         self.create3Dorigin()
@@ -594,9 +620,14 @@ class Gui:
 
         self.renderer.Render()
         try:
-            self.style.ZoomFit()
+            self.renderer.ResetCamera() # zoom all
         except:
             pass
+
+        if camera_dict:
+            camera_from_dict(modify_inplace = self.renderer.active_camera, camera=camera_dict)
+
+        self._first_run = False
 
     def select_3d_actor(self, actors):
         name = getattr(actors[0], "name")
@@ -611,6 +642,7 @@ class Gui:
             event.ignore()
 
         self.vtkWidget.GetRenderWindow().Finalize()
+
 
     def isModified(self):
         return self.ui.teCode.document().isModified()
@@ -797,9 +829,54 @@ class Gui:
                 self.volumes[key].save(fname)
                 self.ui.teFeedback.append(f"Saved: {fname}")
 
+    # ---- frame digitizer
+
+    def add_frame_using_digitizer(self):
+        from pymeshup.gui.digitizer.digitizer import DigitizerDialog
+
+        if self._digitizer_dialog is None:
+            self._digitizer_dialog = DigitizerDialog()
+
+        dialog = self._digitizer_dialog # alias
+
+        if dialog.exec():
+            points = dialog.points_data
+
+            code = "\nf = Frame("
+            for x,y in points:
+                code += f"{x:.3f}, {y:.3f},\n    "
+            code += ").autocomplete()\n"
+
+            # Insert the code into the text editor at the current cursor position
+            cursor = self.ui.teCode.textCursor()
+            cursor.insertText(code)
+            self.ui.teCode.document().setModified(True)
+
+    def show_code_context_menu(self, position):
+        """Show context menu for the code editor."""
+        context_menu = QMenu(self.ui.teCode)
+
+        # Add a menu action for the digitizer
+        add_frame_action = QAction("Add Frame Using Digitizer", self.ui.teCode)
+        add_frame_action.triggered.connect(self.add_frame_using_digitizer)
+        context_menu.addAction(add_frame_action)
+
+        # Add standard editing actions
+        context_menu.addSeparator()
+        if hasattr(self.ui.teCode, 'actions'):
+            for action in self.ui.teCode.actions():
+                if action.text() in ('Cut', 'Copy', 'Paste', 'Select All'):
+                    context_menu.addAction(action)
+
+        # Show the context menu at the cursor position
+        context_menu.exec(self.ui.teCode.mapToGlobal(position))
+
+def main():
+    import sys
+
+    app = QApplication(sys.argv)
+    gui = Gui()
+    sys.exit(app.exec())
 
 if __name__ == "__main__":
-    app = QApplication()
-    gui = Gui()
-    app.exec()
-
+    main()

@@ -61,8 +61,8 @@ def build_triangles(f1,f2):
             a2 = f2[i2+1]
 
             # are we crossing the center-line on either of them?
-            crossed1 = a1[1] * p1[1] <= 0 or crossed1
-            crossed2 = a2[1] * p2[1] <= 0 or crossed2
+            crossed1 = (a1[1] * p1[1] <= 0 and i1 > 0) or crossed1
+            crossed2 = (a2[1] * p2[1] <= 0 and i2 > 0) or crossed2
 
             if crossed1 and not crossed2:
                 i2 += 1
