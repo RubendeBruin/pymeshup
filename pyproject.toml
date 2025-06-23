@@ -47,7 +47,7 @@ testing = [
 exe = ["pyinstaller"]
 
 [project.scripts]
-pymeshup = "pymeshup.main:run"
+pymeshup = "pymeshup.gui.main:run"
 
 
 [tool.hatch.metadata]
