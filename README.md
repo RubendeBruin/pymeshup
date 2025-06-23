@@ -8,7 +8,7 @@ This is done by wrapping some of the features of pymeshlab and adding an gui.
 <img width="645" alt="image" src="https://user-images.githubusercontent.com/34062862/194708772-63d63df1-6ee7-4806-865c-52180e1e42df.png">
 
 
-To run the gui:
+To run the gui you can simple run:
 
 `python -m pymeshup.GUI`
 
@@ -16,9 +16,16 @@ To run the gui:
 
 `./.venv/Scripts/activate`
 
-and run
+and then run:
 
 `pymeshup.exe`.
+
+Install a desktop launcher
+--------------------------
+
+Create a desktop launcher of the package by running
+
+`python.exe make_desktop_launcher.py`
 
 Installation as package
 ------------------------

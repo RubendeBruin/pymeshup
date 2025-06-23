@@ -11,7 +11,7 @@ Function:
 Usage:
     Run this script directly to generate the shortcut on the user's desktop.
     
-    python make_desktop_launcher.py
+    python.exe make_desktop_launcher.py
 """
 
 from pathlib import Path
