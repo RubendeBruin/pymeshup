@@ -12,6 +12,14 @@ To run the gui:
 
 `python -m pymeshup.GUI`
 
+*or* activate the environment with
+
+`./.venv/Scripts/activate`
+
+and run
+
+`pymeshup.exe`.
+
 Installation as package
 ------------------------
 
