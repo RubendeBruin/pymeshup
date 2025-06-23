@@ -46,6 +46,9 @@ testing = [
 ]
 exe = ["pyinstaller"]
 
+[project.scripts]
+pymeshup = "pymeshup.main:run"
+
 
 [tool.hatch.metadata]
 allow-direct-references = true
