@@ -1,13 +1,15 @@
 import os
+import sys
 import pathlib
 import json  # Add import for JSON
+
 
 import vtkmodules.vtkRenderingOpenGL2   # Needed to initialize VTK !
 
 from io import StringIO
 from contextlib import redirect_stdout
 
-from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF, QAction
+from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF, QAction, QIcon
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -872,11 +874,17 @@ class Gui:
         context_menu.exec(self.ui.teCode.mapToGlobal(position))
 
 def main():
-    import sys
-
     app = QApplication(sys.argv)
-    gui = Gui()
+
+
+    icon_path = pathlib.Path(__file__).parent / "pymeshup" / "resources" / "pymeshup_logo.ico"
+    app.setWindowIcon(QIcon(str(icon_path)))
+
+    Gui()
     sys.exit(app.exec())
+
+def run():
+    main()
 
 if __name__ == "__main__":
     main()
