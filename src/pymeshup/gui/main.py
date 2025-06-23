@@ -877,7 +877,7 @@ def main():
     app = QApplication(sys.argv)
 
 
-    icon_path = pathlib.Path(__file__).parent / "pymeshup" / "resources" / "pymeshup_logo.ico"
+    icon_path = pathlib.Path(__file__).parent.parent / "resources" / "pymeshup_logo.ico"
     app.setWindowIcon(QIcon(str(icon_path)))
 
     Gui()
