@@ -43,7 +43,6 @@ from matplotlib.backends.backend_qtagg import (
 from matplotlib.figure import Figure
 from matplotlib import cm
 
-from pymeshup.gui.helpers.highlighter import PythonHighlighter
 from pymeshup.gui.helpers.vtkBlenderLikeInteractionStyle import BlenderStyle
 
 from pymeshup.syntaxedit.core import SyntaxEdit
@@ -230,6 +229,7 @@ class Gui:
         self.create3Dorigin()
 
         self.ui.teCode = SyntaxEdit(example_code, syntax="Python", use_smart_indentation=True)
+        self.ui.teCode.setTheme("pastie")
 
         self.ui.verticalLayout_3.addWidget(self.ui.teCode)
 
@@ -261,17 +261,7 @@ class Gui:
 
         self.ui.splitter.setStretchFactor(1, 60)
 
-        # ---- Code formatting
 
-        font = QFont()
-        font.setPointSize(12)
-        font.setFamily("Segou UI")
-        self.ui.teCode.setFont(font)
-        self.ui.teCode.setTabStopDistance(
-            QFontMetricsF(self.ui.teCode.font()).horizontalAdvance(" ") * 4
-        )
-
-        highlight = PythonHighlighter(self.ui.teCode.document())
 
         # Add context menu to teCode
         self.ui.teCode.setContextMenuPolicy(Qt.CustomContextMenu)

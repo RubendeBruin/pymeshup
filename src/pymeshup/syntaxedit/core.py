@@ -5,7 +5,6 @@ from PySide6.QtWidgets import QTextEdit
 
 from pygments.styles import get_style_by_name
 
-
 from pymeshup.syntaxedit.highlightslot import HighlightSlot
 
 
@@ -123,3 +122,86 @@ class SyntaxEdit(QTextEdit):
             self.insertPlainText(indent)
         else:
             super().keyPressEvent(event)
+
+
+if __name__ == '__main__':
+    import sys
+    from pathlib import Path
+
+    import pygments
+    from PySide6.QtWidgets import (
+        QApplication,
+        QComboBox,
+        QHBoxLayout,
+        QMainWindow,
+        QVBoxLayout,
+        QWidget,
+        QSpinBox,
+    )
+
+
+    app = QApplication(sys.argv)
+
+
+    class MainWindow(QMainWindow):
+        def __init__(self):
+            super().__init__()
+
+            contents = Path(__file__).read_text()
+
+            self.editor = SyntaxEdit(contents, syntax="Python", use_smart_indentation=True)
+            self.editor.textChanged.connect(self.editor_changed)
+
+            style_language = QHBoxLayout()
+            style_language.setContentsMargins(0, 0, 0, 0)
+
+            self.lexers = QComboBox()
+            self.lexers.setEditable(False)
+            self.lexers.addItems([i[0] for i in pygments.lexers.get_all_lexers()])
+            self.lexers.setCurrentText(self.editor.syntax())
+            self.lexers.currentIndexChanged.connect(self.language_changed)
+
+            self.styles = QComboBox()
+            self.styles.setEditable(False)
+            self.styles.addItems(pygments.styles.get_all_styles())
+            self.styles.setCurrentText(self.editor.theme())
+            self.styles.currentIndexChanged.connect(self.style_changed)
+
+            self.size = QSpinBox()
+            self.size.setMinimum(10)
+            self.size.setMaximum(30)
+            self.size.setValue(self.editor.editorFontSize())
+            self.size.valueChanged.connect(self.editor.setEditorFontSize)
+
+            style_language.addWidget(self.lexers)
+            style_language.addWidget(self.styles)
+            style_language.addWidget(self.size)
+
+            style_languagewidget = QWidget()
+            style_languagewidget.setLayout(style_language)
+
+            layout = QVBoxLayout()
+            layout.addWidget(self.editor)
+            layout.addWidget(style_languagewidget)
+
+            widget = QWidget()
+            widget.setLayout(layout)
+
+            self.setCentralWidget(widget)
+
+        def language_changed(self):
+            self.editor.setSyntax(self.lexers.currentText())
+            print("Language changed")
+
+        def style_changed(self):
+            self.editor.setTheme(self.styles.currentText())
+            print("Style changed")
+
+        def editor_changed(self):
+            print("editor changed")
+            print(self.editor.toPlainText())
+
+
+    window = MainWindow()
+    window.show()
+    app.exec()
