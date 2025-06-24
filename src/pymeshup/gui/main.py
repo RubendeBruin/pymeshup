@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 import pathlib
 import json  # Add import for JSON
 
@@ -431,12 +432,24 @@ class Gui:
         self.ui.teFeedback.append("Running...")
         self.ui.teFeedback.update()
 
-        key_before = [v for v in locals().keys()]
+        local_scope = {}
+        global_scope = {
+            "Frame": Frame,
+            "Volume": Volume,
+            "GHSgeo": GHSgeo,
+            "Hull": Hull,
+            "Box": Box,
+            "Cylinder": Cylinder,
+            "sin": math.sin,
+            "cos": math.cos,
+            "tan": math.tan,
+            "pi": math.pi,
+        }
 
         try:
             _output_redirect = StringIO()
             with redirect_stdout(_output_redirect):
-                exec(code)
+                exec(code, global_scope, local_scope)
 
             s = _output_redirect.getvalue()
             self.ui.teFeedback.setPlainText(s)
@@ -444,18 +457,16 @@ class Gui:
 
         except SyntaxError as E:
             print(f"Error {E.msg} in {E.text}")
-
             try:
                 print(f"Error on line {E.lineno} to {E.end_lineno}")
                 print(f"Error from {E.offset} to {E.end_offset}")
-            except:
+            except Exception:
                 pass
 
-            for i, line in enumerate(self.ui.teCode.toPlainText()):
-                self.ui.teFeedback.append(f"{i} : {line}")
+            for i, line in enumerate(code.splitlines(), 1):
+                self.ui.teFeedback.append(f"{i}: {line}")
 
             self.ui.teFeedback.setPlainText("\n\n" + str(E))
-
             self.setErrorPos(E.lineno, E.offset)
 
         except (NameError, AttributeError) as E:
@@ -469,21 +480,19 @@ class Gui:
         except Exception as E:
             self.ui.teFeedback.setPlainText(str(E))
 
-        key_after = [v for v in locals().keys()]
-        local_vars = [v for v in locals().values()]
-        items_after = [i for i in locals().items()]
-
         volumes = dict()
         frames = dict()
 
-        for key, value in items_after:
-            if key not in key_before:
-                if isinstance(value, Volume):
-                    volumes[key] = value
-                elif isinstance(value, Frame):
-                    frames[key] = value
-                elif isinstance(value, GHSgeo):
-                    for name, part in value.parts.items():
+        for key, value in local_scope.items():
+            values = value if isinstance(value, list) else [value]
+            for cnt, val in enumerate(values):
+                new_key = f"{key}_{cnt}" if len(values) > 1 else key
+                if isinstance(val, Volume):
+                    volumes[new_key] = val
+                elif isinstance(val, Frame):
+                    frames[new_key] = val
+                elif isinstance(val, GHSgeo):
+                    for name, part in val.parts.items():
                         if "volume" in part:
                             vol: Volume = part["volume"]
                             volumes[name] = vol
@@ -497,6 +506,7 @@ class Gui:
 
         self.update_frames_listbox()
         self.plot_frames()
+
 
     def setErrorPos(self, line, offset):
         pass
