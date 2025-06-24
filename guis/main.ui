@@ -484,6 +484,8 @@ B for box
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
     <addaction name="separator"/>
+    <addaction name="actionReopen"/>
+    <addaction name="separator"/>
     <addaction name="actionSet_work_folder"/>
     <addaction name="separator"/>
     <addaction name="actionOpen_GSH_to_DAVE_conversion_tool"/>
@@ -545,6 +547,11 @@ B for box
   <action name="actionOpen">
    <property name="text">
     <string>Open</string>
+   </property>
+  </action>
+  <action name="actionReopen">
+   <property name="text">
+    <string>Reopen Last File</string>
    </property>
   </action>
   <action name="actionSave">

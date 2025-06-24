@@ -283,6 +283,10 @@ class Gui:
         # --- Save , open
 
         self.ui.actionOpen.triggered.connect(self.fileOpenMenu)
+
+        self.ui.actionReopen.triggered.connect(self.reopen_last_file)
+
+
         self.ui.actionSave.triggered.connect(self.fileSave)
         self.ui.actionSave_as.triggered.connect(self.fileSaveAs)
         self.ui.actionSet_work_folder.triggered.connect(self.openFolder)
@@ -434,6 +438,7 @@ class Gui:
 
         local_scope = {}
         global_scope = {
+            "Load": Load,
             "Frame": Frame,
             "Volume": Volume,
             "GHSgeo": GHSgeo,
@@ -749,8 +754,20 @@ class Gui:
             self.ui.teCode.setPlainText(f.read())
             self.settings.setValue("lastfile", path)
 
+            self.filename = path
+
             path = pathlib.Path(path).parent
             self.setWorkPath(str(path))
+
+    def reopen_last_file(self):
+        if self.filename:
+            self.open(self.filename)
+        else:
+            QMessageBox.information(
+                self.MainWindow,
+                "No file",
+                "No previous file found to reopen."
+            )
 
     def setWorkPath(self, path):
         self.curdir = path
@@ -768,7 +785,7 @@ class Gui:
                 "Warning",
                 "No work folder set. Please set a work folder first.",
             )
-
+    
     def load_capytaine_settings(self):
         """Load Capytaine settings from a JSON file."""
         path, _ = QFileDialog.getOpenFileName(
