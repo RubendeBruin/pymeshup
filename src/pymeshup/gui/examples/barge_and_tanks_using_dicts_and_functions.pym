@@ -1,8 +1,5 @@
 # Example of a pontoon shaped barge with tanks
 
-# In this example we make use of user functions and dictionaries to create a barge with tanks.
-# This is a new feature in pymeshup that allows for more flexible and reusable code.
-
 # dimensions are in meters
 width = 24
 length = 85
@@ -22,6 +19,8 @@ tank_height = 3.5 # height of the tanks
 tank_space_side = 1.0 # space between the tanks and the side of the barge
 tank_space_bottom = 1.0 # space between the tanks and the bottom of the barge
 
+show_cuts = False # set to True to show the cutouts for the corners
+
 fr = length / number_of_frames # frame
 
 half_width = width / 2
@@ -29,33 +28,33 @@ half_width = width / 2
 
 # Make the frames 
 stern = Frame(0, height_aft,
-			  half_width, height_aft,
-			  half_width, height).autocomplete()
+              half_width, height_aft,
+              half_width, height).autocomplete()
 
 end_of_skeg = Frame(0,0,
-					half_width, 0,
-					half_width, height).autocomplete()
+                    half_width, 0,
+                    half_width, height).autocomplete()
 
 main = Frame(0,0,
-					half_width, 0,
-					half_width, height).autocomplete()
+                    half_width, 0,
+                    half_width, height).autocomplete()
 
 half_bow = Frame(0,height_frt,
-					half_width, height_frt,
-					half_width, height).autocomplete()
+                    half_width, height_frt,
+                    half_width, height).autocomplete()
 
 bow = Frame(0,height_frt,
-					half_width, height_frt,
-					half_width, height).autocomplete()
+                    half_width, height_frt,
+                    half_width, height).autocomplete()
 
 
 # Make the hull of the barge from the frames
 barge = Hull(
- 		0, bow,
- 		6*fr, end_of_skeg,
- 		47*fr, main,
- 		53*fr, half_bow,
- 		55*fr, bow
+         0, bow,
+         6*fr, end_of_skeg,
+         47*fr, main,
+         53*fr, half_bow,
+         55*fr, bow
 )
 
 def create_corner_cutout(r, height, axis='z', rotate=0, move=None):
@@ -72,47 +71,61 @@ def create_corner_cutout(r, height, axis='z', rotate=0, move=None):
     Returns:
         Volume: the rotated and moved cutout shape
     """
-    if axis == 'z':
-        B = Box(0, r, 0, r, 0, height)
-        C = Cylinder(radius=r, height=height)
-    elif axis == 'y':
-        B = Box(0, r, 0, r, 0, height)
-        C = Cylinder(radius=r, height=height).rotate(x=90)
-    else:
-        raise ValueError("axis must be 'z' or 'y'")
-
+    B = Box(0, r, 0, r, 0, height)
+    C = Cylinder(radius=r, height=height)
     cut = B.remove(C).move(-r, -r)
 
     if rotate:
-        if axis == 'z':
-            cut = cut.rotate(z=rotate)
-        elif axis == 'y':
-            cut = cut.rotate(x=rotate)
+        cut = cut.rotate(z=rotate)
+    
+    if axis == 'y': 
+       cut = cut.rotate(x=90)
+    elif axis == 'x':
+       cut = cut.rotate(y=-90)
 
     if move:
         cut = cut.move(*move)
 
     return cut
 
-def remove_corner_roundings(barge, R_curve1, R_curve2, width, height, length):
-    """Remove corner roundings from the barge by creating cutouts."""
-
+def remove_corner_roundings(barge, R_curve1, R_curve2, width, height, length, return_cuts=False):
     half_width = width / 2
 
-    # Vertical corners (curve1, around z-axis)
-    barge = barge.remove(create_corner_cutout(R_curve1, height, axis='z', rotate=-90, move=(0, half_width, 0)))
-    barge = barge.remove(create_corner_cutout(R_curve1, height, axis='z', rotate=180, move=(0, -half_width, 0)))
-    barge = barge.remove(create_corner_cutout(R_curve1, height, axis='z', rotate=0, move=(length, half_width, 0)))
-    barge = barge.remove(create_corner_cutout(R_curve1, height, axis='z', rotate=90, move=(length, -half_width, 0)))
+    cutx = {}
+    cuty = {}
+    cutz = {}
 
-    # Horizontal edges (curve2, around y-axis)
-    barge = barge.remove(create_corner_cutout(R_curve2, length, axis='y', move=(0, half_width, 0)))
-    barge = barge.remove(create_corner_cutout(R_curve2, length, axis='y', rotate=90, move=(0, -half_width, 0)))
+    # Vertical edges at corners
+    cutz["0"] = create_corner_cutout(R_curve1, height, axis='z', rotate=-90, move=(0, half_width, 0))
+    cutz["1"] = create_corner_cutout(R_curve1, height, axis='z', rotate=180, move=(0, -half_width, 0))
+    cutz["2"] = create_corner_cutout(R_curve1, height, axis='z', rotate=0, move=(length, half_width, 0))
+    cutz["3"] = create_corner_cutout(R_curve1, height, axis='z', rotate=90, move=(length, -half_width, 0))
 
-    return barge
+    # Horizontal edges along x-axis
+    cutx["0"] = create_corner_cutout(R_curve2, length, axis='x', move=(0, half_width, -0.01))
+    cutx["1"] = create_corner_cutout(R_curve2, length, axis='x', rotate=90, move=(0, -half_width, -0.01))
+    cutx["2"] = create_corner_cutout(R_curve2, length, axis='x', rotate=-90, move=(0, half_width, height))
+    cutx["3"] = create_corner_cutout(R_curve2, length, axis='x', rotate=180, move=(0, -half_width, height))
 
-barge = remove_corner_roundings(barge, R_curve1, R_curve2, width, height, length)
+    # Horizontal edges along y-axis
+    cuty["0"] = create_corner_cutout(R_curve2, width, axis='y', rotate=180, move=(0, -half_width, height))
+    cuty["1"] = create_corner_cutout(R_curve2, width, axis='y', rotate=90, move=(length, -half_width, height))
 
+    all_cuts =  list(cutx.values()) + list(cuty.values()) + list(cutz.values())
+
+    for cut in all_cuts:
+        barge = barge.remove(cut)
+    
+    if return_cuts:
+        # return barge, cutx, cuty, cutz
+        return barge, cutx, cuty, cutz
+    else:
+        return barge
+
+if show_cuts:
+   barge, cx, cy, cz = remove_corner_roundings(barge, R_curve1, R_curve2, width, height, length, return_cuts=True)
+else:
+    barge = remove_corner_roundings(barge, R_curve1, R_curve2, width, height, length)
 
 # create the tanks
 barge_sb = barge.move(y=tank_space_side, z=tank_space_bottom).crop(zmax=tank_height)
@@ -122,8 +135,9 @@ xpos = tank_space_side
 
 tanks = {}
 for i in range(n_tanks):
-	tanks[f"sb_{i}"] = barge_sb.crop(xmin=xpos, xmax=xpos+tank_length, ymax=-tank_space_side/2)
-	tanks[f"ps_{i}"] = barge_ps.crop(xmin=xpos, xmax=xpos+tank_length, ymin=tank_space_side/2)
-	xpos += tank_length + tank_space_side
+    tanks[f"sb_{i}"] = barge_sb.crop(xmin=xpos, xmax=xpos+tank_length, ymax=-tank_space_side/2)
+    tanks[f"ps_{i}"] = barge_ps.crop(xmin=xpos, xmax=xpos+tank_length, ymin=tank_space_side/2)
+    xpos += tank_length + tank_space_side
 
 del barge_ps, barge_sb
+
