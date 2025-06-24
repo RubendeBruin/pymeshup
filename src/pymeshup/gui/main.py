@@ -208,6 +208,25 @@ class Gui:
         self._digitizer_dialog = None  # Digitizer dialog instance
         self._first_run = True  # Flag to check if this is the first run
 
+        self._user_functions = {}  # allow to register user functions
+
+        self._global_scope_base = {
+            "Load": Load,
+            "Frame": Frame,
+            "Volume": Volume,
+            "GHSgeo": GHSgeo,
+            "Hull": Hull,
+            "Box": Box,
+            "Cylinder": Cylinder,
+            "sin": math.sin,
+            "cos": math.cos,
+            "tan": math.tan,
+            "pi": math.pi,
+        }
+        self._global_scope = self._global_scope_base.copy()
+
+
+
         # Main Window
 
         self.MainWindow = QMainWindow()
@@ -437,24 +456,21 @@ class Gui:
         self.ui.teFeedback.update()
 
         local_scope = {}
-        global_scope = {
-            "Load": Load,
-            "Frame": Frame,
-            "Volume": Volume,
-            "GHSgeo": GHSgeo,
-            "Hull": Hull,
-            "Box": Box,
-            "Cylinder": Cylinder,
-            "sin": math.sin,
-            "cos": math.cos,
-            "tan": math.tan,
-            "pi": math.pi,
-        }
+
+        self._global_scope = self._global_scope_base.copy()
+        self._global_scope.update(self._user_functions)
+
 
         try:
             _output_redirect = StringIO()
             with redirect_stdout(_output_redirect):
-                exec(code, global_scope, local_scope)
+                exec(code, self._global_scope, local_scope)
+            
+            self._user_functions.update({
+                name: obj
+                for name, obj in local_scope.items()
+                if callable(obj) and obj.__class__.__name__ == "function"
+            })
 
             s = _output_redirect.getvalue()
             self.ui.teFeedback.setPlainText(s)
