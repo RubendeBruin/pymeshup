@@ -484,23 +484,39 @@ class Gui:
 
         except Exception as E:
             self.ui.teFeedback.setPlainText(str(E))
-
+        
         volumes = dict()
         frames = dict()
 
         for key, value in local_scope.items():
-            values = value if isinstance(value, list) else [value]
-            for cnt, val in enumerate(values):
-                new_key = f"{key}_{cnt}" if len(values) > 1 else key
-                if isinstance(val, Volume):
-                    volumes[new_key] = val
-                elif isinstance(val, Frame):
-                    frames[new_key] = val
-                elif isinstance(val, GHSgeo):
-                    for name, part in val.parts.items():
-                        if "volume" in part:
-                            vol: Volume = part["volume"]
-                            volumes[name] = vol
+            # Process dicts: key is e.g. "tank_dict", items are tank_dict["A1"], etc.
+            if isinstance(value, dict):
+                for subkey, val in value.items():
+                    dict_key = f"{key}_{subkey}"
+                    if isinstance(val, Volume):
+                        volumes[dict_key] = val
+                    elif isinstance(val, Frame):
+                        frames[dict_key] = val
+                    elif isinstance(val, GHSgeo):
+                        for name, part in val.parts.items():
+                            if "volume" in part:
+                                vol: Volume = part["volume"]
+                                volumes[name] = vol
+
+            # Process lists or seperate objects
+            else:
+                values = value if isinstance(value, list) else [value]
+                for cnt, val in enumerate(values):
+                    new_key = f"{key}_{cnt}" if len(values) > 1 else key
+                    if isinstance(val, Volume):
+                        volumes[new_key] = val
+                    elif isinstance(val, Frame):
+                        frames[new_key] = val
+                    elif isinstance(val, GHSgeo):
+                        for name, part in val.parts.items():
+                            if "volume" in part:
+                                vol: Volume = part["volume"]
+                                volumes[name] = vol
 
         self.frames = frames
         self.volumes = volumes
