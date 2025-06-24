@@ -520,7 +520,7 @@ class Gui:
             # If the value is a dict, unpack and use subkeys
             if isinstance(value, dict):
                 for subkey, val in value.items():
-                    dict_key = f"{key}_{subkey}"
+                    dict_key = f"{key}{subkey}"
                     if isinstance(val, Volume):
                         volumes[dict_key] = val
                     elif isinstance(val, Frame):
