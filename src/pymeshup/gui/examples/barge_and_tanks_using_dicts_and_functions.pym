@@ -1,0 +1,129 @@
+# Example of a pontoon shaped barge with tanks
+
+# In this example we make use of user functions and dictionaries to create a barge with tanks.
+# This is a new feature in pymeshup that allows for more flexible and reusable code.
+
+# dimensions are in meters
+width = 24
+length = 85
+height = 5.5
+
+height_frt = 1.5
+height_aft = 1.5
+
+number_of_frames = 55 
+
+R_curve1 = 1.5 # radius of the curve at the corners (vertical)
+R_curve2 = 0.5 # radius of the curve along the sides (horizontal)
+
+n_tanks = 5  # number of tanks on each side of the barge
+tank_length = 15  # length of each tank
+tank_height = 3.5 # height of the tanks
+tank_space_side = 1.0 # space between the tanks and the side of the barge
+tank_space_bottom = 1.0 # space between the tanks and the bottom of the barge
+
+fr = length / number_of_frames # frame
+
+half_width = width / 2
+
+
+# Make the frames 
+stern = Frame(0, height_aft,
+			  half_width, height_aft,
+			  half_width, height).autocomplete()
+
+end_of_skeg = Frame(0,0,
+					half_width, 0,
+					half_width, height).autocomplete()
+
+main = Frame(0,0,
+					half_width, 0,
+					half_width, height).autocomplete()
+
+half_bow = Frame(0,height_frt,
+					half_width, height_frt,
+					half_width, height).autocomplete()
+
+bow = Frame(0,height_frt,
+					half_width, height_frt,
+					half_width, height).autocomplete()
+
+
+# Make the hull of the barge from the frames
+barge = Hull(
+ 		0, bow,
+ 		6*fr, end_of_skeg,
+ 		47*fr, main,
+ 		53*fr, half_bow,
+ 		55*fr, bow
+)
+
+def create_corner_cutout(r, height, axis='z', rotate=0, move=None):
+    """
+    Create a cutout shape by subtracting a cylinder from a box and rotating/moving it.
+
+    Parameters:
+        r (float): radius
+        height (float): extrusion height
+        axis (str): 'z' or 'y' depending on orientation of cylinder
+        rotate (float): rotation angle around the specified axis
+        move (tuple): (x, y, z) tuple to move the result
+
+    Returns:
+        Volume: the rotated and moved cutout shape
+    """
+    if axis == 'z':
+        B = Box(0, r, 0, r, 0, height)
+        C = Cylinder(radius=r, height=height)
+    elif axis == 'y':
+        B = Box(0, r, 0, r, 0, height)
+        C = Cylinder(radius=r, height=height).rotate(x=90)
+    else:
+        raise ValueError("axis must be 'z' or 'y'")
+
+    cut = B.remove(C).move(-r, -r)
+
+    if rotate:
+        if axis == 'z':
+            cut = cut.rotate(z=rotate)
+        elif axis == 'y':
+            cut = cut.rotate(x=rotate)
+
+    if move:
+        cut = cut.move(*move)
+
+    return cut
+
+def remove_corner_roundings(barge, R_curve1, R_curve2, width, height, length):
+    """Remove corner roundings from the barge by creating cutouts."""
+
+    half_width = width / 2
+
+    # Vertical corners (curve1, around z-axis)
+    barge = barge.remove(create_corner_cutout(R_curve1, height, axis='z', rotate=-90, move=(0, half_width, 0)))
+    barge = barge.remove(create_corner_cutout(R_curve1, height, axis='z', rotate=180, move=(0, -half_width, 0)))
+    barge = barge.remove(create_corner_cutout(R_curve1, height, axis='z', rotate=0, move=(length, half_width, 0)))
+    barge = barge.remove(create_corner_cutout(R_curve1, height, axis='z', rotate=90, move=(length, -half_width, 0)))
+
+    # Horizontal edges (curve2, around y-axis)
+    barge = barge.remove(create_corner_cutout(R_curve2, length, axis='y', move=(0, half_width, 0)))
+    barge = barge.remove(create_corner_cutout(R_curve2, length, axis='y', rotate=90, move=(0, -half_width, 0)))
+
+    return barge
+
+barge = remove_corner_roundings(barge, R_curve1, R_curve2, width, height, length)
+
+
+# create the tanks
+barge_sb = barge.move(y=tank_space_side, z=tank_space_bottom).crop(zmax=tank_height)
+barge_ps = barge.move(y=-tank_space_side, z=tank_space_bottom).crop(zmax=tank_height)
+
+xpos = tank_space_side
+
+tanks = {}
+for i in range(n_tanks):
+	tanks[f"sb_{i}"] = barge_sb.crop(xmin=xpos, xmax=xpos+tank_length, ymax=-tank_space_side/2)
+	tanks[f"ps_{i}"] = barge_ps.crop(xmin=xpos, xmax=xpos+tank_length, ymin=tank_space_side/2)
+	xpos += tank_length + tank_space_side
+
+del barge_ps, barge_sb
