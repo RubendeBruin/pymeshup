@@ -1,5 +1,6 @@
 import os
 import sys
+import ast
 import math
 import pathlib
 import json  # Add import for JSON
@@ -456,24 +457,36 @@ class Gui:
         self.ui.teFeedback.update()
 
         local_scope = {}
+    
+        # ── First pass: only if function definitions exist ──
+        parsed_ast = ast.parse(code)
+        has_functions = any(isinstance(node, ast.FunctionDef) for node in parsed_ast.body)
 
+        if has_functions:
+            # register user functions in the global scope
+            local_def_scope = {}
+            try:
+                exec(code, self._global_scope_base.copy(), local_def_scope)
+            except Exception:
+                pass  # Only extracting function definitions
+
+            self._user_functions.update({
+                name: obj
+                for name, obj in local_def_scope.items()
+                if callable(obj) and obj.__class__.__name__ == "function"
+            })
+
+        # ── Second pass: rebuild global scope with base + user functions ──
         self._global_scope = self._global_scope_base.copy()
         self._global_scope.update(self._user_functions)
-
 
         try:
             _output_redirect = StringIO()
             with redirect_stdout(_output_redirect):
                 exec(code, self._global_scope, local_scope)
-            
-            self._user_functions.update({
-                name: obj
-                for name, obj in local_scope.items()
-                if callable(obj) and obj.__class__.__name__ == "function"
-            })
 
-            s = _output_redirect.getvalue()
-            self.ui.teFeedback.setPlainText(s)
+            output = _output_redirect.getvalue()
+            self.ui.teFeedback.setPlainText(output)
             self.ui.teFeedback.append("..Done!")
 
         except SyntaxError as E:
@@ -489,23 +502,22 @@ class Gui:
 
             self.ui.teFeedback.setPlainText("\n\n" + str(E))
             self.setErrorPos(E.lineno, E.offset)
+            return
 
         except (NameError, AttributeError) as E:
-            # print(f'Error NameError in {E.msg}')
-            # print(f'Error on line {E.lineno} to {E.end_lineno}')
-            # print(f'Error from {E.offset} to {E.end_offset}')
-
             self.ui.teFeedback.setPlainText(str(E))
-            # self.setErrorPos(E.lineno, E.offset)
+            return
 
         except Exception as E:
             self.ui.teFeedback.setPlainText(str(E))
-        
+            return
+
+        # ── Collect Volumes and Frames from local variables ──
         volumes = dict()
         frames = dict()
 
         for key, value in local_scope.items():
-            # Process dicts: key is e.g. "tank_dict", items are tank_dict["A1"], etc.
+            # If the value is a dict, unpack and use subkeys
             if isinstance(value, dict):
                 for subkey, val in value.items():
                     dict_key = f"{key}_{subkey}"
@@ -518,8 +530,6 @@ class Gui:
                             if "volume" in part:
                                 vol: Volume = part["volume"]
                                 volumes[name] = vol
-
-            # Process lists or seperate objects
             else:
                 values = value if isinstance(value, list) else [value]
                 for cnt, val in enumerate(values):
@@ -534,13 +544,13 @@ class Gui:
                                 vol: Volume = part["volume"]
                                 volumes[name] = vol
 
+        # ── Update UI and render state ──
         self.frames = frames
         self.volumes = volumes
 
         self.update_3dplotter()
         self.update_3d_listbox()
         self.update_visibility()
-
         self.update_frames_listbox()
         self.plot_frames()
 
