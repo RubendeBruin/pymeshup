@@ -49,11 +49,6 @@ exe = ["pyinstaller"]
 [project.scripts]
 pymeshup = "pymeshup.gui.main:run"
 
-[dependency-groups]
-dev = [
-    "pyqt6-tools>=6.4.2.3.3",
-]
-
 
 [tool.hatch.metadata]
 allow-direct-references = true
