@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'main.ui'
+## Form generated from reading UI file 'mainlpMgvt.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.2
+## Created by: Qt User Interface Compiler version 6.9.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -33,13 +33,10 @@ class Ui_MainWindow(object):
         self.actionHelp_visible.setObjectName(u"actionHelp_visible")
         self.actionOpen = QAction(MainWindow)
         self.actionOpen.setObjectName(u"actionOpen")
-        self.actionOpen.setShortcut("Ctrl+O")
         self.actionReopen = QAction(MainWindow)
         self.actionReopen.setObjectName(u"actionReopen")
-        self.actionReopen.setShortcut("Ctrl+R")
         self.actionSave = QAction(MainWindow)
         self.actionSave.setObjectName(u"actionSave")
-        self.actionSave.setShortcut("Ctrl+S")
         self.actionSave_as = QAction(MainWindow)
         self.actionSave_as.setObjectName(u"actionSave_as")
         self.actionOpen_2 = QAction(MainWindow)
@@ -412,8 +409,17 @@ class Ui_MainWindow(object):
         MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
         self.actionHelp_visible.setText(QCoreApplication.translate("MainWindow", u"Help visible", None))
         self.actionOpen.setText(QCoreApplication.translate("MainWindow", u"Open", None))
-        self.actionReopen.setText(QCoreApplication.translate("MainWindow", u"Reopen", None))
+#if QT_CONFIG(shortcut)
+        self.actionOpen.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+O", None))
+#endif // QT_CONFIG(shortcut)
+        self.actionReopen.setText(QCoreApplication.translate("MainWindow", u"Reopen Last File", None))
+#if QT_CONFIG(shortcut)
+        self.actionReopen.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+R", None))
+#endif // QT_CONFIG(shortcut)
         self.actionSave.setText(QCoreApplication.translate("MainWindow", u"Save", None))
+#if QT_CONFIG(shortcut)
+        self.actionSave.setShortcut(QCoreApplication.translate("MainWindow", u"Ctrl+S", None))
+#endif // QT_CONFIG(shortcut)
         self.actionSave_as.setText(QCoreApplication.translate("MainWindow", u"Save as", None))
         self.actionOpen_2.setText(QCoreApplication.translate("MainWindow", u"Open", None))
         self.actionSet_work_folder.setText(QCoreApplication.translate("MainWindow", u"Set work folder", None))
