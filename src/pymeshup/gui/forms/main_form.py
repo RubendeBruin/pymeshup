@@ -417,7 +417,7 @@ class Ui_MainWindow(object):
         self.actionSave_as.setText(QCoreApplication.translate("MainWindow", u"Save as", None))
         self.actionOpen_2.setText(QCoreApplication.translate("MainWindow", u"Open", None))
         self.actionSet_work_folder.setText(QCoreApplication.translate("MainWindow", u"Set work folder", None))
-        self.actionOpen_GSH_to_DAVE_conversion_tool.setText(QCoreApplication.translate("MainWindow", u"Open GSH to DAVE conversion tool", None))
+        self.actionOpen_GSH_to_DAVE_conversion_tool.setText(QCoreApplication.translate("MainWindow", u"Open GHS to DAVE conversion tool", None))
         self.actionOpen_work_folder_in_explorer.setText(QCoreApplication.translate("MainWindow", u"Open work folder in explorer", None))
         self.actionLoad_Capytaine_settings.setText(QCoreApplication.translate("MainWindow", u"Load Capytaine settings", None))
         self.actionSave_Capytaine_settings.setText(QCoreApplication.translate("MainWindow", u"Save Capytaine settings", None))
