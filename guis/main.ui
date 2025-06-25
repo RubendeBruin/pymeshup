@@ -484,6 +484,8 @@ B for box
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
     <addaction name="separator"/>
+    <addaction name="actionReopen"/>
+    <addaction name="separator"/>
     <addaction name="actionSet_work_folder"/>
     <addaction name="separator"/>
     <addaction name="actionOpen_GSH_to_DAVE_conversion_tool"/>
@@ -546,10 +548,24 @@ B for box
    <property name="text">
     <string>Open</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionReopen">
+   <property name="text">
+    <string>Reopen Last File</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
   </action>
   <action name="actionSave">
    <property name="text">
     <string>Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="actionSave_as">
@@ -569,7 +585,7 @@ B for box
   </action>
   <action name="actionOpen_GSH_to_DAVE_conversion_tool">
    <property name="text">
-    <string>Open GSH to DAVE conversion tool</string>
+    <string>Open GHS to DAVE conversion tool</string>
    </property>
   </action>
   <action name="actionOpen_work_folder_in_explorer">

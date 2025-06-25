@@ -1,13 +1,17 @@
 import os
+import sys
+import ast
+import math
 import pathlib
 import json  # Add import for JSON
+
 
 import vtkmodules.vtkRenderingOpenGL2   # Needed to initialize VTK !
 
 from io import StringIO
 from contextlib import redirect_stdout
 
-from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF, QAction
+from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF, QAction, QIcon
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -204,6 +208,25 @@ class Gui:
         self._digitizer_dialog = None  # Digitizer dialog instance
         self._first_run = True  # Flag to check if this is the first run
 
+        self._user_functions = {}  # allow to register user functions
+
+        self._global_scope_base = {
+            "Load": Load,
+            "Frame": Frame,
+            "Volume": Volume,
+            "GHSgeo": GHSgeo,
+            "Hull": Hull,
+            "Box": Box,
+            "Cylinder": Cylinder,
+            "sin": math.sin,
+            "cos": math.cos,
+            "tan": math.tan,
+            "pi": math.pi,
+        }
+        self._global_scope = self._global_scope_base.copy()
+
+
+
         # Main Window
 
         self.MainWindow = QMainWindow()
@@ -270,6 +293,10 @@ class Gui:
         # --- Save , open
 
         self.ui.actionOpen.triggered.connect(self.fileOpenMenu)
+
+        self.ui.actionReopen.triggered.connect(self.reopen_last_file)
+
+
         self.ui.actionSave.triggered.connect(self.fileSave)
         self.ui.actionSave_as.triggered.connect(self.fileSaveAs)
         self.ui.actionSet_work_folder.triggered.connect(self.openFolder)
@@ -419,72 +446,104 @@ class Gui:
         self.ui.teFeedback.append("Running...")
         self.ui.teFeedback.update()
 
-        key_before = [v for v in locals().keys()]
+        local_scope = {}
+    
+        # ── First pass: only if function definitions exist ──
+        parsed_ast = ast.parse(code)
+        has_functions = any(isinstance(node, ast.FunctionDef) for node in parsed_ast.body)
+
+        if has_functions:
+            # register user functions in the global scope
+            local_def_scope = {}
+            try:
+                exec(code, self._global_scope_base.copy(), local_def_scope)
+            except Exception:
+                pass  # Only extracting function definitions
+
+            self._user_functions.update({
+                name: obj
+                for name, obj in local_def_scope.items()
+                if callable(obj) and obj.__class__.__name__ == "function"
+            })
+
+        # ── Second pass: rebuild global scope with base + user functions ──
+        self._global_scope = self._global_scope_base.copy()
+        self._global_scope.update(self._user_functions)
 
         try:
             _output_redirect = StringIO()
             with redirect_stdout(_output_redirect):
-                exec(code)
+                exec(code, self._global_scope, local_scope)
 
-            s = _output_redirect.getvalue()
-            self.ui.teFeedback.setPlainText(s)
+            output = _output_redirect.getvalue()
+            self.ui.teFeedback.setPlainText(output)
             self.ui.teFeedback.append("..Done!")
 
         except SyntaxError as E:
             print(f"Error {E.msg} in {E.text}")
-
             try:
                 print(f"Error on line {E.lineno} to {E.end_lineno}")
                 print(f"Error from {E.offset} to {E.end_offset}")
-            except:
+            except Exception:
                 pass
 
-            for i, line in enumerate(self.ui.teCode.toPlainText()):
-                self.ui.teFeedback.append(f"{i} : {line}")
+            for i, line in enumerate(code.splitlines(), 1):
+                self.ui.teFeedback.append(f"{i}: {line}")
 
             self.ui.teFeedback.setPlainText("\n\n" + str(E))
-
             self.setErrorPos(E.lineno, E.offset)
+            return
 
         except (NameError, AttributeError) as E:
-            # print(f'Error NameError in {E.msg}')
-            # print(f'Error on line {E.lineno} to {E.end_lineno}')
-            # print(f'Error from {E.offset} to {E.end_offset}')
-
             self.ui.teFeedback.setPlainText(str(E))
-            # self.setErrorPos(E.lineno, E.offset)
+            return
 
         except Exception as E:
             self.ui.teFeedback.setPlainText(str(E))
+            return
 
-        key_after = [v for v in locals().keys()]
-        local_vars = [v for v in locals().values()]
-        items_after = [i for i in locals().items()]
-
+        # ── Collect Volumes and Frames from local variables ──
         volumes = dict()
         frames = dict()
 
-        for key, value in items_after:
-            if key not in key_before:
-                if isinstance(value, Volume):
-                    volumes[key] = value
-                elif isinstance(value, Frame):
-                    frames[key] = value
-                elif isinstance(value, GHSgeo):
-                    for name, part in value.parts.items():
-                        if "volume" in part:
-                            vol: Volume = part["volume"]
-                            volumes[name] = vol
+        for key, value in local_scope.items():
+            # If the value is a dict, unpack and use subkeys
+            if isinstance(value, dict):
+                for subkey, val in value.items():
+                    dict_key = f"{key}{subkey}"
+                    if isinstance(val, Volume):
+                        volumes[dict_key] = val
+                    elif isinstance(val, Frame):
+                        frames[dict_key] = val
+                    elif isinstance(val, GHSgeo):
+                        for name, part in val.parts.items():
+                            if "volume" in part:
+                                vol: Volume = part["volume"]
+                                volumes[name] = vol
+            else:
+                values = value if isinstance(value, list) else [value]
+                for cnt, val in enumerate(values):
+                    new_key = f"{key}_{cnt}" if len(values) > 1 else key
+                    if isinstance(val, Volume):
+                        volumes[new_key] = val
+                    elif isinstance(val, Frame):
+                        frames[new_key] = val
+                    elif isinstance(val, GHSgeo):
+                        for name, part in val.parts.items():
+                            if "volume" in part:
+                                vol: Volume = part["volume"]
+                                volumes[name] = vol
 
+        # ── Update UI and render state ──
         self.frames = frames
         self.volumes = volumes
 
         self.update_3dplotter()
         self.update_3d_listbox()
         self.update_visibility()
-
         self.update_frames_listbox()
         self.plot_frames()
+
 
     def setErrorPos(self, line, offset):
         pass
@@ -727,8 +786,20 @@ class Gui:
             self.ui.teCode.setPlainText(f.read())
             self.settings.setValue("lastfile", path)
 
+            self.filename = path
+
             path = pathlib.Path(path).parent
             self.setWorkPath(str(path))
+
+    def reopen_last_file(self):
+        if self.filename:
+            self.open(self.filename)
+        else:
+            QMessageBox.information(
+                self.MainWindow,
+                "No file",
+                "No previous file found to reopen."
+            )
 
     def setWorkPath(self, path):
         self.curdir = path
@@ -746,7 +817,7 @@ class Gui:
                 "Warning",
                 "No work folder set. Please set a work folder first.",
             )
-
+    
     def load_capytaine_settings(self):
         """Load Capytaine settings from a JSON file."""
         path, _ = QFileDialog.getOpenFileName(
@@ -862,11 +933,17 @@ class Gui:
         context_menu.exec(self.ui.teCode.mapToGlobal(position))
 
 def main():
-    import sys
-
     app = QApplication(sys.argv)
-    gui = Gui()
+
+
+    icon_path = pathlib.Path(__file__).parent.parent / "resources" / "pymeshup_logo.ico"
+    app.setWindowIcon(QIcon(str(icon_path)))
+
+    Gui()
     sys.exit(app.exec())
+
+def run():
+    main()
 
 if __name__ == "__main__":
     main()
