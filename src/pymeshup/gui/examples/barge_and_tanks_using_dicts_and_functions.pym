@@ -16,8 +16,8 @@ R_curve2 = 0.5 # radius of the curve along the sides (horizontal)
 n_tanks = 6  # number of tanks on each side of the barge
 tank_length = (0.9 * length) // n_tanks  # length of each tank
 tank_height = 3.5 # height of the tanks
-tank_space_side = 1.0 # space between the tanks and the side of the barge
-tank_space_bottom = 1.0 # space between the tanks and the bottom of the barge
+tank_space_side = 0.1 # space between the tanks and the side of the barge
+tank_space_bottom = 0.1 # space between the tanks and the bottom of the barge
 
 tank_width = (width - 4 * tank_space_side) / 3   
 
@@ -51,7 +51,7 @@ bow = Frame(0,height_frt,
 
 
 # Make the hull of the barge from the frames
-Muskusos = Hull(
+Muskox = Hull(
          0, bow,
          6*fr, end_of_skeg,
          47*fr, main,
@@ -128,14 +128,14 @@ def remove_corner_roundings(barge, R_curve1, R_curve2, width, height, length, re
         return barge
 
 if show_cuts:
-   Muskusos, cx, cy, cz = remove_corner_roundings(Muskusos, R_curve1, R_curve2, width, height, length, return_cuts=True)
+   Muskox, cx, cy, cz = remove_corner_roundings(Muskox, R_curve1, R_curve2, width, height, length, return_cuts=True)
 else:
-    Muskusos = remove_corner_roundings(Muskusos, R_curve1, R_curve2, width, height, length)
+    Muskox = remove_corner_roundings(Muskox, R_curve1, R_curve2, width, height, length)
 
 # create the tanks
-barge_sb = Muskusos.move(y=tank_space_side, z=tank_space_bottom).crop(zmax=tank_height)
-barge_ps = Muskusos.move(y=-tank_space_side, z=tank_space_bottom).crop(zmax=tank_height)
-barge_cn = Muskusos.move(y=0, z=tank_space_bottom).crop(zmax=tank_height)
+barge_sb = Muskox.move(y=tank_space_side, z=tank_space_bottom).crop(zmax=tank_height)
+barge_ps = Muskox.move(y=-tank_space_side, z=tank_space_bottom).crop(zmax=tank_height)
+barge_cn = Muskox.move(y=0, z=tank_space_bottom).crop(zmax=tank_height)
 
 xpos = tank_space_side
 
@@ -155,7 +155,7 @@ skeg = Box(0, 8.9,
 skegPS = skeg.move(y=0.35 * width)
 skegSB = skeg.move(y=-0.35 * width)
 
-Muskusos = Muskusos.add(skegPS).add(skegSB)
+Muskox = Muskox.add(skegPS).add(skegSB)
 
 del skeg, skegPS, skegSB
 
