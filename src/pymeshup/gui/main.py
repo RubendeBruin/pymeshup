@@ -449,8 +449,19 @@ class Gui:
         local_scope = {}
     
         # ── First pass: only if function definitions exist ──
-        parsed_ast = ast.parse(code)
-        has_functions = any(isinstance(node, ast.FunctionDef) for node in parsed_ast.body)
+        try:
+            parsed_ast = ast.parse(code)
+            has_functions = any(isinstance(node, ast.FunctionDef) for node in parsed_ast.body)
+        except SyntaxError as E:
+
+            output = []
+            output.append(f"Error {E.msg} in {E.text}")
+            output.append(f"Error on line {E.lineno} to {E.end_lineno}")
+            output.append(f"Error from {E.offset} to {E.end_offset}")
+
+            self.ui.teFeedback.setPlainText('\n'.join(output))
+            return
+
 
         if has_functions:
             # register user functions in the global scope
