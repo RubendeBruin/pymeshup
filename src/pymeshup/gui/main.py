@@ -5,7 +5,7 @@ import math
 import pathlib
 import json  # Add import for JSON
 
-
+import pygments
 import vtkmodules.vtkRenderingOpenGL2   # Needed to initialize VTK !
 
 from io import StringIO
@@ -19,7 +19,7 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QMessageBox,
     QFileDialog,
-    QMenu,
+    QMenu, QComboBox,
 )
 from PySide6.QtCore import Qt, QSettings
 
@@ -50,6 +50,19 @@ from matplotlib import cm
 from pymeshup.gui.helpers.vtkBlenderLikeInteractionStyle import BlenderStyle
 
 from pymeshup.syntaxedit.core import SyntaxEdit
+
+# Detect Windows dark/light mode and set code editor theme accordingly
+import ctypes
+
+def is_windows_dark_mode():
+    try:
+        import winreg
+        registry = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
+        key = winreg.OpenKey(registry, r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")
+        value, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
+        return value == 0
+    except Exception:
+        return False
 
 HELP = """
 <html><body><b>PyMeshUp</b>
@@ -251,10 +264,27 @@ class Gui:
         self.renderer.SetBackground((254, 254, 254))
         self.create3Dorigin()
 
-        self.ui.teCode = SyntaxEdit(example_code, syntax="Python", use_smart_indentation=True)
-        self.ui.teCode.setTheme("pastie")
+        self.ui.teCode = SyntaxEdit(example_code, syntax="Python", use_smart_indentation=True, use_theme_background=True)
+
+        # check if windows is set to dark or light mode
+        # if dark then use solarized-dark, if light then use pastie
+        # self.ui.teCode.setTheme("solarized-dark")
+
+        if is_windows_dark_mode():
+            self.ui.teCode.setTheme("solarized-dark")
+        else:
+            self.ui.teCode.setTheme("pastie")
+
 
         self.ui.verticalLayout_3.addWidget(self.ui.teCode)
+
+        # add a dropdown button with editor style
+        self.styles = QComboBox()
+        self.styles.setEditable(False)
+        self.styles.addItems(pygments.styles.get_all_styles())
+        self.styles.setCurrentText(self.ui.teCode.theme())
+        self.styles.currentIndexChanged.connect(self.style_changed)
+        self.ui.verticalLayout_3.addWidget(self.styles)
 
         self.ui.pushButton.pressed.connect(self.run)
         self.ui.listVolumes.itemChanged.connect(self.update_visibility)
@@ -360,6 +390,9 @@ class Gui:
 
         self.update_period()
         self.update_heading()
+
+    def style_changed(self):
+        self.ui.teCode.setTheme(self.styles.currentText())
 
     def open_examples(self):
         import os, sys

@@ -1,10 +1,26 @@
 # -*- mode: python ; coding: utf-8 -*-
-
+import sys
 
 from PyInstaller.utils.hooks import collect_all
 
 datas = [('src/pymeshup/gui/examples','examples')]
 binaries = []
+
+
+sys.setrecursionlimit(sys.getrecursionlimit() * 5)
+
+from vedo import installdir as vedo_installdir
+vedo_fontsdir = os.path.join(vedo_installdir, 'fonts')
+print('vedo installation is in', vedo_installdir)
+print('fonts are in', vedo_fontsdir)
+
+block_cipher = None
+
+vedo_added_files = [
+    (os.path.join(vedo_fontsdir,'*'), os.path.join('vedo','fonts')),
+]
+
+
 
 hiddenimports = ["vtkmodules.vtkCommonMath",
                  "vtkmodules.vtkCommonTransforms",
@@ -37,6 +53,12 @@ hiddenimports = ["vtkmodules.vtkCommonMath",
 
 tmp_ret = collect_all('pymeshlab')
 datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+
+tmp_ret = collect_all('casadi')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+
+datas += vedo_added_files
+
 
 block_cipher = None
 
@@ -90,8 +112,8 @@ coll = COLLECT(
     name='PyMeshupGUI',
 )
 
-print('==================================================================================)
-print('==================================================================================)
+print('==================================================================================')
+print('==================================================================================')
 print('copy-paste the origin (site-packages) casadi folder into the _internal folder')
-print('==================================================================================)
-print('==================================================================================)
+print('==================================================================================')
+print('==================================================================================')
