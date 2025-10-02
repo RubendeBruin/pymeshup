@@ -37,4 +37,3 @@ Submerged = Barge.move(z=-2.8).crop(zmax=0)
 print(Submerged.volume*1.025)
 
 Panels = Submerged.regrid(pct=2.8, iterations=10)
-

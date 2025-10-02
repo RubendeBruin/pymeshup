@@ -96,9 +96,12 @@ class SyntaxEdit(QTextEdit):
     def setContents(self, contents):
         self.setPlainText(contents)
 
-
     def keyPressEvent(self, event):
-        if self._use_smart_indentation and event.key() == Qt.Key_Return or event.key() == Qt.Key_Enter:
+        if (
+            self._use_smart_indentation
+            and event.key() == Qt.Key_Return
+            or event.key() == Qt.Key_Enter
+        ):
             cursor = self.textCursor()
             cursor.movePosition(QTextCursor.StartOfLine, QTextCursor.KeepAnchor)
             current_line_text = cursor.selectedText()
@@ -113,8 +116,8 @@ class SyntaxEdit(QTextEdit):
 
             # if the previous line ended with a colon, indent the new line by one level
             if current_line_text.strip().endswith(":"):
-                if '\t' in indent:
-                    indent += '\t'
+                if "\t" in indent:
+                    indent += "\t"
                 else:
                     indent += " " * self._indentation_size
 
@@ -124,7 +127,7 @@ class SyntaxEdit(QTextEdit):
             super().keyPressEvent(event)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
     from pathlib import Path
 
@@ -139,9 +142,7 @@ if __name__ == '__main__':
         QSpinBox,
     )
 
-
     app = QApplication(sys.argv)
-
 
     class MainWindow(QMainWindow):
         def __init__(self):
@@ -149,7 +150,9 @@ if __name__ == '__main__':
 
             contents = Path(__file__).read_text()
 
-            self.editor = SyntaxEdit(contents, syntax="Python", use_smart_indentation=True)
+            self.editor = SyntaxEdit(
+                contents, syntax="Python", use_smart_indentation=True
+            )
             self.editor.textChanged.connect(self.editor_changed)
 
             style_language = QHBoxLayout()
@@ -200,7 +203,6 @@ if __name__ == '__main__':
         def editor_changed(self):
             print("editor changed")
             print(self.editor.toPlainText())
-
 
     window = MainWindow()
     window.show()

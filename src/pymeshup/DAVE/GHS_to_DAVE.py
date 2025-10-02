@@ -9,14 +9,13 @@ The GHSgeo class is still under development so this function should be considere
 """
 
 
-
 def GHS_to_DAVE(
     filename_gf1,
     vessel_name,
-    outdir = None,
+    outdir=None,
     circular_segments_step=10,
-    output: list = None,
-    resource_prefix = None
+    output: list = None,  # type: ignore
+    resource_prefix=None,
 ):
     """Converts a GHS file to a DAVE vessel file
 
@@ -28,8 +27,7 @@ def GHS_to_DAVE(
     if not vessel_name:
         raise ValueError("No vessel name given, please provide a name")
 
-
-    if outdir == '':
+    if outdir == "":
         outdir = None
 
     if outdir is None:
@@ -62,7 +60,6 @@ def GHS_to_DAVE(
     # let the user know where we are writing to
     output.append("saving to vessel to " + str(outdir))
     output.append("saving geometry to " + str(geometry_dir))
-
 
     output.append("Reading GHS file, may take a while...")
     a = GHSgeo(filename_gf1, circular_segments_step=circular_segments_step)
@@ -140,7 +137,7 @@ def GHS_to_DAVE(
 
             try:
                 volume = part["volume"].volume
-            except Exception as e:
+            except Exception:
                 output.append(
                     f"WARNING: {name} has an error in the volume calculation, skipping it."
                 )
@@ -204,11 +201,11 @@ def GHS_to_DAVE(
     header = """
 #    THIS FILE IS AUTOMATICALLY EXPORTED FROM THE GHS (GF1) GEO FILE.
 #    [ ] MAKE A COPY OF THIS FILE AND EDIT THE COPY.
-#    
+#
 #    IN THE COPY:
 #    [ ] ADD A HEADER WITH A DESCRIPTION OF THE VESSEL AND THE SOURCE OF THE DATA
 #    [ ] ADD LIGHTSHIP WEIGHT
-#    
+#
 #    OPTIONALLY
 #    [ ] TWEAK THE GENERAL SETTINGS FOR VISUALS (CUT ELEVATIONS) AND LENGTH AND WIDTH
 #    [ ] CHANGE THE VISUAL, IT IS INITIALLY SET TO THE HULL BUOYANCY PARTS (WHICH IS OK) BUT YOU PROBABLY WANT SOMETHING ELSE
@@ -218,7 +215,7 @@ def GHS_to_DAVE(
 #        ryy = rzz = 0.22 ... 0.28 * LENGTH
 #    [ ] ADD BOLLARDS IF ANY
 #    [ ] ADJUST THE DRAFT MEASUREMENT POINTS IF NEEDED
-#      
+#
 # REVISION HISTORY
 # rev   |   date        |   description"""
 
@@ -233,27 +230,27 @@ def GHS_to_DAVE(
     additional = """
 #
 #  EXAMPLE OF ADDITIONAL DATA TO BE ENTERED
-#    
-# *LightWeight													
+#
+# *LightWeight
 #
 # This defined the weight and inertia of the barge. Inertia is only used when doing dynamics.
 #
-#					Footprint					Dynamics			
-# Name	mass [mT]	Cog-x	Cog-y	Cog-z	Fp-elevation	aft	front	sb	ps	rxx	ryy	rzz	
-#	mT	m	m	m	m	m	m	m	m	m	m	m	
-# front	10000	180	0	2.5	2	160	210	-22.5	22.5	20	25	25	
-# main	20000	105	0	2.5	2	20	160	-22.5	22.5	20	100	100	
-# stern	5000	3	0	2.5	2	0	20	-22.5	22.5	20	16	18	
-# *Bollards													
-#													
-# name	Pos-x	Pos-y	Pos-z	capacity	capcity-x	 capcity-y								
-# *OtherTanks													
+#					Footprint					Dynamics
+# Name	mass [mT]	Cog-x	Cog-y	Cog-z	Fp-elevation	aft	front	sb	ps	rxx	ryy	rzz
+#	mT	m	m	m	m	m	m	m	m	m	m	m
+# front	10000	180	0	2.5	2	160	210	-22.5	22.5	20	25	25
+# main	20000	105	0	2.5	2	20	160	-22.5	22.5	20	100	100
+# stern	5000	3	0	2.5	2	0	20	-22.5	22.5	20	16	18
+# *Bollards
+#
+# name	Pos-x	Pos-y	Pos-z	capacity	capcity-x	 capcity-y
+# *OtherTanks
 #
 # Other tanks are tanks that are not included in the ballast system.
 # The total volume of the tank is derived from the geometry. Use permeability to tune the capacity.
-#													
+#
 # Name	 resource	 permeability	density	Fill-pct	 off-x	 off-y	 off-z	 rot-x	 rot-y	 rot-z	 scale-x	 scale-y	 scale-z	 invert-normals
-#													
+#
 """
 
     # write to file
@@ -264,7 +261,7 @@ def GHS_to_DAVE(
         for key, value in general.items():
             try:
                 values = "\t".join(map(str, value))
-            except:
+            except Exception:
                 values = str(value)
             f.write(f"{key}\t{values}\n")
 

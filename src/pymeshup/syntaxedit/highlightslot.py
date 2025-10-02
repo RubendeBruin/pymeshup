@@ -41,4 +41,3 @@ class HighlightSlot:
 
         # restore scroll position
         self.widget().verticalScrollBar().setValue(scroll_position)
-

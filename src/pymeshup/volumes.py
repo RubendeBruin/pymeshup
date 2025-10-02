@@ -1,38 +1,47 @@
+from __future__ import annotations
+
+from pathlib import Path
 import tempfile
 
-import pymeshlab
+from pymeshlab import MeshSet, Mesh, PercentageValue  # pyright: ignore[reportAttributeAccessIssue]
 from math import sqrt, cos, sin, pi
 from numpy import min, max
-from pathlib import Path
 
-from vtkmodules.vtkIOGeometry import vtkSTLWriter
+# VTK: import only the specific submodules you actually need.
+# Avoid `from vtk import ...` to prevent loading optional modules/DLLs (e.g. vtkFiltersCellGrid) that may not be present.
+from vtkmodules.vtkIOGeometry import vtkSTLReader, vtkSTLWriter
+from vtkmodules.vtkCommonDataModel import vtkPolyData
+from vtkmodules.vtkFiltersCore import vtkTriangleFilter, vtkDecimatePro
 
 
-class Volume():
+class Volume:
+    def __init__(self, volume: Volume | None = None) -> None:
+        self.ms = MeshSet()
 
-    def __init__(self, volume : "Volume" or None = None):
-        self.ms = pymeshlab.MeshSet()
-
-        if volume:
-            self.ms.add_mesh(mesh = volume.ms.current_mesh())
+        if volume is not None:
+            self.ms.add_mesh(mesh=volume.ms.current_mesh())
 
     def set_vertices_and_faces(self, vertices, faces):
         """Sets the current mesh from vertices and faces"""
 
-        mesh = pymeshlab.Mesh(vertices, faces)
+        mesh = Mesh(vertices, faces)
         self.ms.add_mesh(mesh)
 
-    def move(self,x=0, y=0, z=0):
+    def move(self, x: float = 0.0, y: float = 0.0, z: float = 0.0):
         """Returns a translated copy of the volume"""
 
         v = Volume(self)
-        v.ms.compute_matrix_from_translation_rotation_scale(translationx = x, translationy = y, translationz = z)
+        v.ms.compute_matrix_from_translation_rotation_scale(
+            translationx=x, translationy=y, translationz=z
+        )
         return v
 
-    def scale(self, x=1, y=1 , z=1):
+    def scale(self, x: float = 1.0, y: float = 1.0, z: float = 1.0):
         """Returns a scaled copy of the volume"""
         v = Volume(self)
-        v.ms.compute_matrix_from_translation_rotation_scale(scalex=x, scaley=y, scalez=z)
+        v.ms.compute_matrix_from_translation_rotation_scale(
+            scalex=x, scaley=y, scalez=z
+        )
         return v
 
     def mirrorXZ(self):
@@ -40,12 +49,12 @@ class Volume():
         v = self.scale(y=-1).invert_normals()
         return v
 
-
-
-    def rotate(self, x=0, y=0 , z=0):
+    def rotate(self, x=0, y=0, z=0):
         """Returns a rotated copy of the volume, rotation in degrees; Euler angles"""
         v = Volume(self)
-        v.ms.compute_matrix_from_translation_rotation_scale(rotationx=x, rotationy=y, rotationz=z)
+        v.ms.compute_matrix_from_translation_rotation_scale(
+            rotationx=x, rotationy=y, rotationz=z
+        )
         return v
 
     def add(self, other):
@@ -57,7 +66,6 @@ class Volume():
 
         v = Volume(self)
         v.ms.add_mesh(other.ms.current_mesh())
-
 
         # v.ms.mesh_boolean_union()
         v.ms.generate_boolean_union()
@@ -87,7 +95,6 @@ class Volume():
         v.ms.meshing_invert_face_orientation()
         return v
 
-
     @property
     def vertices(self):
         return self.ms.current_mesh().vertex_matrix()
@@ -95,7 +102,7 @@ class Volume():
     @property
     def bounds(self):
         """minx, maxx, miny, maxy, minz, maxz"""
-        bb = self.ms.get_geometric_measures()['bbox']
+        bb = self.ms.get_geometric_measures()["bbox"]
         mins = bb.min()
         maxs = bb.max()
 
@@ -104,37 +111,38 @@ class Volume():
     @property
     def volume(self):
         data = self.ms.get_geometric_measures()
-        if 'mesh_volume' in data:
-            return data['mesh_volume']
+        if "mesh_volume" in data:
+            return data["mesh_volume"]
         else:
-            raise ValueError(f"Volume not available, we do have the following mesh data {data}")
-
+            raise ValueError(
+                f"Volume not available, we do have the following mesh data {data}"
+            )
 
     @property
     def center(self):
-        return self.ms.get_geometric_measures()['center_of_mass']
+        return self.ms.get_geometric_measures()["center_of_mass"]
 
-    def crop(self,xmin = None, xmax = None, ymin = None, ymax = None, zmin = None, zmax = None):
+    def crop(self, xmin=None, xmax=None, ymin=None, ymax=None, zmin=None, zmax=None):
         """Returns a cropped copy"""
 
-        x = self.vertices[:,0]
+        x = self.vertices[:, 0]
         y = self.vertices[:, 1]
         z = self.vertices[:, 2]
 
         if xmin is None:
-            xmin = min(x)-1
+            xmin = min(x) - 1
         if xmax is None:
-            xmax = max(x)+1
+            xmax = max(x) + 1
 
         if ymin is None:
-            ymin = min(y)-1
+            ymin = min(y) - 1
         if ymax is None:
-            ymax = max(y)+1
+            ymax = max(y) + 1
 
         if zmin is None:
-            zmin = min(z)-1
+            zmin = min(z) - 1
         if zmax is None:
-            zmax = max(z) +1
+            zmax = max(z) + 1
 
         b = Box(xmin, xmax, ymin, ymax, zmin, zmax)
 
@@ -142,27 +150,31 @@ class Volume():
 
     def cut_at_waterline(self):
         """Cut and keep submerged parts only"""
-        return self.cut_plane(planeaxis='Z Axis')
+        return self.cut_plane(planeaxis="Z Axis")
 
     def cut_at_xz(self):
         """Cuts at the xz plane, keeps negative y only"""
-        return self.cut_plane(planeaxis='Y Axis')
+        return self.cut_plane(planeaxis="Y Axis")
 
-    def cut_plane(self, planeaxis ='Z Axis'):
+    def cut_plane(self, planeaxis="Z Axis"):
         v = Volume(self)
-        v.ms.generate_polyline_from_planar_section(planeaxis = planeaxis, splitsurfacewithsection = True) #plane_origin = (x,y,z), plane_normal = (nx,ny,nz))
+        v.ms.generate_polyline_from_planar_section(
+            planeaxis=planeaxis, splitsurfacewithsection=True
+        )  # plane_origin = (x,y,z), plane_normal = (nx,ny,nz))
         v.ms.set_current_mesh(3)
         v.ms.delete_non_visible_meshes()
         return v
 
     def regrid(self, iterations=20, pct=1):
         v = Volume(self)
-        v.ms.meshing_isotropic_explicit_remeshing(iterations = iterations, targetlen = pymeshlab.PercentageValue(pct))
+        v.ms.meshing_isotropic_explicit_remeshing(
+            iterations=iterations, targetlen=PercentageValue(pct)
+        )
         return v
 
     def merge_close_vertices(self, pct=1):
         v = Volume(self)
-        v.ms.meshing_merge_close_vertices(threshold  =  pymeshlab.PercentageValue(pct))
+        v.ms.meshing_merge_close_vertices(threshold=PercentageValue(pct))
         v.ms.meshing_remove_null_faces()
         v.ms.meshing_repair_non_manifold_edges()
         v.ms.meshing_re_orient_faces_coherently()
@@ -172,14 +184,13 @@ class Volume():
     def save(self, filename):
         self.ms.save_current_mesh(file_name=filename)
 
-    def to_polydata(self):
+    def to_polydata(self) -> vtkPolyData:
         """Returns a vtkPolyData object with the mesh data.
         Save to stl and then load the stl file into vtk"""
-
         file = tempfile.mktemp(".stl")
         self.save(file)
 
-        from vtk import vtkSTLReader
+        # Use the specific VTK submodule reader; avoid `from vtk import vtkSTLReader`
         reader = vtkSTLReader()
         reader.SetFileName(file)
         reader.Update()
@@ -188,22 +199,22 @@ class Volume():
 
     def simplify(self):
         pd = self.to_polydata()
-        from vtk import vtkDecimatePro
 
-        # # triangulate first
-        from vtk import vtkTriangleFilter
+        # Triangulate first (some filters expect triangles)
         tri = vtkTriangleFilter()
         tri.SetInputData(pd)
         tri.Update()
 
         decimate = vtkDecimatePro()
-        decimate.SetInputData(pd)
+        # Use the triangulated output as input to decimate
+        decimate.SetInputConnection(tri.GetOutputPort())
+
+        # Keep user’s original parameters; adjust if needed upstream
         decimate.SetTargetReduction(1.0)
         decimate.SetPreserveTopology(1)
         decimate.Update()
 
         # save the output to stl
-
         file = tempfile.mktemp(".stl")
         writer = vtkSTLWriter()
         writer.SetFileName(file)
@@ -213,7 +224,7 @@ class Volume():
         return Load(file)
 
 
-def Box(xmin = -0.5, xmax = 0.5, ymin = -0.5, ymax = 0.5, zmin = -0.5, zmax = 0.5):
+def Box(xmin=-0.5, xmax=0.5, ymin=-0.5, ymax=0.5, zmin=-0.5, zmax=0.5):
     """Returns a Box-shaped volume between the given outer dimensions"""
     c = Volume()
     c.ms.create_cube()
@@ -222,12 +233,13 @@ def Box(xmin = -0.5, xmax = 0.5, ymin = -0.5, ymax = 0.5, zmin = -0.5, zmax = 0.
     dy = ymax - ymin
     dz = zmax - zmin
 
-    c = c.scale(dx,dy,dz)
-    c = c.move(0.5*(xmin+xmax), 0.5*(ymin+ymax), 0.5*(zmin+zmax))
+    c = c.scale(dx, dy, dz)
+    c = c.move(0.5 * (xmin + xmax), 0.5 * (ymin + ymax), 0.5 * (zmin + zmax))
 
     return c
 
-def Cylinder(height=1, radius=1, resolution = 36):
+
+def Cylinder(height=1, radius=1, resolution=36):
     """Returns a Vertical cylinder with its origin at the bottom center
 
     The radius is scaled such that the volume is correct considering the discretisation / resolution
@@ -236,37 +248,48 @@ def Cylinder(height=1, radius=1, resolution = 36):
 
     # using R=1
     required_area = pi / resolution
-    alpha = 2*pi / resolution  # wedge angle
+    alpha = 2 * pi / resolution  # wedge angle
 
-    r = sqrt(required_area / (sin(0.5*alpha)*cos(0.5*alpha)))
+    r = sqrt(required_area / (sin(0.5 * alpha) * cos(0.5 * alpha)))
 
+    c.ms.create_cone(r0=radius * r, r1=radius * r, h=height, subdiv=resolution)
 
-    c.ms.create_cone(r0=radius*r, r1=radius*r, h = height, subdiv = resolution)
+    return c.rotate(x=90).move(z=height / 2)
 
-    return c.rotate(x=90).move(z=height/2)
 
 def Load(filename):
     v = Volume()
 
-    v.ms.load_new_mesh(filename)
+    filename = Path(filename)
+    if not filename.exists():
+        raise FileNotFoundError(f"File {filename} not found")
+
+    v.ms.load_new_mesh(str(filename))
     return v
 
-def Plot(v : Volume or list[Volume]):
+
+def Plot(v: Volume | list[Volume]):
     import vedo
-    from matplotlib import cm
-    COLORMAP = cm.tab20
+    from matplotlib import colormaps as cm
+
+    # Use a stable colormap (Matplotlib tab20)
+    COLORMAP = cm.get_cmap("tab20")
 
     p = vedo.Plotter()
 
+    # Normalize input to a list
     if isinstance(v, Volume):
         v = [v]
 
     for icol, m in enumerate(v):
         vertices = m.ms.current_mesh().vertex_matrix()
         faces = m.ms.current_mesh().face_matrix()
-        m2 = vedo.Mesh([vertices, faces])
-        m2.actor.GetProperty().SetColor(COLORMAP(icol % 20)[:3])
-        # m2.actor.GetProperty().SetOpacity(0.5)
+        m2 = vedo.Mesh((vertices, faces))
+
+        rgb = COLORMAP(icol % 20)[:3]
+        m2.actor.GetProperty().SetColor(*rgb)  # type: ignore[attr-defined]
+        # m2.actor.GetProperty().SetOpacity(0.5)  # Optional transparency
+
         p.add(m2)
 
-    p.show(axes=1, viewup='z')
+    p.show(axes=1, viewup="z")

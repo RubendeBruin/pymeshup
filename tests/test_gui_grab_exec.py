@@ -1,4 +1,4 @@
-from pymeshup import *
+from pymeshup import Volume, Cylinder, Box  # noqa: F401
 
 
 code = """
@@ -9,8 +9,8 @@ e = c.inside_of(b)
 del c
 """
 
-def test_grab_newly_created_volumes():
 
+def test_grab_newly_created_volumes():
     key_before = [v for v in locals().keys()]
 
     exec(code)
@@ -22,15 +22,12 @@ def test_grab_newly_created_volumes():
 
     for key, value in items_after:
         if key not in key_before:
-            print(f'New variable found: {key}')
+            print(f"New variable found: {key}")
 
             if isinstance(value, Volume):
                 volumes[key] = value
 
-
-    assert 'b' in volumes
-    assert 'e' in volumes
-    assert 'c' not in volumes
-    assert 'd' not in volumes
-
-
+    assert "b" in volumes
+    assert "e" in volumes
+    assert "c" not in volumes
+    assert "d" not in volumes

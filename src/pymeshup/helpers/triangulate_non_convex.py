@@ -1,10 +1,9 @@
-import warnings
-
 from vtkmodules.vtkCommonCore import vtkIdList, vtkPoints
 from vtkmodules.vtkCommonDataModel import vtkCellArray
 from vtkmodules.vtkFiltersGeneral import vtkContourTriangulator
 
 from pymeshup.helpers.earcut_2d import triangulate_poly_py
+
 
 def triangulate_poly(vertices):
     try:
@@ -23,12 +22,12 @@ def triangulate_poly_vtk(vertices):
 
     out_points = list(vertices)
 
-       # make a vtk polydata object from these points
+    # make a vtk polydata object from these points
     vtkPts = vtkPoints()
     for p in out_points:
         vtkPts.InsertNextPoint(*p)
 
-     # add the polygon to the polydata
+    # add the polygon to the polydata
     cellArray = vtkCellArray()
 
     # use vtkContourTriangulator to triangulate the polygon
@@ -36,11 +35,10 @@ def triangulate_poly_vtk(vertices):
     for i in range(len(vertices)):
         idList.InsertNextId(i)
 
-    result = vtkContourTriangulator.TriangulatePolygon(idList, vtkPts,cellArray)
+    result = vtkContourTriangulator.TriangulatePolygon(idList, vtkPts, cellArray)
 
     if result != 1:
         raise ValueError("Triangulation failed")
-
 
     # extract the vertices from cellArray
     cellArray.InitTraversal()
@@ -61,9 +59,19 @@ def triangulate_poly_vtk(vertices):
     return out_points, out_faces
 
 
-if __name__ == '__main__':
-    verts = [(0, 0, 0), (0, 0.1, 0), (0, 0.1, 0), (0, 1, 0), (0, 1, 0), (0, -1, 0), (0, -1, 0), (0, -0.1, 0), (0, -0.1, 0),
-     (0, 0, 0)]
+if __name__ == "__main__":
+    verts = [
+        (0, 0, 0),
+        (0, 0.1, 0),
+        (0, 0.1, 0),
+        (0, 1, 0),
+        (0, 1, 0),
+        (0, -1, 0),
+        (0, -1, 0),
+        (0, -0.1, 0),
+        (0, -0.1, 0),
+        (0, 0, 0),
+    ]
 
     verts, faces = triangulate_poly(verts)
 
@@ -74,6 +82,6 @@ if __name__ == '__main__':
         t = [verts[i] for i in tri]
         t.append(t[0])
 
-        plt.plot([p[0] for p in t], [p[1] for p in t], 'r-')
+        plt.plot([p[0] for p in t], [p[1] for p in t], "r-")
 
     plt.show()

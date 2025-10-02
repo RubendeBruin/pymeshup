@@ -54,3 +54,9 @@ MANIFEST
 .python-version
 uv.lock
 .vscode
+/node_modules
+/offscreen.png
+.env
+.envrc
+.direnv
+.nix-ld-compat/libcom_err.so.2

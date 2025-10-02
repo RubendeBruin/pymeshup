@@ -1,11 +1,9 @@
 import cadquery as cq
 import os
-from typing import Union, Optional
 from pymeshup.volumes import Volume, Load, Plot
 
 
 class STEP:
-
     def __init__(self, filename: str, scale: float = 1.0):
         """
         Initialize STEP file loader with optional scaling.
@@ -43,8 +41,9 @@ class STEP:
 
         return workplane
 
-
-    def to_volume(self, angular_tolerance: float = 5, linear_tolerance: float = 1) -> Volume:
+    def to_volume(
+        self, angular_tolerance: float = 5, linear_tolerance: float = 1
+    ) -> Volume:
         """
         Convert the loaded STEP file to a Volume object.
 
@@ -60,7 +59,7 @@ class STEP:
 
         # Create temporary file if needed
 
-        temp_file = tempfile.NamedTemporaryFile(suffix='.stl', delete=False)
+        temp_file = tempfile.NamedTemporaryFile(suffix=".stl", delete=False)
         temp_filename = temp_file.name
         temp_file.close()
 
@@ -69,7 +68,7 @@ class STEP:
             self._workplane,
             temp_filename,
             tolerance=linear_tolerance,
-            angularTolerance=angular_tolerance
+            angularTolerance=angular_tolerance,
         )
 
         # Load the STL using pymeshup
@@ -85,7 +84,7 @@ class STEP:
 if __name__ == "__main__":
     filename = r"C:\data\gpsh0055rov.stp"
 
-    stp = STEP(filename, scale = 0.001)
+    stp = STEP(filename, scale=0.001)
     volume = stp.to_volume()
 
     Plot(volume)
