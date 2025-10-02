@@ -43,11 +43,12 @@ def GHS_to_DAVE_conversion_dialog():
 
         dialog.ui.tbOutput.setPlainText("\n".join(output))
 
-
     def browse():
         from PySide6.QtWidgets import QFileDialog
 
-        filename, _ = QFileDialog.getOpenFileName(dialog, "Select GHS file", "", "GHS files (*.gf; *.gf1);;All files (*)")
+        filename, _ = QFileDialog.getOpenFileName(
+            dialog, "Select GHS file", "", "GHS files (*.gf; *.gf1);;All files (*)"
+        )
         if filename:
             dialog.ui.tbFilename.setText(filename)
 

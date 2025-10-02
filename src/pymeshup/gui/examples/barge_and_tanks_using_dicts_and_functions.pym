@@ -1,4 +1,4 @@
-# Example of a barge with tanks using a dicationary and aid functions 
+# Example of a barge with tanks using a dicationary and aid functions
 
 # dimensions are in meters
 width = 24
@@ -8,7 +8,7 @@ height = 5.5
 height_frt = 1.5
 height_aft = 1.5
 
-number_of_frames = 55 
+number_of_frames = 55
 
 R_curve1 = 1.5 # radius of the curve at the corners (vertical)
 R_curve2 = 0.5 # radius of the curve along the sides (horizontal)
@@ -19,7 +19,7 @@ tank_height = 3.5 # height of the tanks
 tank_space_side = 0.1 # space between the tanks and the side of the barge
 tank_space_bottom = 0.1 # space between the tanks and the bottom of the barge
 
-tank_width = (width - 4 * tank_space_side) / 3   
+tank_width = (width - 4 * tank_space_side) / 3
 
 show_cuts = False # set to True to show the cutouts for the corners
 
@@ -28,7 +28,7 @@ fr = length / number_of_frames # frame
 half_width = width / 2
 
 
-# Make the frames 
+# Make the frames
 stern = Frame(0, height_aft,
               half_width, height_aft,
               half_width, height).autocomplete()
@@ -82,8 +82,8 @@ def create_corner_cutout(r, height, axis='z', rotate=0, move=None):
 
     if rotate:
         cut = cut.rotate(z=rotate)
-    
-    if axis == 'y': 
+
+    if axis == 'y':
        cut = cut.rotate(x=90)
     elif axis == 'x':
        cut = cut.rotate(y=-90)
@@ -120,7 +120,7 @@ def remove_corner_roundings(barge, R_curve1, R_curve2, width, height, length, re
 
     for cut in all_cuts:
         barge = barge.remove(cut)
-    
+
     if return_cuts:
         # return barge, cutx, cuty, cutz
         return barge, cutx, cuty, cutz
@@ -158,4 +158,3 @@ skegSB = skeg.move(y=-0.35 * width)
 Muskox = Muskox.add(skegPS).add(skegSB)
 
 del skeg, skegPS, skegSB
-

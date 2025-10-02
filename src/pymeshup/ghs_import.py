@@ -236,7 +236,6 @@ class GHSgeo:
     def __getitem__(self, name) -> Volume:
         return self.get_volume(name.upper())
 
-
     def get_volume(self, name) -> Volume:
         """Returns the volume of the part with the given name"""
         if name not in self.parts:
@@ -246,7 +245,6 @@ class GHSgeo:
             raise ValueError(f"Part {name} has no volume")
 
         return self.parts[name]["volume"]
-
 
     def read(self):
         with open(self.filename, "r") as f:
@@ -312,7 +310,6 @@ class GHSgeo:
                     side_factor = component["side_factor"]
 
                     if side_factor == 0:
-
                         # If the side-factor is 0 then only half the shape was defined.
                         # It is possible that this was already taken into account in the shape definition
                         # using the "autocompleted" function. In that case shapes_outside contains
@@ -326,7 +323,7 @@ class GHSgeo:
                         # are on the same side (product > 0) then the shape was defined as a single side shape
                         # and its mirror shall be added.
 
-                        shape: Volume = self.shapes_outside[shape_name] # default
+                        shape: Volume = self.shapes_outside[shape_name]  # default
                         print(
                             "   Side factor = {} using autocompleted volume".format(
                                 side_factor
@@ -335,17 +332,18 @@ class GHSgeo:
 
                         if shape_name in self.shapes_raw:
                             as_defined_shape = self.shapes_raw[shape_name]
-                            if as_defined_shape.bounds[2] * as_defined_shape.bounds[3] > 0:
+                            if (
+                                as_defined_shape.bounds[2] * as_defined_shape.bounds[3]
+                                > 0
+                            ):
                                 # the shape was defined as a single side shape
                                 print(
                                     "   REDEFINING; Using raw volume and adding mirror copy"
+                                )
 
-                                    )
-
-                                shape = as_defined_shape.add(as_defined_shape.mirrorXZ())
-
-
-
+                                shape = as_defined_shape.add(
+                                    as_defined_shape.mirrorXZ()
+                                )
 
                     else:
                         print(
@@ -549,8 +547,6 @@ class GHSgeo:
         name = lines.pop(0).strip()
         n = int(lines.pop(0))
 
-        vertices = []
-
         hull_data = []  # autocompleted
         hull_data_raw = []  # raw data
         radius = -1
@@ -583,7 +579,7 @@ class GHSgeo:
                 z = float(parts[1])
 
                 if len(parts) >= 3:
-                    surface_code = int(parts[2])
+                    _surface_code = int(parts[2])
                 if len(parts) >= 4:
                     if parts[3] == "0.\n":
                         radius = 0
@@ -592,7 +588,7 @@ class GHSgeo:
                 else:
                     radius = -1
                 if len(parts) >= 5:
-                    line_code = parts[4]
+                    _line_code = parts[4]
 
                 if radius > 0 and radius == previous_radius:
                     # create arc
@@ -619,7 +615,7 @@ class GHSgeo:
                 as_points.append(z * 0.3048)
 
                 if y == 0:
-                    y_at_zero = True
+                    _y_at_zero = True
 
             print(f"Number of coordinates = {len(as_points)}")
 
@@ -814,7 +810,7 @@ class GHSgeo:
 
         part_type = int(lines.pop(0).strip())
         """
-        
+
             1 - Displacement part (e.g. HULL including appendages)
             4 - Containment part  (e.g. a tank or compartment)
            10 - Sail (windage) part (e.g. non-watertight superstructure)

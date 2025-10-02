@@ -10,11 +10,12 @@ Function:
 
 Usage:
     Run this script directly to generate the shortcut on the user's desktop.
-    
+
     python.exe make_desktop_launcher.py
 """
 
 from pathlib import Path
+
 
 def create_url_shortcut():
     # Determine paths
@@ -34,6 +35,7 @@ IconIndex=0
     # Write to the desktop
     shortcut_path.write_text(content)
     print(f"Shortcut created at: {shortcut_path}")
+
 
 if __name__ == "__main__":
     create_url_shortcut()

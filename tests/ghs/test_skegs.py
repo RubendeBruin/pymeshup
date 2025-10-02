@@ -1,13 +1,11 @@
-from datetime import datetime
-
-from pymeshup import *
+from pymeshup import Volume, GHSgeo
 
 """test two skegs
 
-This file 
+This file
 
 - defines a single SHAPE with the name s2, this shape is off-center
-- it then defines a 
+- it then defines a
 
 
 TWOSKEGS
@@ -46,25 +44,23 @@ SKEG1.C
 
 """
 
-def test_skegs(assets_dir):
 
-    filename_gf1 =assets_dir / "skegs_only.GF"
-    a = GHSgeo(filename_gf1) # , circular_segments_step=1)
+def test_skegs(assets_dir):
+    filename_gf1 = assets_dir / "skegs_only.GF"
+    a = GHSgeo(filename_gf1)  # , circular_segments_step=1)
 
     # single shape s2
-    shape : Volume = a.shapes_raw['s2']
+    shape: Volume = a.shapes_raw["s2"]
 
     print(shape.center)
     print(shape.bounds)
 
     # component
-    cmp = a.components['SKEG1.C']
+    _cmp = a.components["SKEG1.C"]
     # The
 
-    skeg_volume = a.parts['HULL']['volume']
+    skeg_volume = a.parts["HULL"]["volume"]
 
     # Skeg is defined outside the centerline (clearly on one side)
     assert abs(skeg_volume.center[1]) < 0.1, "Skegs is not centered on the centerline"
     assert skeg_volume.volume > 1, "Skeg volume is too small"
-
-

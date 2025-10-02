@@ -5,13 +5,14 @@ import math
 import pathlib
 import json  # Add import for JSON
 
-import pygments
-import vtkmodules.vtkRenderingOpenGL2   # Needed to initialize VTK !
+from pygments import styles
+
+from pymeshup import Load, Frame, Volume, GHSgeo, Hull, Cylinder, Box
 
 from io import StringIO
 from contextlib import redirect_stdout
 
-from PySide6.QtGui import QBrush, QColor, QFont, QFontMetricsF, QAction, QIcon
+from PySide6.QtGui import QBrush, QColor, QAction, QIcon
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -19,7 +20,8 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QMessageBox,
     QFileDialog,
-    QMenu, QComboBox,
+    QMenu,
+    QComboBox,
 )
 from PySide6.QtCore import Qt, QSettings
 
@@ -27,8 +29,9 @@ import numpy as np
 from vedo import camera_to_dict, camera_from_dict
 from vtkmodules.vtkFiltersSources import vtkLineSource
 
-from pymeshup import *
 from pymeshup.gui.forms.main_form import Ui_MainWindow
+
+from pymeshup.helpers.darkmode import is_dark_mode
 
 
 from vtkmodules.vtkCommonCore import vtkPoints
@@ -40,29 +43,27 @@ from vtkmodules.vtkRenderingCore import vtkActor, vtkPolyDataMapper, vtkRenderer
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
 
-from matplotlib.backends.backend_qtagg import (
-    FigureCanvas,
-    NavigationToolbar2QT as NavigationToolbar,
-)
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
-from matplotlib import cm
+from matplotlib import colormaps as cm
 
-from pymeshup.gui.helpers.vtkBlenderLikeInteractionStyle import BlenderStyle
+from pymeshup.gui.helpers.vtkBlenderLikeInteractionStyle import (
+    BlenderStyle as _BlenderStyle,
+)
 
 from pymeshup.syntaxedit.core import SyntaxEdit
 
-# Detect Windows dark/light mode and set code editor theme accordingly
-import ctypes
 
-def is_windows_dark_mode():
-    try:
-        import winreg
-        registry = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)
-        key = winreg.OpenKey(registry, r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")
-        value, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
-        return value == 0
-    except Exception:
-        return False
+class BlenderStyle(_BlenderStyle):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.callbackSelect = None
+
+    def select(self, actors):
+        if self.callbackSelect:
+            self.callbackSelect(actors)
+
 
 HELP = """
 <html><body><b>PyMeshUp</b>
@@ -73,7 +74,7 @@ PyMeshUp is a simple script-based application to generate meshes.<br><br>
 
 
 Or load them from a <b>mesh file</b> (eg stl, obj)
-- Load('filename') 
+- Load('filename')
 
 Or load from a <b>GHS geometry file</b>
 - g = GHSgeo(filename)
@@ -159,7 +160,7 @@ h = h.remove(c)  # cut cylinder from hull
 hg = h.regrid()
 """
 
-COLORMAP = cm.tab20
+COLORMAP = cm.get_cmap("tab20")
 
 
 def CreateVTKActor(vertices, faces):
@@ -216,7 +217,8 @@ def CreateVTKLineActor(start, end, color=(0, 0, 0)):
 
 class Gui:
     def __init__(self):
-        # private variables
+        self._actors = []
+        self._actor_names = {}
 
         self._digitizer_dialog = None  # Digitizer dialog instance
         self._first_run = True  # Flag to check if this is the first run
@@ -238,8 +240,6 @@ class Gui:
         }
         self._global_scope = self._global_scope_base.copy()
 
-
-
         # Main Window
 
         self.MainWindow = QMainWindow()
@@ -249,8 +249,6 @@ class Gui:
         self.ui.teHelp.setHtml(HELP.replace("\n", "<br>"))
 
         # ---- Volumes
-
-        self._actors = []
 
         self.vtkWidget = QVTKRenderWindowInteractor()
         layout = QVBoxLayout()
@@ -264,25 +262,29 @@ class Gui:
         self.renderer.SetBackground((254, 254, 254))
         self.create3Dorigin()
 
-        self.ui.teCode = SyntaxEdit(example_code, syntax="Python", use_smart_indentation=True, use_theme_background=True)
+        self.teCode = SyntaxEdit(
+            example_code,
+            syntax="Python",
+            use_smart_indentation=True,
+            use_theme_background=True,
+        )
 
         # check if windows is set to dark or light mode
         # if dark then use solarized-dark, if light then use pastie
-        # self.ui.teCode.setTheme("solarized-dark")
+        # self.teCode.setTheme("solarized-dark")
 
-        if is_windows_dark_mode():
-            self.ui.teCode.setTheme("solarized-dark")
+        if is_dark_mode():
+            self.teCode.setTheme("solarized-dark")
         else:
-            self.ui.teCode.setTheme("pastie")
+            self.teCode.setTheme("pastie")
 
-
-        self.ui.verticalLayout_3.addWidget(self.ui.teCode)
+        self.ui.verticalLayout_3.addWidget(self.teCode)
 
         # add a dropdown button with editor style
         self.styles = QComboBox()
         self.styles.setEditable(False)
-        self.styles.addItems(pygments.styles.get_all_styles())
-        self.styles.setCurrentText(self.ui.teCode.theme())
+        self.styles.addItems(list(styles.get_all_styles()))
+        self.styles.setCurrentText(self.teCode.theme())
         self.styles.currentIndexChanged.connect(self.style_changed)
         self.ui.verticalLayout_3.addWidget(self.styles)
 
@@ -314,11 +316,9 @@ class Gui:
 
         self.ui.splitter.setStretchFactor(1, 60)
 
-
-
         # Add context menu to teCode
-        self.ui.teCode.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.ui.teCode.customContextMenuRequested.connect(self.show_code_context_menu)
+        self.teCode.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.teCode.customContextMenuRequested.connect(self.show_code_context_menu)
 
         # --- Save , open
 
@@ -326,14 +326,19 @@ class Gui:
 
         self.ui.actionReopen.triggered.connect(self.reopen_last_file)
 
-
         self.ui.actionSave.triggered.connect(self.fileSave)
         self.ui.actionSave_as.triggered.connect(self.fileSaveAs)
         self.ui.actionSet_work_folder.triggered.connect(self.openFolder)
-        self.ui.actionOpen_work_folder_in_explorer.triggered.connect(self.openWorkFolder)
+        self.ui.actionOpen_work_folder_in_explorer.triggered.connect(
+            self.openWorkFolder
+        )
 
-        self.ui.actionLoad_Capytaine_settings.triggered.connect(self.load_capytaine_settings)
-        self.ui.actionSave_Capytaine_settings.triggered.connect(self.save_capytaine_settings)
+        self.ui.actionLoad_Capytaine_settings.triggered.connect(
+            self.load_capytaine_settings
+        )
+        self.ui.actionSave_Capytaine_settings.triggered.connect(
+            self.save_capytaine_settings
+        )
 
         self.settings = QSettings("pymeshup", "gui")
 
@@ -341,8 +346,10 @@ class Gui:
         if self.filename:
             try:
                 self.open(self.filename)
-            except:
+            except FileNotFoundError:
                 self.filename = None
+            except Exception as E:
+                print(f"Error reopening last file {self.filename}: {E}")
 
         if self.filename is None:
             curdir = self.settings.value("last_workdir")
@@ -392,10 +399,11 @@ class Gui:
         self.update_heading()
 
     def style_changed(self):
-        self.ui.teCode.setTheme(self.styles.currentText())
+        self.teCode.setTheme(self.styles.currentText())
 
     def open_examples(self):
-        import os, sys
+        import os
+        import sys
 
         if getattr(sys, "frozen", False):
             application_path = os.path.dirname(sys.executable)
@@ -448,10 +456,14 @@ class Gui:
 
         if symmetry_m and not symmetry_h:
             msg_box = QMessageBox()
-            msg_box.setText("Symmetry in grid but not in headings, are you sure? Continue?")
+            msg_box.setText(
+                "Symmetry in grid but not in headings, are you sure? Continue?"
+            )
             msg_box.setWindowTitle("Confirmation")
-            msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-            if msg_box.exec() == QMessageBox.No:
+            msg_box.setStandardButtons(
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+            )
+            if msg_box.exec() == QMessageBox.StandardButton.No:
                 return
 
         if self.ui.cbInf.isChecked():
@@ -470,31 +482,31 @@ class Gui:
             heading_symmetry=symmetry_h,
             show_only=dryrun,
             lid=do_lid,
-            outfile=self.ui.teOutputFile.text()
+            outfile=self.ui.teOutputFile.text(),
         )
 
     def run(self):
-        code = self.ui.teCode.toPlainText()
+        code = self.teCode.toPlainText()
         self.ui.teFeedback.clear()
         self.ui.teFeedback.append("Running...")
         self.ui.teFeedback.update()
 
         local_scope = {}
-    
+
         # ── First pass: only if function definitions exist ──
         try:
             parsed_ast = ast.parse(code)
-            has_functions = any(isinstance(node, ast.FunctionDef) for node in parsed_ast.body)
+            has_functions = any(
+                isinstance(node, ast.FunctionDef) for node in parsed_ast.body
+            )
         except SyntaxError as E:
-
             output = []
             output.append(f"Error {E.msg} in {E.text}")
             output.append(f"Error on line {E.lineno} to {E.end_lineno}")
             output.append(f"Error from {E.offset} to {E.end_offset}")
 
-            self.ui.teFeedback.setPlainText('\n'.join(output))
+            self.ui.teFeedback.setPlainText("\n".join(output))
             return
-
 
         if has_functions:
             # register user functions in the global scope
@@ -504,11 +516,13 @@ class Gui:
             except Exception:
                 pass  # Only extracting function definitions
 
-            self._user_functions.update({
-                name: obj
-                for name, obj in local_def_scope.items()
-                if callable(obj) and obj.__class__.__name__ == "function"
-            })
+            self._user_functions.update(
+                {
+                    name: obj
+                    for name, obj in local_def_scope.items()
+                    if callable(obj) and obj.__class__.__name__ == "function"
+                }
+            )
 
         # ── Second pass: rebuild global scope with base + user functions ──
         self._global_scope = self._global_scope_base.copy()
@@ -588,7 +602,6 @@ class Gui:
         self.update_frames_listbox()
         self.plot_frames()
 
-
     def setErrorPos(self, line, offset):
         pass
 
@@ -598,7 +611,7 @@ class Gui:
         self.ui.listFrames.blockSignals(True)
         self.ui.listFrames.clear()
 
-        self.ui.listFrames.addItems(self.frames.keys())
+        self.ui.listFrames.addItems(list(map(str, self.frames.keys())))
         self.ui.listFrames.blockSignals(False)
 
     def select_frame(self):
@@ -655,7 +668,9 @@ class Gui:
                 item.setCheckState(Qt.CheckState.Checked)
 
             rgb = COLORMAP(icol % 20)
-            brush = QBrush(QColor.fromRgb(254 * rgb[0], 254 * rgb[1], 254 * rgb[2]))
+            brush = QBrush(
+                QColor.fromRgb(int(254 * rgb[0]), int(254 * rgb[1]), int(254 * rgb[2]))
+            )
             item.setBackground(brush)
             self.ui.listVolumes.addItem(item)
             icol += 1
@@ -683,47 +698,52 @@ class Gui:
         # try to capture the current state of the renderer,
         # so that we can restore it later
 
+        # --- main.py (in Gui.update_3dplotter) ---
+
+        # Try to capture camera before clearing (jouw bestaande code)
         camera_dict = None
         try:
             if not self._first_run:
                 camera_dict = camera_to_dict(self.renderer.active_camera)
-        except:
+        except Exception:
             pass
-
-
-
 
         self.renderer.RemoveAllViewProps()
         self._actors.clear()
+        self._actor_names.clear()  # keep mapping in sync with scene  # <-- add this
         self.create3Dorigin()
 
         icol = 0
-
         for key, m in self.volumes.items():
             vertices = m.ms.current_mesh().vertex_matrix()
             faces = m.ms.current_mesh().face_matrix()
             actor = CreateVTKActor(vertices, faces)
-            actor.name = key
+
+            # Store Python-side mapping instead of VTK information keys
+            self._actor_names[actor] = str(key)
+
             self._actors.append(actor)
             self.renderer.AddActor(actor)
             actor.SetVisibility(False)
-            actor.GetProperty().SetColor(COLORMAP(icol % 20)[:3])
+            actor.GetProperty().SetColor(list(COLORMAP(icol % 20)[:3]))
             m.actor = actor
             icol += 1
 
         self.renderer.Render()
         try:
-            self.renderer.ResetCamera() # zoom all
-        except:
+            self.renderer.ResetCamera()
+        except Exception:
             pass
 
         if camera_dict:
-            camera_from_dict(modify_inplace = self.renderer.active_camera, camera=camera_dict)
-
-        self._first_run = False
+            camera_from_dict(
+                modify_inplace=self.renderer.active_camera, camera=camera_dict
+            )
 
     def select_3d_actor(self, actors):
-        name = getattr(actors[0], "name")
+        # Use Python-side mapping to retrieve the name
+        actor = actors[0]
+        name = self._actor_names.get(actor, "unknown")  # robust lookup
         self.ui.teFeedback.append(f"Clicked on {name}")
 
     # === file operations
@@ -736,9 +756,8 @@ class Gui:
 
         self.vtkWidget.GetRenderWindow().Finalize()
 
-
     def isModified(self):
-        return self.ui.teCode.document().isModified()
+        return self.teCode.document().isModified()
 
         ### ask to save
 
@@ -751,10 +770,12 @@ class Gui:
             "Message",
             "<h4><p>The script was modified.</p>\n"
             "<p>Do you want to save changes?</p></h4>",
-            QMessageBox.Yes | QMessageBox.Discard | QMessageBox.Cancel,
+            QMessageBox.StandardButton.Yes
+            | QMessageBox.StandardButton.Discard
+            | QMessageBox.StandardButton.Cancel,
         )
 
-        if ret == QMessageBox.Yes:
+        if ret == QMessageBox.StandardButton.Yes:
             if self.filename == "":
                 self.fileSaveAs()
                 return False
@@ -762,7 +783,7 @@ class Gui:
                 self.fileSave()
                 return True
 
-        if ret == QMessageBox.Cancel:
+        if ret == QMessageBox.StandardButton.Cancel:
             return False
 
         return True
@@ -770,9 +791,9 @@ class Gui:
     def fileSave(self):
         if self.filename is not None:
             with open(self.filename, "w") as file:
-                file.write(self.ui.teCode.toPlainText())
+                file.write(self.teCode.toPlainText())
 
-            self.ui.teCode.document().setModified(False)
+            self.teCode.document().setModified(False)
             self.MainWindow.setWindowTitle(self.filename + "[*]")
 
             self.settings.setValue("lastfile", self.filename)
@@ -784,7 +805,7 @@ class Gui:
 
     def fileSaveAs(self):
         fn, _ = QFileDialog.getSaveFileName(
-            self.MainWindow, "Save as...", self.filename, "PyMeshUp files (*.pym)"
+            self.MainWindow, "Save as...", self.filename or "", "PyMeshUp files (*.pym)"
         )
 
         if not fn:
@@ -827,7 +848,7 @@ class Gui:
 
     def open(self, path):
         with open(path, "r") as f:
-            self.ui.teCode.setPlainText(f.read())
+            self.teCode.setPlainText(f.read())
             self.settings.setValue("lastfile", path)
 
             self.filename = path
@@ -840,9 +861,7 @@ class Gui:
             self.open(self.filename)
         else:
             QMessageBox.information(
-                self.MainWindow,
-                "No file",
-                "No previous file found to reopen."
+                self.MainWindow, "No file", "No previous file found to reopen."
             )
 
     def setWorkPath(self, path):
@@ -852,20 +871,38 @@ class Gui:
         self.ui.label_3.setText(f"Workfolder = {self.curdir}")
         self.settings.setValue("last_workdir", path)
 
-    def openWorkFolder(self):
-        if self.curdir is not None:
-            os.startfile(self.curdir)
-        else:
+    def openWorkFolder(self) -> None:
+        """Open the current work directory in the system file explorer (cross-platform via Qt)."""
+        from PySide6.QtGui import QDesktopServices
+        from PySide6.QtCore import QUrl
+        from PySide6.QtWidgets import QMessageBox
+
+        if not self.curdir:
             QMessageBox.warning(
                 self.MainWindow,
                 "Warning",
                 "No work folder set. Please set a work folder first.",
             )
-    
+            return
+
+        # Use Qt's cross-platform opener
+        ok = QDesktopServices.openUrl(QUrl.fromLocalFile(str(self.curdir)))
+
+        # If the desktop cannot open the URL (rare on minimal setups), warn the user
+        if not ok:
+            QMessageBox.warning(
+                self.MainWindow,
+                "Warning",
+                "Could not open the work folder with the system file manager.",
+            )
+
     def load_capytaine_settings(self):
         """Load Capytaine settings from a JSON file."""
         path, _ = QFileDialog.getOpenFileName(
-            self.MainWindow, "Load Capytaine Settings", "", "JSON Files (*.json);;All Files (*)"
+            self.MainWindow,
+            "Load Capytaine Settings",
+            "",
+            "JSON Files (*.json);;All Files (*)",
         )
         if not path:
             return
@@ -879,20 +916,29 @@ class Gui:
             self.ui.teMeshFile.setText(settings.get("mesh_file", ""))
             self.ui.teOutputFile.setText(settings.get("output_file", ""))
             self.ui.cbSymmetryMesh.setChecked(settings.get("symmetry_mesh", False))
-            self.ui.cbSymmetryHeadings.setChecked(settings.get("symmetry_headings", False))
+            self.ui.cbSymmetryHeadings.setChecked(
+                settings.get("symmetry_headings", False)
+            )
             self.ui.cbInf.setChecked(settings.get("infinite_waterdepth", False))
             self.ui.teWaterdepth.setValue(settings.get("waterdepth", 100.0))
             self.ui.cbLid.setChecked(settings.get("lid", False))
             self.setWorkPath(settings.get("work_folder", self.curdir))
 
-            QMessageBox.information(self.MainWindow, "Success", "Settings loaded successfully.")
+            QMessageBox.information(
+                self.MainWindow, "Success", "Settings loaded successfully."
+            )
         except Exception as e:
-            QMessageBox.critical(self.MainWindow, "Error", f"Failed to load settings: {e}")
+            QMessageBox.critical(
+                self.MainWindow, "Error", f"Failed to load settings: {e}"
+            )
 
     def save_capytaine_settings(self):
         """Save Capytaine settings to a JSON file."""
         path, _ = QFileDialog.getSaveFileName(
-            self.MainWindow, "Save Capytaine Settings", "", "JSON Files (*.json);;All Files (*)"
+            self.MainWindow,
+            "Save Capytaine Settings",
+            "",
+            "JSON Files (*.json);;All Files (*)",
         )
         if not path:
             return
@@ -917,9 +963,13 @@ class Gui:
             with open(path, "w") as file:
                 json.dump(settings, file, indent=4)
 
-            QMessageBox.information(self.MainWindow, "Success", "Settings saved successfully.")
+            QMessageBox.information(
+                self.MainWindow, "Success", "Settings saved successfully."
+            )
         except Exception as e:
-            QMessageBox.critical(self.MainWindow, "Error", f"Failed to save settings: {e}")
+            QMessageBox.critical(
+                self.MainWindow, "Error", f"Failed to save settings: {e}"
+            )
 
     # -------- save volumes
 
@@ -942,43 +992,43 @@ class Gui:
         if self._digitizer_dialog is None:
             self._digitizer_dialog = DigitizerDialog()
 
-        dialog = self._digitizer_dialog # alias
+        dialog = self._digitizer_dialog  # alias
 
         if dialog.exec():
             points = dialog.points_data
 
             code = "\nf = Frame("
-            for x,y in points:
+            for x, y in points:
                 code += f"{x:.3f}, {y:.3f},\n    "
             code += ").autocomplete()\n"
 
             # Insert the code into the text editor at the current cursor position
-            cursor = self.ui.teCode.textCursor()
+            cursor = self.teCode.textCursor()
             cursor.insertText(code)
-            self.ui.teCode.document().setModified(True)
+            self.teCode.document().setModified(True)
 
     def show_code_context_menu(self, position):
         """Show context menu for the code editor."""
-        context_menu = QMenu(self.ui.teCode)
+        context_menu = QMenu(self.teCode)
 
         # Add a menu action for the digitizer
-        add_frame_action = QAction("Add Frame Using Digitizer", self.ui.teCode)
+        add_frame_action = QAction("Add Frame Using Digitizer", self.teCode)
         add_frame_action.triggered.connect(self.add_frame_using_digitizer)
         context_menu.addAction(add_frame_action)
 
         # Add standard editing actions
         context_menu.addSeparator()
-        if hasattr(self.ui.teCode, 'actions'):
-            for action in self.ui.teCode.actions():
-                if action.text() in ('Cut', 'Copy', 'Paste', 'Select All'):
+        if hasattr(self.teCode, "actions"):
+            for action in self.teCode.actions():
+                if action.text() in ("Cut", "Copy", "Paste", "Select All"):
                     context_menu.addAction(action)
 
         # Show the context menu at the cursor position
-        context_menu.exec(self.ui.teCode.mapToGlobal(position))
+        context_menu.exec(self.teCode.mapToGlobal(position))
+
 
 def main():
     app = QApplication(sys.argv)
-
 
     icon_path = pathlib.Path(__file__).parent.parent / "resources" / "pymeshup_logo.ico"
     app.setWindowIcon(QIcon(str(icon_path)))
@@ -986,8 +1036,10 @@ def main():
     Gui()
     sys.exit(app.exec())
 
+
 def run():
     main()
+
 
 if __name__ == "__main__":
     main()
