@@ -46,31 +46,59 @@ Adapt accordingly if you are using **conda** or plain **pip**.
 
 ---
 
-## Code formatting with Prettier and pre-commit
+## Linux runtime requirements (PyMeshLab booleans)
 
-This project uses [Prettier](https://prettier.io/) for formatting non-Python files
-(Markdown, JSON, YAML, CSS, etc.) and integrates it with [pre-commit](https://pre-commit.com/).
+Some tests use PyMeshLab boolean filters (union/intersection). These require the
+system library **GMP** to be present at runtime:
 
-### Install npm (only if not yet installed)
+- **Debian/Ubuntu**: `sudo apt install libgmp10` (or `libgmp-dev`)
+- **Fedora/RHEL**: `sudo dnf install gmp` (or `gmp-devel`)
+- **Arch/Manjaro**: `sudo pacman -S gmp`
+- **openSUSE**: `sudo zypper install gmp`
+- **NixOS**: run tests inside a shell that includes `gmp`
+  (e.g. `nix-shell -p gmp --run "pytest"`)
 
-If you don’t have `npm` on your system, follow the official instructions:
+If `gmp` is missing you’ll see plugin load errors like:
 
-- [Download & install Node.js + npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-
-Most Linux distros provide `npm` via their package manager as well
-(`apt install npm`, `dnf install npm`, etc.).
-
-### Install Prettier (first time only)
-
-Since this repository already contains a `package.json` and `package-lock.json`,
-simply run once in the root of the repo:
-
-```bash
-npm install
+```shell
+libfilter_mesh_booleans.so: (... libgmp.so.10: cannot open shared object file ...)
 ```
 
-This will install Prettier (and any other Node.js tools defined in `package.json`)
-locally in `node_modules`.
+### Headless test defaults
+
+We run tests headless by default. You can enforce this if needed:
+
+```bash
+export QT_QPA_PLATFORM=offscreen
+export MPLBACKEND=Agg
+pytest -q
+```
+
+For interactive GUI tests:
+
+```bash
+export PYMESHUP_GUI_INTERACTIVE=1
+export QT_QPA_PLATFORM=xcb
+export MPLBACKEND=QtAgg
+pytest -m interactive -q
+```
+
+### Quick self-check
+
+To verify your environment can load boolean filters:
+
+```bash
+python - <<'PY'
+import pymeshlab as ml, inspect
+ms = ml.MeshSet()
+print("pymeshlab:", getattr(ml,'__version__','?'), ml.__file__)
+print("has boolean union?:", hasattr(ms, "generate_boolean_union"))
+PY
+```
+
+If this prints `True`, your GMP/boolean setup is OK.
+
+---
 
 ### Configure pre-commit
 
@@ -91,7 +119,7 @@ This adds a Git hook so checks are automatically run before every commit.
 
 ### Run pre-commit manually (optional)
 
-To apply all checks (including Prettier) to all files once:
+To apply all checks all files once:
 
 ```bash
 pre-commit run --all-files
@@ -115,12 +143,6 @@ The project is configured with `pytest`. From your activated virtual environment
 
   ```bash
   pytest -q -m interactive
-  ```
-
-- **Run only GUI tests**:
-
-  ```bash
-  pytest -q -m gui
   ```
 
 - **Run everything including interactive tests**:
@@ -176,15 +198,13 @@ We provide a spec file: **`PyMeshupGUI.spec`**. To build the executable:
    - In linux do
 
      ```bash
-         rsync -arv .venv/lib/python3.12/site-packages/casadi \
-                 dist/PyMeshupGUI/_internal
+         rsync -arv .venv/lib/python3.12/site-packages/casadi                  dist/PyMeshupGUI/_internal
      ```
 
    - In Windows do
 
      ```powershell
-         RoboCopy.exe .venv/Lib/site-packages/casadi \
-                      dist/PyMeshupGUI/_internal
+         RoboCopy.exe .venv/Lib/site-packages/casadi                       dist/PyMeshupGUI/_internal
      ```
 
 4. **Find the output**

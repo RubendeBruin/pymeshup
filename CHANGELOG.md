@@ -6,8 +6,8 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- Integrated **pre-commit** with multiple hooks (ruff, formatting, YAML/TOML checks, etc.)
-- Added **Prettier** support for formatting Markdown, JSON, YAML, CSS, and related files
+- Integrated **pre-commit** with multiple hooks
+  (ruff, formatting, YAML/TOML checks, etc.)
 
 ### Changed
 
