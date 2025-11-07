@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def is_clockwise(polygon):
     """Determine if the polygon is ordered clockwise."""
     area = 0
@@ -20,16 +19,16 @@ def is_point_inside_triangle(p, a, b, c):
         cp2 = (b[0] - a[0]) * (p2[1] - a[1]) - (b[1] - a[1]) * (p2[0] - a[0])
         return (cp1 * cp2) >= 0
 
-    return same_side(p, c, a, b) and same_side(p, a, b, c) and same_side(p, b, c, a)
+    return (same_side(p, c, a, b) and
+            same_side(p, a, b, c) and
+            same_side(p, b, c, a))
 
 
 def triangulate_ear_clipping_2d(polygon):
     """Triangulate a 2D polygon using the ear-clipping algorithm."""
 
-    # make a copy to not modify the original
-    polygon = [
-        tuple(vertex) for vertex in polygon
-    ]  # Ensure vertices are tuples and not a copy
+     # make a copy to not modify the original
+    polygon = [tuple(vertex) for vertex in polygon]  # Ensure vertices are tuples and not a copy
 
     indices = [i for i in range(len(polygon))]
 
@@ -67,16 +66,16 @@ def triangulate_ear_clipping_2d(polygon):
             if is_ear:
                 triangles.append(triangle)
 
-                i_triangles.append((indices[prev_idx], indices[i], indices[next_idx]))
+                i_triangles.append((indices[prev_idx],
+                                    indices[i],
+                                    indices[next_idx]))
 
                 del polygon[i]
                 del indices[i]
                 ear_clipped = True
                 break  # Move to next iteration of the while loop
         if not ear_clipped:
-            raise ValueError(
-                "No ear found. Ensure the polygon is simple and non-intersecting."
-            )
+            raise ValueError("No ear found. Ensure the polygon is simple and non-intersecting.")
 
     # Add the remaining triangle
     if len(polygon) == 3:
@@ -85,8 +84,7 @@ def triangulate_ear_clipping_2d(polygon):
 
     return i_triangles
 
-
-def find_plane(vertices: np.array):
+def find_plane(vertices : np.array):
     """Find a suitable normal to the shape defined by the vertices.
 
     Args:
@@ -99,14 +97,14 @@ def find_plane(vertices: np.array):
     result = None
     best_normal_length = 0
 
-    for i in range(len(vertices) - 2):
-        v1 = vertices[i + 1] - vertices[i]
-        v2 = vertices[i + 2] - vertices[i]
+    for i in range(len(vertices)-2):
+        v1 = vertices[i+1] - vertices[i]
+        v2 = vertices[i+2] - vertices[i]
 
         normal = np.cross(v1, v2)
 
         if np.linalg.norm(normal) > 1:
-            result = normal
+            result =  normal
             break
 
         if np.linalg.norm(normal) > best_normal_length:
@@ -121,18 +119,17 @@ def find_plane(vertices: np.array):
     ux0 = np.array([1, 0, 0])
 
     # check if ux0 is parallel to normal
-    if np.linalg.norm(np.cross(normal, ux0)) < 1e-6:
+    if np.linalg.norm(np.cross(normal, ux0) ) < 1e-6:
         # use y-axis as ux
         ux0 = np.array([0, 1, 0])
 
-    ux = ux0 - np.dot(ux0, normal) * normal  # make perpendicular to normal
+    ux = ux0 - np.dot(ux0, normal) * normal # make perpendicular to normal
     ux = ux / np.linalg.norm(ux)
 
     # construct uy from ux and normal
     uy = np.cross(normal, ux)
 
     return ux, uy
-
 
 def triangulate_poly_py(vertices_in):
     """Triangulate a polygon defined by vertices. Polygons can be concave
@@ -166,16 +163,16 @@ def triangulate_poly_py(vertices_in):
     return vertices_in, i_triangles
 
 
-if __name__ == "__main__":
-    vertices = [
-        (-60, 0, 0),
-        (-60, -2.5, 0.0),
-        (-60, -2.5, 4.0),
-        (-60, 0.0, 4.0),
-        (-61, 1, 5.0),
-        (-60, 2.5, 0.0),
-        (-60, 0.0, 0.0),
-    ]
+
+if __name__ == '__main__':
+
+    vertices = [(-60, 0 , 0),
+                (-60, -2.5, 0.0),
+                (-60, -2.5, 4.0),
+                (-60, 0.0, 4.0),
+                (-61, 1, 5.0),
+                (-60, 2.5, 0.0),
+                (-60, 0.0, 0.0)]
 
     verts, faces = triangulate_poly_py(vertices)
 
@@ -184,7 +181,6 @@ if __name__ == "__main__":
 
     # Visualization (optional) in 3d
     import matplotlib.pyplot as plt
-
     plt.figure(figsize=(8, 8))
 
     # Plot the original polygon
@@ -192,21 +188,27 @@ if __name__ == "__main__":
     y = [v[1] for v in verts]
     z = [v[2] for v in verts]
 
-    ax = plt.axes(projection="3d")
-    ax.plot(x + [x[0]], y + [y[0]], z + [z[0]], "k-")
+    ax = plt.axes(projection='3d')
+    ax.plot(x + [x[0]], y + [y[0]], z + [z[0]], 'k-')
 
     # Plot the triangles
     from mpl_toolkits.mplot3d.art3d import Poly3DCollection
     from matplotlib import cm
 
-    for i, tri in enumerate(faces):
+    for i,tri in enumerate(faces):
         t = [verts[i] for i in tri]
         t.append(t[0])
-        ax.plot([p[0] for p in t], [p[1] for p in t], [p[2] for p in t], "r--")
+        ax.plot([p[0] for p in t], [p[1] for p in t], [p[2] for p in t], 'r--')
 
         # fill the 3d polygon with a color
         poly3d = [[verts[i] for i in tri]]
 
         ax.add_collection3d(Poly3DCollection(poly3d, alpha=0.5, color=cm.tab20(i)))
 
+
     plt.show()
+
+
+
+
+

@@ -20,9 +20,6 @@ class STEP:
         """
         Load a STEP file using CadQuery.
 
-        Args:
-            filename: Path to the STEP file
-
         Returns:
             CadQuery Workplane object containing the imported model
         """
@@ -42,7 +39,7 @@ class STEP:
         return workplane
 
     def to_volume(
-        self, angular_tolerance: float = 5, linear_tolerance: float = 1
+        self, angular_tolerance: float = 5, linear_tolerance: float = 1, filename: str | None = None
     ) -> Volume:
         """
         Convert the loaded STEP file to a Volume object.
@@ -50,6 +47,7 @@ class STEP:
         Args:
             angular_tolerance: Angular tolerance for mesh generation in degrees
             linear_tolerance: Linear tolerance for mesh generation
+            filename : optional filename to save the STL mesh to
 
         Returns:
             Volume object containing the mesh
@@ -58,14 +56,30 @@ class STEP:
         import tempfile
 
         # Create temporary file if needed
+        if filename is not None:
+            temp_filename = str(filename)
+        else:
+            temp_file = tempfile.NamedTemporaryFile(suffix=".stl", delete=False)
+            temp_filename = temp_file.name
+            temp_file.close()
 
-        temp_file = tempfile.NamedTemporaryFile(suffix=".stl", delete=False)
-        temp_filename = temp_file.name
-        temp_file.close()
+        # Create a deep copy of the workplane to avoid modifying the original
+        # when exporting (cq.exporters.export modifies the passed object)
+        # We need to use OCCT's BRepBuilderAPI_Copy for a true deep copy
+        from OCP.BRepBuilderAPI import BRepBuilderAPI_Copy
+
+        copied_solids = []
+        for solid in self._workplane.solids().vals():
+            # Create a true deep copy using OCCT's copy builder
+            copy_builder = BRepBuilderAPI_Copy(solid.wrapped)
+            copied_solid = cq.Shape.cast(copy_builder.Shape())
+            copied_solids.append(copied_solid)
+
+        workplane_copy = cq.Workplane("XY").newObject(copied_solids)
 
         # Export to STL with the specified tolerances
         cq.exporters.export(
-            self._workplane,
+            workplane_copy,
             temp_filename,
             tolerance=linear_tolerance,
             angularTolerance=angular_tolerance,
@@ -75,7 +89,8 @@ class STEP:
         volume = Load(temp_filename)
 
         # Clean up temporary file
-        os.unlink(temp_filename)
+        if filename is None:
+            os.unlink(temp_filename)
 
         return volume
 

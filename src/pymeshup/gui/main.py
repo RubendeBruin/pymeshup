@@ -7,7 +7,7 @@ import json  # Add import for JSON
 
 from pygments import styles
 
-from pymeshup import Load, Frame, Volume, GHSgeo, Hull, Cylinder, Box
+from pymeshup import Load, Frame, Volume, GHSgeo, Hull, Cylinder, Box, STEP
 
 from io import StringIO
 from contextlib import redirect_stdout
@@ -230,6 +230,7 @@ class Gui:
             "Frame": Frame,
             "Volume": Volume,
             "GHSgeo": GHSgeo,
+            "STEP": STEP,
             "Hull": Hull,
             "Box": Box,
             "Cylinder": Cylinder,
