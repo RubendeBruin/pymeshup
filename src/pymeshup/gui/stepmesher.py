@@ -43,7 +43,7 @@ class StepMesherGui:
 
         self.MainWindow.closeEvent = self.on_dialog_closed
 
-        self.ui.leFilename.setText(r"C:\nextcloud\Engineering\Projects\CP2516 HEBO Barges batch 2\02 workfolder\P62\Janek\STEP\HULL.step")
+        self.ui.leFilename.setText(r"Drop or enter your file here or press ...")
 
 
 
