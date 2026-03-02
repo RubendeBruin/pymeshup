@@ -187,7 +187,8 @@ class Volume:
     def to_polydata(self) -> vtkPolyData:
         """Returns a vtkPolyData object with the mesh data.
         Save to stl and then load the stl file into vtk"""
-        file = tempfile.mktemp(".stl")
+        with tempfile.NamedTemporaryFile(suffix=".stl", delete=False) as tmp:
+            file = tmp.name
         self.save(file)
 
         # Use the specific VTK submodule reader; avoid `from vtk import vtkSTLReader`
@@ -215,7 +216,8 @@ class Volume:
         decimate.Update()
 
         # save the output to stl
-        file = tempfile.mktemp(".stl")
+        with tempfile.NamedTemporaryFile(suffix=".stl", delete=False) as tmp:
+            file = tmp.name
         writer = vtkSTLWriter()
         writer.SetFileName(file)
         writer.SetInputData(decimate.GetOutput())
