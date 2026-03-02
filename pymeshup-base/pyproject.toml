@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=42", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "no-local-version"
+fallback_version = "0.0.1"
+
+[project]
+name = "pymeshup-base"
+dynamic = ["version"]
+description = "Core meshing and volume functions for pymeshup (no UI, no capytaine)"
+authors = [{ name = "Ruben de Bruin", email = "rubendebruin@gmail.com" }]
+license = "MPL-2.0"
+readme = "README.md"
+keywords = ["meshing", "volume", "geometry"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.8,<=3.13"
+dependencies = [
+    "vedo",
+    "vtk>=9.3,<9.5",
+    "numpy",
+    "matplotlib",
+    "pymeshlab",
+    "cadquery",
+]
+
+[project.optional-dependencies]
+testing = ["setuptools", "pytest"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = ["-p", "no:cov"]
+testpaths = ["tests"]
+norecursedirs = ["dist", "build", ".tox"]
