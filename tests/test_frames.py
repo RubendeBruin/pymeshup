@@ -48,7 +48,6 @@ def test_onepoint_frame():
     assert_allclose(f.xy, [(1, 2)])
 
 
-@pytest.mark.interactive
 def test_mesh_frame():
     import numpy as np
 
@@ -71,16 +70,16 @@ def test_mesh_frame():
 
     points, faces = f.to_plane_at(0)
 
-    import matplotlib.pyplot as plt
-
-    for tri in faces:
-        # get vertices
-        t = [points[i] for i in tri]
-        t.append(t[0])
-
-        plt.plot([p[1] for p in t], [p[2] for p in t], "r-")
-
-    plt.show()
+    # import matplotlib.pyplot as plt
+    #
+    # for tri in faces:
+    #     # get vertices
+    #     t = [points[i] for i in tri]
+    #     t.append(t[0])
+    #
+    #     plt.plot([p[1] for p in t], [p[2] for p in t], "r-")
+    #
+    # plt.show()
 
 
 def test_frame_to_plane4():

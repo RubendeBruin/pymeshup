@@ -1,37 +1,20 @@
 # PyMeshUp
 
-PyMeshUp aims to provide an easy way to make simple volume meshes using a script.
+PyMeshUp aims to provide an easy way to make and modify volume meshes using python.
+It does this my combining functionality from pymeshlab, vtk and cadquery. 3D visualization can be enabled by installing vedo.
 
-This is done by wrapping some of the features of pymeshlab and adding an gui.
+Example script:
+```python
 
-<img width="645" alt="image" src="https://user-images.githubusercontent.com/34062862/194708772-63d63df1-6ee7-4806-865c-52180e1e42df.png">
+```
 
-To run the gui you can simple run:
+Functionality
 
-`python -m pymeshup.GUI`
-
-_or_ activate the environment with
-
-`./.venv/Scripts/activate`
-
-and then run:
-
-`pymeshup.exe`.
-
-## Install a desktop launcher
-
-Create a desktop launcher of the package by running
-
-`python.exe make_desktop_launcher.py`
+please insert api here
 
 ## Installation as package
 
 `pip install pymeshup`
 
-## Pre-build executable
-
-https://www.open-ocean.org/pymeshup/
-
-## Building the executable using pyinstaller
-
-pyinstaller PyMeshupGUI.spec
+For 3d visualization only:
+`pip install vedo`

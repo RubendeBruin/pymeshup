@@ -11,7 +11,6 @@ def test_to_polydata():
     assert isinstance(pd, vtkPolyData)
 
 
-@pytest.mark.interactive
 def test_simplify():
     b = Cylinder(resolution=100)
     s = b.simplify()

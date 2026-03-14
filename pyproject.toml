@@ -21,27 +21,18 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
-requires-python = ">=3.8,<=3.13"
+requires-python = ">=3.11"
 dependencies = [
-    "vedo",
-    "vtk>=9.3,<9.5",
+    "vtk>=9.3",
     "numpy",
     "matplotlib",
-    "PySide6-Essentials",
     "pymeshlab",
-    "capytaine>=2.2",
-    "mafredo",
     "cadquery",
-    "netcdf4>=1.7.2",
 ]
 urls = { "Documentation" = "https://open-ocean.org/" }
 
 [project.optional-dependencies]
 testing = ["setuptools", "pytest"]
-exe = ["pyinstaller"]
-
-[project.scripts]
-pymeshup = "pymeshup.gui.main:run"
 
 [dependency-groups]
 dev = [
@@ -49,7 +40,6 @@ dev = [
     "pytest>=8.3.5",
     "pytest-cov>=5.0.0",
 ]
-
 
 [tool.hatch.metadata]
 allow-direct-references = true
@@ -60,19 +50,5 @@ include = ["src/**", "tests/**", "docs/**", "README.md", "LICENSE.txt"]
 [tool.hatch.build.targets.wheel]
 include = ["src/**", "tests/**", "docs/**", "README.md", "LICENSE.txt"]
 
-[tool.pytest.ini_options]
-addopts = ["-m", "not interactive", "-p", "no:cov"]
-markers = [
-    "interactive: mark tests as interactive (skipped by default)",
-    "gui: mark tests that launch a GUI (skipped by default)",
-]
 testpaths = ["tests"]
-norecursedirs = ["dist", "build", ".tox"]
-
-
-[tool.ruff]
-# Geldt voor zowel lint (check) als format
-exclude = ["src/pymeshup/DAVE/GHS_to_DAVE_form.py"]
-
-[tool.ruff.lint.per-file-ignores]
-"src/pymeshup/DAVE/GHS_to_DAVE_form.py" = ["ALL"]
+norecursedirs = ["dist", "build"]

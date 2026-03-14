@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 import tempfile
 
@@ -269,7 +270,14 @@ def Load(filename):
 
 
 def Plot(v: Volume | list[Volume]):
-    import vedo
+    try:
+        import vedo
+    except ModuleNotFoundError:
+        warnings.warn("vedo package not found, 3d plotting not available. Install vedo to enable plotting")
+        return
+
+
+
     from matplotlib import colormaps as cm
 
     # Use a stable colormap (Matplotlib tab20)
