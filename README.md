@@ -5,6 +5,12 @@ It combines functionality from [pymeshlab](https://github.com/cnr-isti-vclab/PyM
 [VTK](https://vtk.org/) and [CadQuery](https://cadquery.readthedocs.io/).
 Optional 3D visualization is available via [vedo](https://vedo.embl.es/).
 
+Geomtric data can be read from step files (via cadquery), stl, obj, etc (via pymeshlab) and GHS (custom python code).
+
+The package is primarily aimed at ships and other floating structures.
+
+A gui is available separately via pymeshup-gui
+
 ---
 
 ## Installation
@@ -309,6 +315,112 @@ print(raw_shape.bounds)
 | `geo.parts` | Dictionary of parsed parts, each containing a `"volume"` key. |
 | `geo.shapes_raw` | Dictionary of shapes as read from the file. |
 | `geo.warnings` | List of warning messages encountered during parsing. |
+
+---
+
+### Polygon Triangulation (`helpers`)
+
+PyMeshUp ships a polygon-triangulation sub-package used internally by `Frame` to
+cap hull ends and to handle concave cross-sections.  You can also call these
+utilities directly.
+
+#### `triangulate_poly` — automatic backend selection
+
+```python
+from pymeshup.helpers.triangulate_non_convex import triangulate_poly
+```
+
+Triangulates any simple (non-self-intersecting) 3-D polygon, including **concave**
+shapes.  It first tries the fast VTK triangulator; if that fails it falls back to
+the pure-Python ear-clipping implementation.
+
+```python
+from pymeshup.helpers.triangulate_non_convex import triangulate_poly
+
+# A rectangular cross-section at x = -60 (y-z plane)
+vertices = [
+    (-60,  0.0, 0.0),
+    (-60, -2.5, 0.0),
+    (-60, -2.5, 4.0),
+    (-60,  0.0, 4.0),
+    (-60,  2.5, 4.0),
+    (-60,  2.5, 0.0),
+    (-60,  0.0, 0.0),   # closing point (same as first)
+]
+
+verts, faces = triangulate_poly(vertices)
+# verts  → list of (x, y, z) tuples  (same as input)
+# faces  → list of (i, j, k) index triples
+print(len(faces), "triangles produced")   # 4
+```
+
+**Returns**
+
+| Value | Type | Description |
+|---|---|---|
+| `verts` | `list[tuple]` | The original vertices (pass-through). |
+| `faces` | `list[tuple[int,int,int]]` | Triangle index triples referencing `verts`. |
+
+---
+
+#### `triangulate_poly_py` — pure-Python ear-clipping
+
+```python
+from pymeshup.helpers.earcut_2d import triangulate_poly_py
+```
+
+The pure-Python fallback.  Useful when VTK is unavailable or when the polygon
+is non-planar (the function projects onto the best-fit plane first).
+
+```python
+from pymeshup.helpers.earcut_2d import triangulate_poly_py
+
+# A non-planar concave polygon (the "skeg" example from the module docstring)
+vertices = [
+    (-60,  0.0, 0.0),
+    (-60, -2.5, 0.0),
+    (-60, -2.5, 4.0),
+    (-60,  0.0, 4.0),
+    (-61,  1.0, 5.0),   # one vertex is off-plane → triggers projection
+    (-60,  2.5, 0.0),
+    (-60,  0.0, 0.0),
+]
+
+verts, faces = triangulate_poly_py(vertices)
+```
+
+---
+
+#### Low-level earcut helpers
+
+These are used internally by `triangulate_poly_py` but can be imported
+independently if needed.
+
+```python
+from pymeshup.helpers.earcut_2d import (
+    is_clockwise,
+    is_point_inside_triangle,
+    triangulate_ear_clipping_2d,
+    find_plane,
+)
+```
+
+| Function | Signature | Description |
+|---|---|---|
+| `is_clockwise` | `(polygon)` | Returns `True` when the 2-D vertex list is ordered clockwise. |
+| `is_point_inside_triangle` | `(p, a, b, c)` | Returns `True` when point `p` lies inside triangle `(a, b, c)`. |
+| `find_plane` | `(vertices)` | Given 3-D vertices, returns `(ux, uy)` — two orthonormal in-plane axes — suitable for projecting the polygon to 2-D. |
+| `triangulate_ear_clipping_2d` | `(polygon)` | Ear-clipping triangulation of a **2-D** polygon; returns a list of `(i, j, k)` index triples. |
+
+```python
+from pymeshup.helpers.earcut_2d import is_clockwise, triangulate_ear_clipping_2d
+
+square = [(0, 0), (1, 0), (1, 1), (0, 1)]
+print(is_clockwise(square))                  # False (counter-clockwise)
+
+triangles = triangulate_ear_clipping_2d(square)
+print(triangles)                              # [(0, 1, 2), (2, 3, 0)]  or similar
+```
 
 ---
 
