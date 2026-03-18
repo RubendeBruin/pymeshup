@@ -9,7 +9,7 @@ Geomtric data can be read from step files (via cadquery), stl, obj, etc (via pym
 
 The package is primarily aimed at ships and other floating structures.
 
-A gui is available separately via pymeshup-gui
+A gui and compiled version is available separately via [pymeshup-gui](https://github.com/RubendeBruin/pymeshup-gui)
 
 ---
 
