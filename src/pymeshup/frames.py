@@ -173,3 +173,36 @@ class Frame:
         vertices, faces = triangulate_poly(vertices)
 
         return vertices, faces
+    
+    @property
+    def is_ccw(self):
+        """Returns True if this frame is counter clockwise.
+
+        Uses the shoelace formula to compute the signed area.
+        Positive signed area → CCW, negative → CW.
+        """
+        pts = self.xy[:-1]  # exclude closing duplicate
+        n = len(pts)
+        if n < 3:
+            return False
+        signed_area = sum(
+            pts[i][0] * pts[(i + 1) % n][1] - pts[(i + 1) % n][0] * pts[i][1]
+            for i in range(n)
+        )
+        return signed_area > 0
+
+    def make_ccw(self):
+        # makes the frame counter clockwise
+        if self.is_ccw:
+            return
+
+        x = self.x
+        y = self.y
+
+        self.x = x[::-1]
+        self.y = y[::-1]
+
+
+
+
+

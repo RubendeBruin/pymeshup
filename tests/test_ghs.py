@@ -9,8 +9,8 @@ This file defines a single SHAPE with the name s2
 
 """
 
-if __name__ == "__main__":
-    filename_gf1 = r"C:\davelab\pymeshup\tests\assets_for_tests\skegs_only.GF"
+def test_ghs(assets_dir):
+    filename_gf1 = assets_dir / "skegs_only.GF"
     # filename = r"C:\data\Dave\Public\pymeshup\src\pymeshup\gui\examples\DEMOBARGE_SPUD.GF1"
     a = GHSgeo(filename_gf1)  # , circular_segments_step=1)
 

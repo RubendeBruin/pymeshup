@@ -226,7 +226,7 @@ class GHSgeo:
         self.components = dict()
         self.parts = dict()
 
-        # self.frames = []
+        self.frames = []  # debug store of read frames
         # self.volumes = []
 
         self.data = dict()
@@ -303,6 +303,7 @@ class GHSgeo:
                 for component_name in values["components"]:
                     component = self.components[component_name]
                     shape_name = component["shape_name"]
+                    shape = None
 
                     print("  Adding shape {} to part {}".format(shape_name, name))
 
@@ -354,6 +355,9 @@ class GHSgeo:
                         shape: Volume = self.shapes_raw[shape_name]
 
                     # part_type = component['part_type']
+
+                    if shape is None:
+                        raise ValueError(f"No volume found for shape {shape_name}")
 
                     # shift and mirror the shape if necessary
                     if component["side_factor"] < 0:
@@ -639,6 +643,8 @@ class GHSgeo:
             hull_data_raw.append(float(location) * 0.3048)
             hull_data_raw.append(f)
 
+            self.frames.append(f)
+
         data["thickness"] = [float(x) for x in lines.pop(0).split(",")]
 
         # check for property table
@@ -651,13 +657,21 @@ class GHSgeo:
                 lines.pop(0)  # skip property table
 
         if hull_data:
-            self.shapes_outside[name] = Hull(
-                *hull_data
-            )  # this is the outside of the hull
+
+            try:
+                new_hull = Hull(*hull_data) # outside of the hull
+                self.shapes_outside[name] = new_hull
+
+            except ValueError:
+                self.warnings.append(f"Can not create outside shape for {name}" )
+                self.shapes_outside[name] = None
+
+
+
             try:
                 self.shapes_raw[name] = Hull(*hull_data_raw)  # raw (not autocompleted)
             except ValueError:
-                self.warnings.append("Can not create raw shape for %s" % name)
+                self.warnings.append(f"Can not create raw shape for {name}")
                 self.shapes_raw[name] = None
         else:
             self.warnings.append("No hull data found for %s" % name)

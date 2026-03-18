@@ -137,3 +137,46 @@ def test_frame_to_plane3():
     # plt.plot([p[0] for p in points], [p[1] for p in points], 'b-')
     #
     # plt.show()
+
+
+
+def test_is_ccw_simple_ccw():
+    """A unit square defined counter-clockwise should return True."""
+    # CCW: (0,0) → (1,0) → (1,1) → (0,1)
+    f = Frame(0, 0, 1, 0, 1, 1, 0, 1)
+    assert f.is_ccw is True
+
+
+def test_is_ccw_simple_cw():
+    """A unit square defined clockwise should return False."""
+    # CW: (0,0) → (0,1) → (1,1) → (1,0)
+    f = Frame(0, 0, 0, 1, 1, 1, 1, 0)
+    assert f.is_ccw is False
+
+
+def test_is_ccw_reversed_is_opposite():
+    """Reversing the vertex order should flip the CCW flag."""
+    f_ccw = Frame(0, 0, 1, 0, 1, 1, 0, 1)
+    pts = list(reversed(f_ccw.xy[:-1]))
+    flat = [v for p in pts for v in p]
+    f_cw = Frame(*flat)
+    assert f_cw.is_ccw is not f_ccw.is_ccw
+
+
+def test_is_ccw_triangle_ccw():
+    """A CCW triangle."""
+    f = Frame(0, 0, 4, 0, 2, 3)
+    assert f.is_ccw is True
+
+
+def test_is_ccw_triangle_cw():
+    """A CW triangle."""
+    f = Frame(0, 0, 2, 3, 4, 0)
+    assert f.is_ccw is False
+
+
+def test_is_ccw_degenerate_too_few_points():
+    """A frame with fewer than 3 unique points cannot be CCW."""
+    f = Frame(1, 2)
+    assert f.is_ccw is False
+

@@ -38,6 +38,15 @@ def build_triangles(f1, f2):
     crossed1 = False
     crossed2 = False
 
+    # start on same side?
+    # if not then ignore crossing centerline for first segment
+    x1 = f1[0][0]
+    x2 = f2[0][0]
+    i_ignore_crossing = 0 if x1*x2>0 else 1
+
+
+
+
     triangles = list()
 
     segments = list()
@@ -58,8 +67,10 @@ def build_triangles(f1, f2):
             a2 = f2[i2 + 1]
 
             # are we crossing the center-line on either of them?
-            crossed1 = (a1[1] * p1[1] <= 0 and i1 > 0) or crossed1
-            crossed2 = (a2[1] * p2[1] <= 0 and i2 > 0) or crossed2
+            #
+            # we are checking the point index
+            crossed1 = (a1[1] * p1[1] <= 0 and i1 > i_ignore_crossing) or crossed1
+            crossed2 = (a2[1] * p2[1] <= 0 and i2 > i_ignore_crossing) or crossed2
 
             if crossed1 and not crossed2:
                 i2 += 1
@@ -232,13 +243,11 @@ def Hull(*args):
     v.set_vertices_and_faces(vertices, faces)
     v.ms.meshing_remove_duplicate_vertices()
 
+    # check if we can get the volume of this hull, if not then debug
     try:
         _volume = v.volume
     except ValueError:
         print("Volume not available, we do have the following mesh data")
-        #
-        # from pymeshup import Plot
-        # Plot(v)
         return v
 
     if v.volume < 0:
