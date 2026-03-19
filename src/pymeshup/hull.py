@@ -4,10 +4,18 @@ import csv
 from .frames import Frame
 from .volumes import Volume
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 def build_triangles(f1, f2):
     """
-    Builds triangles between two lists of points
+    Builds triangles between two lists of points.
+
+    There is some magic involved:
+    - the fist edge is created between the first vertices
+    -
+
 
     Args:
         f1: list of [x,y,z]
@@ -35,20 +43,7 @@ def build_triangles(f1, f2):
     o1 = 0  # previous indices
     o2 = 0
 
-    crossed1 = False
-    crossed2 = False
-
-    # start on same side?
-    # if not then ignore crossing centerline for first segment
-    x1 = f1[0][0]
-    x2 = f2[0][0]
-    i_ignore_crossing = 0 if x1*x2>0 else 1
-
-
-
-
     triangles = list()
-
     segments = list()
 
     while True:
@@ -56,62 +51,87 @@ def build_triangles(f1, f2):
         p1 = f1[i1]
         p2 = f2[i2]
 
-        if i1 == n1 - 1:
-            i2 += 1
-        elif i2 == n2 - 1:
+        # frame2 needs to catch up in the following cases
+        # 1. frame1 has reached the end
+        # 2. frame1 have just crosses the y=0 line and frame1 is still on the other side
+
+        catchup1 = False
+        catchup2 = False
+
+        frame1_crossed = i1>1 and p1[1] * f1[i1-1][1] < 0
+        frame2_crossed = i2>1 and p2[1] * f2[i2-1][1] < 0
+        on_same_side = p1[1] * p2[1] >= 0
+
+        frame1_reached_end = i1 == n1 - 1
+        frame2_reached_end = i2 == n2 - 1
+
+        if frame1_reached_end:
+            catchup2 = True
+        elif frame1_crossed and not on_same_side:
+            catchup2 = True
+
+        if frame2_reached_end:
+            catchup1 = True
+        elif frame2_crossed and not on_same_side:
+            catchup1 = True
+
+        # can not catch-up if we have reached the end
+        if frame1_reached_end:
+            catchup1 = False
+        if frame2_reached_end:
+            catchup2 = False
+
+
+        if catchup1 or catchup2:
+            logger.debug(f"i1: {i1}, i2: {i1}")
+            logger.debug(f"same side {on_same_side}")
+            logger.debug(f"reached end : {frame1_reached_end}, {frame2_reached_end}")
+            logger.debug(f"crossed : {frame1_crossed}, {frame2_crossed}")
+            logger.debug(f"catchup : {catchup1}, catchup2 : {catchup2}")
+
+        if catchup1:
             i1 += 1
-            # finish the halfs simultaneously
+        elif catchup2:
+            i2 += 1
         else:
+
             # possible next points on 1 and 2
             a1 = f1[i1 + 1]  # advance
             a2 = f2[i2 + 1]
 
-            # are we crossing the center-line on either of them?
+            # # if one of the lines has only three vertices, and both frames are still at index 0,
+            # # the advance on the one with the most vertices
             #
-            # we are checking the point index
-            crossed1 = (a1[1] * p1[1] <= 0 and i1 > i_ignore_crossing) or crossed1
-            crossed2 = (a2[1] * p2[1] <= 0 and i2 > i_ignore_crossing) or crossed2
+            # if i1 == 0 and i2 == 0 and (n1 == 3 or n2 == 3):
+            #     if n1 > n2:
+            #         i1 += 1
+            #     else:
+            #         i2 += 1
 
-            if crossed1 and not crossed2:
-                i2 += 1
-            elif crossed2 and not crossed1:
-                i1 += 1
-            else:
-                # if one of the lines has only three vertices, and both frames are still at index 0,
-                # the advance on the one with the most vertices
+            # else:
+            # should we advance on 1 or on 2?
+            #
+            # advance in frame 1 --> a1, p2
+            # advance on frame 2 --> p1, a2
+            # select the new line based on the shortest distance
 
-                if i1 == 0 and i2 == 0 and (n1 == 3 or n2 == 3):
-                    if n1 > n2:
-                        i1 += 1
-                    else:
-                        i2 += 1
+            l1 = np.linalg.norm(np.array(a1) - p2)  # advance on 1, stay on 2
+            l2 = np.linalg.norm(
+                np.array(a2) - p1
+            )  # keep point on 1, advance on 2
 
+            if l1 == l2:
+                # print('equal')
+                # advance the one with the lowest relative index
+                if i1 / n1 < i2 / n2:
+                    i1 += 1
                 else:
-                    # should we advance on 1 or on 2?
-                    #
-                    # advance in frame 1 --> a1, p2
-                    # advance on frame 2 --> p1, a2
-                    # select the new line based on the shortest distance
+                    i2 += 1
 
-                    l1 = np.linalg.norm(np.array(a1) - p2)  # advance on 1, stay on 2
-                    l2 = np.linalg.norm(
-                        np.array(a2) - p1
-                    )  # keep point on 1, advance on 2
-
-                    if l1 == l2:
-                        # print('equal')
-                        # advance the one with the lowest relative index
-                        if i1 / n1 < i2 / n2:
-                            i1 += 1
-                        else:
-                            i2 += 1
-
-                    elif l1 > l2:
-                        i2 += 1
-                    else:
-                        i1 += 1
-
-        # print('connecting {} and {}'.format(i1,i2))
+            elif l1 > l2:
+                i2 += 1
+            else:
+                i1 += 1
 
         segments.append((f1[i1], f2[i2]))
 
@@ -314,3 +334,46 @@ def hull_from_file(filename) -> Volume:
         hull_data.extend([position, frame])
 
     return Hull(*hull_data)
+
+def debug_plot_frame_connection(f1 : Frame, f2: Frame, dx=10):
+    """Uses matplotlib to plot the faces created between two frames """
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+    vertices1 = f1.as_vertices_at(0)
+    vertices2 = f2.as_vertices_at(dx)
+
+    verts, face_ids = build_triangles(vertices1, vertices2)
+
+    # --- 3D plot ---
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # Build triangle polygons for Poly3DCollection
+    tris = [[verts[i] for i in face] for face in face_ids]
+    poly = Poly3DCollection(tris, alpha=0.5, facecolor='steelblue', edgecolor='k', linewidth=0.3)
+    ax.add_collection3d(poly)
+
+    # Scatter the vertices
+    xs = [v[0] for v in verts]
+    ys = [v[1] for v in verts]
+    zs = [v[2] for v in verts]
+    ax.scatter(xs, ys, zs, color='red', s=10, zorder=5)
+
+    # Label each vertex with its index within its original frame
+    n1 = len(vertices1)
+    for idx, (x, y, z) in enumerate(verts):
+        frame_idx = idx if idx < n1 else idx - n1
+        label = f"{frame_idx}"
+        ax.text(x, y, z, label, fontsize=8, color='navy' if idx < n1 else 'darkgreen')
+
+    ax.set_xlim(min(xs), max(xs))
+    ax.set_ylim(min(ys), max(ys))
+    ax.set_zlim(min(zs), max(zs))
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.set_title('Vertices and Faces')
+
+    plt.tight_layout()
+    plt.show()

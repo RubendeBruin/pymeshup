@@ -196,7 +196,7 @@ Copyright (C) 1997-1999 Creative Systems, Inc.
 """
 
 from .frames import Frame
-from .volumes import Volume
+from .volumes import Volume, Plot
 from .hull import Hull
 from .helpers.geo_math import points_on_circle
 
@@ -658,19 +658,27 @@ class GHSgeo:
 
         if hull_data:
 
-            try:
-                new_hull = Hull(*hull_data) # outside of the hull
-                self.shapes_outside[name] = new_hull
+            new_hull = Hull(*hull_data) # outside of the hull
 
+            try:
+                _ = new_hull.volume
+                self.shapes_outside[name] = new_hull
             except ValueError:
+
+                self.debug_hull(hull_data)
                 self.warnings.append(f"Can not create outside shape for {name}" )
                 self.shapes_outside[name] = None
 
 
 
+            raw_hull = Hull(*hull_data_raw)  # raw (not autocompleted)
+
             try:
-                self.shapes_raw[name] = Hull(*hull_data_raw)  # raw (not autocompleted)
+                _ = raw_hull.volume
+                self.shapes_raw[name] = raw_hull
+
             except ValueError:
+                self.debug_hull(hull_data)
                 self.warnings.append(f"Can not create raw shape for {name}")
                 self.shapes_raw[name] = None
         else:
@@ -868,3 +876,23 @@ class GHSgeo:
             reference_point,
             n_components,
         )
+
+    def debug_hull(self, hull_data):
+
+        v = Hull(*hull_data)
+
+        from pymeshup.volumes import Plot
+
+        Plot(v)
+
+        x1 = hull_data[0]
+        fr1 = hull_data[1]
+        x2 = hull_data[2]
+        fr2 = hull_data[3]
+        x3 = hull_data[4]
+        fr3 = hull_data[5]
+
+        try:
+            v = Hull(x2,fr2,x3,fr3)
+        except:
+            print("Hull data:")

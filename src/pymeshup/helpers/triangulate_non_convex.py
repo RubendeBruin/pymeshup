@@ -12,6 +12,7 @@ def triangulate_poly(vertices):
         return triangulate_poly_py(vertices)
 
 
+
 def triangulate_poly_vtk(vertices):
     """Triangulates a polygon defined by vertices. Polygons can be concave
 

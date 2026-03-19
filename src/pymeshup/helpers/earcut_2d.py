@@ -24,11 +24,11 @@ def is_point_inside_triangle(p, a, b, c):
             same_side(p, b, c, a))
 
 
-def triangulate_ear_clipping_2d(polygon):
+def triangulate_ear_clipping_2d(polygon_in):
     """Triangulate a 2D polygon using the ear-clipping algorithm."""
 
      # make a copy to not modify the original
-    polygon = [tuple(vertex) for vertex in polygon]  # Ensure vertices are tuples and not a copy
+    polygon = [tuple(vertex) for vertex in polygon_in]  # Ensure vertices are tuples and not a copy
 
     indices = [i for i in range(len(polygon))]
 
@@ -75,7 +75,7 @@ def triangulate_ear_clipping_2d(polygon):
                 ear_clipped = True
                 break  # Move to next iteration of the while loop
         if not ear_clipped:
-            raise ValueError("No ear found. Ensure the polygon is simple and non-intersecting.")
+            raise ValueError(f"No ear found. Ensure the polygon is simple and non-intersecting; polygon input data: {polygon_in}")
 
     # Add the remaining triangle
     if len(polygon) == 3:

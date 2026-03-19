@@ -5,7 +5,7 @@ This has to do with the autocomplete function in combination with the first vert
 
 from pymeshup import Frame, Hull, Plot
 
-if __name__ == "__main__":
+def test_create():
     f4 = Frame(
         0.003,
         0.258,
@@ -70,5 +70,5 @@ if __name__ == "__main__":
         60,
         f5,
     )
-    #
-    Plot(h)
+
+    _ = h.volume
