@@ -212,10 +212,14 @@ class GHSgeo:
             Used for the "radius" definitions in the geometry file.
         """
 
+        self.debug_plot = False
+
         self.filename = filename
         self.circular_segments_step = circular_segments_step
 
         self.warnings = []
+        self.errors = []
+
         self.shapes_outside = dict()  # volumes representing the outside of the hull
         self.shapes_inside = (
             dict()
@@ -275,7 +279,10 @@ class GHSgeo:
 
             elif next.startswith("*"):
                 print("Reading Shape Record")
-                self.read_shape_record()
+                try:
+                    self.read_shape_record()
+                except Exception as e:
+                    self.errors.append("Could not process shape record: " + next + str(e))
                 continue
 
             self.warnings.append("Unrecognized line: {}".format(next))
@@ -658,29 +665,34 @@ class GHSgeo:
 
         if hull_data:
 
-            new_hull = Hull(*hull_data) # outside of the hull
-
             try:
-                _ = new_hull.volume
-                self.shapes_outside[name] = new_hull
-            except ValueError:
 
-                self.debug_hull(hull_data)
-                self.warnings.append(f"Can not create outside shape for {name}" )
-                self.shapes_outside[name] = None
+                new_hull = Hull(*hull_data) # outside of the hull
+
+                try:
+                    _ = new_hull.volume
+                    self.shapes_outside[name] = new_hull
+                except ValueError:
+                    self.debug_hull(hull_data)
+                    self.warnings.append(f"No volume created for {name}" )
+                    self.shapes_outside[name] = new_hull
 
 
 
-            raw_hull = Hull(*hull_data_raw)  # raw (not autocompleted)
+                raw_hull = Hull(*hull_data_raw)  # raw (not autocompleted)
 
-            try:
-                _ = raw_hull.volume
-                self.shapes_raw[name] = raw_hull
+                try:
+                    _ = raw_hull.volume
+                    self.shapes_raw[name] = raw_hull
 
-            except ValueError:
-                self.debug_hull(hull_data)
-                self.warnings.append(f"Can not create raw shape for {name}")
-                self.shapes_raw[name] = None
+                except ValueError:
+                    self.debug_hull(hull_data)
+                    self.warnings.append(f"Can volume created for raw shape {name}")
+                    self.shapes_raw[name] = raw_hull
+
+            except ValueError as ve:
+                self.warnings.append(f"Can volume created for {name} because {str(ve)}")
+
         else:
             self.warnings.append("No hull data found for %s" % name)
 
@@ -879,20 +891,22 @@ class GHSgeo:
 
     def debug_hull(self, hull_data):
 
-        v = Hull(*hull_data)
+        if self.debug_plot:
 
-        from pymeshup.volumes import Plot
+            v = Hull(*hull_data)
 
-        Plot(v)
+            from pymeshup.volumes import Plot
 
-        x1 = hull_data[0]
-        fr1 = hull_data[1]
-        x2 = hull_data[2]
-        fr2 = hull_data[3]
-        x3 = hull_data[4]
-        fr3 = hull_data[5]
+            Plot(v)
 
-        try:
-            v = Hull(x2,fr2,x3,fr3)
-        except:
-            print("Hull data:")
+            x1 = hull_data[0]
+            fr1 = hull_data[1]
+            x2 = hull_data[2]
+            fr2 = hull_data[3]
+            x3 = hull_data[4]
+            fr3 = hull_data[5]
+
+            try:
+                v = Hull(x2,fr2,x3,fr3)
+            except:
+                print("Hull data:")
