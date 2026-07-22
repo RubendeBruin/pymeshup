@@ -134,6 +134,20 @@ rotated = vol.rotate(x=0, y=0, z=45)          # Euler angles in degrees
 mirror  = vol.mirrorXZ()                       # mirror in the XZ plane (negate Y)
 ```
 
+For anything the helpers above do not cover, apply a 4x4 transformation matrix directly.
+The matrix acts on the vertices as column vectors, so `p' = matrix @ [x, y, z, 1]`:
+the upper-left 3x3 block holds rotation/scale/shear and the last column holds the translation.
+
+```python
+import numpy as np
+
+matrix = np.eye(4)
+matrix[:3, 3] = (1, 2, 3)                      # translation
+matrix[0, 0] = 2                               # scale x by 2
+
+transformed = vol.transform(matrix)            # any 4x4, also accepts nested lists
+```
+
 #### Cropping / cutting
 
 ```python

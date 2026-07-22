@@ -11,21 +11,19 @@ del c
 
 
 def test_grab_newly_created_volumes():
-    key_before = [v for v in locals().keys()]
+    # Run the user code in its own namespace. Do not rely on the locals() of this
+    # function: since python 3.13 (PEP 667) locals() returns a snapshot, so anything
+    # exec() defines in it would be discarded.
+    namespace = dict()
 
-    exec(code)
+    exec(code, globals(), namespace)
 
-    key_after = [v for v in locals().keys()]
-    local_vars = [v for v in locals().values()]
-    items_after = [i for i in locals().items()]
     volumes = dict()
 
-    for key, value in items_after:
-        if key not in key_before:
-            print(f"New variable found: {key}")
-
-            if isinstance(value, Volume):
-                volumes[key] = value
+    for key, value in namespace.items():
+        if isinstance(value, Volume):
+            print(f"New volume found: {key}")
+            volumes[key] = value
 
     assert "b" in volumes
     assert "e" in volumes

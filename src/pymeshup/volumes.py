@@ -6,7 +6,7 @@ import tempfile
 
 from pymeshlab import MeshSet, Mesh, PercentageValue  # pyright: ignore[reportAttributeAccessIssue]
 from math import sqrt, cos, sin, pi
-from numpy import min, max
+from numpy import min, max, asarray
 
 # VTK: import only the specific submodules you actually need.
 # Avoid `from vtk import ...` to prevent loading optional modules/DLLs (e.g. vtkFiltersCellGrid) that may not be present.
@@ -56,6 +56,22 @@ class Volume:
         v.ms.compute_matrix_from_translation_rotation_scale(
             rotationx=x, rotationy=y, rotationz=z
         )
+        return v
+
+    def transform(self, matrix):
+        """Returns a copy of the volume transformed by a 4x4 transformation matrix.
+
+        The matrix is applied to the vertices as column vectors: p' = matrix @ [x, y, z, 1]
+        """
+        matrix = asarray(matrix, dtype=float)
+
+        if matrix.shape != (4, 4):
+            raise ValueError(
+                f"Transformation matrix shall be a 4x4 matrix, but got shape {matrix.shape}"
+            )
+
+        v = Volume(self)
+        v.ms.set_matrix(transformmatrix=matrix)
         return v
 
     def add(self, other):
