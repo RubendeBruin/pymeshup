@@ -146,7 +146,14 @@ matrix[:3, 3] = (1, 2, 3)                      # translation
 matrix[0, 0] = 2                               # scale x by 2
 
 transformed = vol.transform(matrix)            # any 4x4, also accepts nested lists
+restored    = transformed.transform_inverse(matrix)   # undoes it again
 ```
+
+`transform_inverse` applies the inverse of the given matrix, so
+`vol.transform(m).transform_inverse(m)` returns the original volume.
+Useful to move a volume into a local frame, work on it there, and put it back.
+A matrix that can not be inverted (a singular one, e.g. a scale of 0 along an axis)
+raises a `ValueError`.
 
 #### Cropping / cutting
 

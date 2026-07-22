@@ -7,6 +7,7 @@ import tempfile
 from pymeshlab import MeshSet, Mesh, PercentageValue  # pyright: ignore[reportAttributeAccessIssue]
 from math import sqrt, cos, sin, pi
 from numpy import min, max, asarray
+from numpy.linalg import inv, LinAlgError
 
 # VTK: import only the specific submodules you actually need.
 # Avoid `from vtk import ...` to prevent loading optional modules/DLLs (e.g. vtkFiltersCellGrid) that may not be present.
@@ -73,6 +74,27 @@ class Volume:
         v = Volume(self)
         v.ms.set_matrix(transformmatrix=matrix)
         return v
+
+    def transform_inverse(self, matrix):
+        """Returns a copy of the volume transformed by the inverse of a 4x4 transformation matrix.
+
+        This undoes transform: a.transform(M).transform_inverse(M) equals a
+        """
+        matrix = asarray(matrix, dtype=float)
+
+        if matrix.shape != (4, 4):
+            raise ValueError(
+                f"Transformation matrix shall be a 4x4 matrix, but got shape {matrix.shape}"
+            )
+
+        try:
+            inverse = inv(matrix)
+        except LinAlgError as e:
+            raise ValueError(
+                f"Transformation matrix can not be inverted: {e}"
+            ) from e
+
+        return self.transform(inverse)
 
     def add(self, other):
         """Returns a copy with other added to the volume"""
