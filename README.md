@@ -175,6 +175,39 @@ cleaned  = vol.merge_close_vertices(pct=1)          # weld near-coincident verti
 simple   = vol.simplify()                           # decimate (reduce face count)
 ```
 
+#### Rebuilding a hull (`reframe`)
+
+`reframe` turns a messy, non-watertight or non-manifold hull mesh into a clean,
+closed, port/starboard-symmetric hull. It slices the hull into horizontal
+**waterlines**, stitches and re-lofts them, and caps the flat of bottom and the
+flat of deck. Because it builds the hull from waterlines, features such as a
+**bulbous bow** or a **stern bulb** come out as one smooth, continuous surface.
+
+```python
+from pymeshup import Load
+
+bad_hull = Load("messy_scan.stl")     # gappy / non-manifold hull shell
+clean    = bad_hull.reframe()         # watertight, symmetric, manifold
+
+print(clean.volume, clean.bounds)
+```
+
+The hull must be oriented with **X along its length** and **Z upward** (the
+waterlines are horizontal X-Y slices). Symmetry is assumed: only the `y >= 0`
+(starboard) half is sliced and the result is always mirrored back to a full hull.
+The flat of bottom is placed at the true keel (`z = zmin`) and the flat of deck at
+the true sheer (`z = zmax`). Running `reframe` on an already-clean hull returns
+essentially the same hull.
+
+**Signature:** `reframe(n_waterlines=80, points_per_waterline=140, margin=0.01, full_hull=None)`
+
+| Argument | Default | Description |
+|---|---|---|
+| `n_waterlines` | `80` | Number of horizontal slices from keel to deck (vertical resolution). |
+| `points_per_waterline` | `140` | Points each waterline is resampled to (resolution along the length). |
+| `margin` | `0.01` | Fraction of the depth held back from the extremes when slicing — a cut exactly on the flat bottom / deck is coincident and returns nothing. |
+| `full_hull` | `None` | Whether the input carries both sides. `None` auto-detects it (any vertex at `y < 0`); a full hull is first clipped to its `y >= 0` half. Pass `True` / `False` to state it explicitly (e.g. for a port-side half-model that auto-detect would misread). |
+
 #### Persistence
 
 ```python

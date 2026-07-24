@@ -135,13 +135,14 @@ class Volume:
         return v
 
     def reframe(self, n_waterlines: int = 80, points_per_waterline: int = 140,
-                margin: float = 0.01) -> "Volume":
+                margin: float = 0.01, full_hull: bool | None = None) -> "Volume":
         """Rebuild this volume as a clean, watertight, symmetric hull by lofting
         horizontal waterlines. See pymeshup.reframe.reframe."""
         from .reframe import reframe as _reframe  # lazy: avoids circular import
 
         return _reframe(self, n_waterlines=n_waterlines,
-                        points_per_waterline=points_per_waterline, margin=margin)
+                        points_per_waterline=points_per_waterline, margin=margin,
+                        full_hull=full_hull)
 
     @property
     def vertices(self):

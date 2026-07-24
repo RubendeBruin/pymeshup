@@ -19,7 +19,7 @@ import numpy as np
 # loading optional DLLs that may not be present.
 from vtkmodules.vtkCommonCore import vtkPoints
 from vtkmodules.vtkCommonDataModel import vtkPolyData, vtkCellArray, vtkPlane
-from vtkmodules.vtkFiltersCore import vtkCutter
+from vtkmodules.vtkFiltersCore import vtkCutter, vtkClipPolyData
 from vtkmodules.util.numpy_support import (
     vtk_to_numpy,
     numpy_to_vtk,
@@ -171,9 +171,13 @@ def _resample(curve, n):
                             np.interp(t, d, curve[:, 1])])
 
 
-def reframe(volume, n_waterlines=80, points_per_waterline=140, margin=0.01):
+def reframe(volume, n_waterlines=80, points_per_waterline=140, margin=0.01,
+            full_hull=None):
     """Rebuild `volume` as a clean, watertight, symmetric hull by lofting
     horizontal waterlines.
+
+    Symmetry is assumed: a half hull (starboard, y >= 0) is sliced and the
+    result is always mirrored to a full hull.
 
     Args:
         volume: the source Volume (its internal mesh is used as-is).
@@ -181,15 +185,32 @@ def reframe(volume, n_waterlines=80, points_per_waterline=140, margin=0.01):
         points_per_waterline: points each waterline is resampled to.
         margin: fraction of the height held back from the extremes when slicing
             (a cut exactly on the flat bottom / deck is coincident and empty).
+        full_hull: whether the input carries both sides. A full hull is first
+            clipped to its y >= 0 half. None auto-detects it (any vertex at
+            y < 0); pass True/False to state it explicitly.
 
     Returns:
         A new Volume reconstructed from the waterlines.
     """
     from .volumes import Volume  # local import keeps module import lightweight
-    from pymeshlab import PercentageValue
 
     polydata = _polydata_from_volume(volume)
     xmin, xmax, ymin, ymax, zmin, zmax = polydata.GetBounds()
+
+    if full_hull is None:
+        full_hull = ymin < -CENTERLINE_TOL   # anything on the port side?
+    if full_hull:
+        # keep only the y >= 0 half (symmetry assumed; the result is mirrored)
+        plane = vtkPlane()
+        plane.SetOrigin(0.0, 0.0, 0.0)
+        plane.SetNormal(0.0, 1.0, 0.0)
+        clip = vtkClipPolyData()
+        clip.SetInputData(polydata)
+        clip.SetClipFunction(plane)
+        clip.Update()
+        polydata = clip.GetOutput()
+        xmin, xmax, ymin, ymax, zmin, zmax = polydata.GetBounds()
+
     zheight = zmax - zmin
     beam = max(abs(ymin), abs(ymax))
     snap = 0.005 * beam   # snap near-centerline waterline points onto y = 0
@@ -243,8 +264,11 @@ def reframe(volume, n_waterlines=80, points_per_waterline=140, margin=0.01):
                                np.array(faces, dtype=int))
     out.ms.meshing_remove_duplicate_vertices()
     out.ms.meshing_remove_null_faces()
-    out.ms.meshing_merge_close_vertices(threshold=PercentageValue(0.1))
-    for _ in range(3):  # close the raked stem / stern faces (iterate to finish)
+    for _ in range(4):  # close the raked stem / stern faces (iterate to finish)
+        # meshing_close_holes needs an edge-manifold mesh; the loft can leave a
+        # few non-manifold edges at the profile, so repair before each pass.
+        out.ms.meshing_repair_non_manifold_edges()
+        out.ms.meshing_repair_non_manifold_vertices()
         out.ms.meshing_close_holes(maxholesize=100000)
         if out.ms.get_topological_measures().get("boundary_edges") == 0:
             break
