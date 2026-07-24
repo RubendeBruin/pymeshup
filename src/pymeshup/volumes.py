@@ -134,12 +134,14 @@ class Volume:
         v.ms.meshing_invert_face_orientation()
         return v
 
-    def reframe(self, n_frames: int = 25, margin: float = 0.01) -> "Volume":
-        """Re-slice this volume into transverse frames along X and loft them
-        into a new, clean hull Volume. See pymeshup.reframe.reframe."""
+    def reframe(self, n_waterlines: int = 80, points_per_waterline: int = 140,
+                margin: float = 0.01) -> "Volume":
+        """Rebuild this volume as a clean, watertight, symmetric hull by lofting
+        horizontal waterlines. See pymeshup.reframe.reframe."""
         from .reframe import reframe as _reframe  # lazy: avoids circular import
 
-        return _reframe(self, n_frames=n_frames, margin=margin)
+        return _reframe(self, n_waterlines=n_waterlines,
+                        points_per_waterline=points_per_waterline, margin=margin)
 
     @property
     def vertices(self):
