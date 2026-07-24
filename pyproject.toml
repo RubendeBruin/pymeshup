@@ -28,6 +28,11 @@ dependencies = [
     "matplotlib",
     "pymeshlab",
     "cadquery",
+    # -> cadquery pulls in numba (unpinned). Without a floor, uv
+    # backtracks numba to 0.53.1 (no py>=3.12 wheel) trying to satisfy the
+    # newest numpy, and fails to build it. Pinning a modern numba makes uv
+    # drop numpy to a numba-compatible version instead.
+    "numba>=0.60",
 ]
 urls = { "Documentation" = "https://open-ocean.org/" }
 
