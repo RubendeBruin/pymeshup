@@ -5,7 +5,8 @@
 # and lofting them, giving a clean, watertight, port/starboard-symmetric hull
 # Volume (a bulbous bow / stern bulb comes out as one smooth surface).
 
-from pymeshup import Load
+from pymeshup import Load, Plot
+
 
 def test_extract_frames(assets_dir):
     filename = assets_dir / "lq_3dpea.com_kvlcc2.stl"
@@ -17,3 +18,17 @@ def test_extract_frames(assets_dir):
     hull2 = hull.reframe(n_waterlines=10)
 
     _ = hull2.volume
+
+
+def test_make_nice(assets_dir):
+    filename = assets_dir / "lq_3dpea.com_kvlcc2.stl"
+
+    bad_hull = Load(filename)
+
+    # Rebuild a clean hull by lofting horizontal waterlines.
+    hull = bad_hull.reframe(n_waterlines=20)
+    hull = hull.simplify()
+
+    # Plot(hull)
+    #
+    # hull.save('c:/data/tanker.stl')

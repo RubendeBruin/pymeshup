@@ -26,6 +26,8 @@ from vtkmodules.util.numpy_support import (
     numpy_to_vtkIdTypeArray,
 )
 
+from pymeshup import Plot
+
 # transverse distance below which a section point is treated as being on the
 # centerline (y = 0).
 CENTERLINE_TOL = 1e-3
@@ -273,6 +275,11 @@ def reframe(volume, n_waterlines=80, points_per_waterline=140, margin=0.01,
         if out.ms.get_topological_measures().get("boundary_edges") == 0:
             break
     out.ms.meshing_re_orient_faces_coherently()
-    if out.volume < 0:
-        out = out.invert_normals()
+
+    try:
+        if out.volume < 0:
+            out = out.invert_normals()
+    except Exception as e:
+        print(f"Warning: could not invert normals due to: {e}")
+
     return out
